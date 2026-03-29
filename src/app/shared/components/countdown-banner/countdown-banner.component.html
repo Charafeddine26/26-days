@@ -1,0 +1,80 @@
+<div class="drift-glass rounded-drift-md px-6 py-4 flex items-center justify-between text-sm font-body shadow-1"
+     [style.box-shadow]="urgencyRingStyle()">
+  
+  <!-- Left: Days Remaining -->
+  <div class="flex items-center gap-4 w-40">
+    <div class="flex flex-col">
+      <div class="flex items-baseline gap-1.5">
+        <span class="font-bold text-2xl font-body leading-none"
+              [ngClass]="urgencyDaysClass()"
+              [style.color]="urgencyDaysColor()">
+          {{ daysRemaining() }}
+        </span>
+      </div>
+      <!-- Fuel Gauge Line -->
+      <div class="w-16 h-1 mt-1.5 rounded-full bg-drift-text-ghost/30 overflow-hidden">
+        <div class="h-full rounded-full transition-all duration-1000 ease-drift-out"
+             [style.width.%]="(daysRemaining() / 26) * 100"
+             [style.background-color]="urgencyDaysColor()"></div>
+      </div>
+      <span class="text-[10px] text-drift-text-tertiary uppercase tracking-widest mt-1.5">days remaining</span>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="w-px h-12 bg-gradient-to-b from-transparent via-drift-text-ghost/50 to-transparent"></div>
+
+  <!-- Center: Readiness -->
+  <div class="flex items-center gap-6 px-4">
+    <div class="relative w-[48px] h-[48px] flex items-center justify-center">
+      <!-- Arc Gauge -->
+      <svg width="48" height="48" viewBox="0 0 48 48" class="absolute inset-0 -rotate-[210deg] transform-origin-center">
+        <!-- Background Arc -->
+        <circle cx="24" cy="24" r="20" fill="none" class="stroke-drift-text-ghost/30" stroke-width="3"
+                stroke-dasharray="41.888 125.664" stroke-linecap="round"></circle>
+        
+        <!-- Tick marks at 25%, 50%, 75% of the 120deg arc.
+             Total arc = 120deg. Start = 0 in local rotation.
+             25% = 30deg, 50% = 60deg, 75% = 90deg -->
+        <g class="stroke-drift-text-ghost" stroke-width="1">
+          <line x1="40" y1="24" x2="44" y2="24" transform="rotate(30 24 24)" />
+          <line x1="40" y1="24" x2="44" y2="24" transform="rotate(60 24 24)" />
+          <line x1="40" y1="24" x2="44" y2="24" transform="rotate(90 24 24)" />
+        </g>
+        
+        <!-- Filled Arc -->
+        <circle cx="24" cy="24" r="20" fill="none" [attr.stroke]="readinessColor()" stroke-width="3"
+                [attr.stroke-dasharray]="(41.888 * readiness() / 100) + ' 125.664'" stroke-linecap="round"
+                class="transition-all duration-1000 ease-drift-out"></circle>
+      </svg>
+      <span class="font-bold text-sm text-drift-text-primary mt-0.5">{{ readiness() }}%</span>
+    </div>
+    <div class="flex flex-col">
+      <span class="text-[10px] text-drift-text-tertiary uppercase tracking-widest">Readiness</span>
+      <span class="text-xs text-drift-text-secondary mt-0.5">Status Check</span>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="w-px h-12 bg-gradient-to-b from-transparent via-drift-text-ghost/50 to-transparent"></div>
+
+  <!-- Right: Streak -->
+  <div class="flex items-center gap-4 w-40 justify-end">
+    <div class="flex flex-col text-right z-10">
+      <span class="font-bold text-xl font-body text-drift-text-primary leading-none">{{ streak() }}</span>
+      <span class="text-[10px] text-drift-text-tertiary uppercase tracking-widest mt-1.5">Streak</span>
+    </div>
+    
+    <div class="relative w-8 h-8 flex items-center justify-center">
+      <!-- Wisps -->
+      @for (wisp of streakWisps(); track $index) {
+        <lucide-icon [img]="icons.Flame" [size]="24" class="absolute text-drift-rose transition-all duration-700 ease-out"
+                     [style.transform]="'translateX(' + wisp.offsetX + 'px) scale(' + wisp.scale + ')'"
+                     [style.opacity]="wisp.opacity"></lucide-icon>
+      }
+      <!-- Main icon -->
+      <lucide-icon [img]="icons.Flame" [size]="24" class="text-drift-rose relative z-10"
+                   [class.animate-pulse-slow]="streak() > 7"></lucide-icon>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+{
+  "dayNumber": 20,
+  "week": 3,
+  "title": "BOSS BATTLE — The Structure Awakens",
+  "narrativeIntro": "The largest structure in the third region — a complex of interconnected chambers, each dependent on the others — has been dark since you arrived. It's an application. A real one, with routes, components, services, and state management. The builders left it broken.\n\nThree components. One service. Three bugs. 60 minutes to bring the whole system online.",
+  "narrativeOutro": "The structure awakens. Not suddenly — in stages. First the routing map illuminates, then the services pulse, then the components render one by one until the entire complex is alive, glowing with the warm gold of something complete and functioning.\n\nThree clusters active. One remains. The final region is where mastery lives.",
+  "phmChapters": [25],
+  "phmConnectionNote": "A pivotal moment where everything Ryland built is tested. Your Angular knowledge faces its test.",
+  "challengeIds": ["d20-c01"],
+  "concepts": ["components", "services", "routing", "filtering", "state", "composition"],
+  "conceptsPreview": "Boss battle — debug a broken Angular application across service, component, and routing layers",
+  "challenges": [
+    {
+      "id": "d20-c01",
+      "dayNumber": 20,
+      "order": 1,
+      "type": "debug",
+      "difficulty": "boss",
+      "concepts": ["services", "components", "routing", "filtering", "state"],
+      "week": 3,
+      "title": "The Structure Awakens",
+      "narrativeHook": "Service is broken. Component reads the wrong property. Navigation points nowhere. Fix all three.",
+      "instructions": "This application has three bugs across three files.\n\n**Bug 1 — `catalog.component.ts`:** `filteredStations` filters on the wrong property. It should filter on `name`, not `id`.\n\n**Bug 2 — `detail.component.ts`:** `displayTitle` shows the wrong field. It should show `station.name`, not `station.id`.\n\n**Bug 3 — `app.service.ts`:** The `getById()` method compares with `===` but `id` from the route is a string. Coerce it to a number.\n\nAll three tests must pass.",
+      "environment": "stackblitz",
+      "starterCode": "// Open the tabs above to see the three files with bugs.",
+      "files": [
+        {
+          "name": "catalog.component.ts",
+          "language": "typescript",
+          "content": "export class CatalogComponent {\n  searchTerm = '';\n  stations = [\n    { id: 1, name: 'Relay Alpha' },\n    { id: 2, name: 'Probe Beta' },\n    { id: 3, name: 'Node Gamma' },\n  ];\n  get filteredStations() {\n    if (!this.searchTerm) return this.stations;\n    return this.stations.filter(s =>\n      String(s.id).includes(this.searchTerm)  // Bug: should filter on s.name\n    );\n  }\n}"
+        },
+        {
+          "name": "detail.component.ts",
+          "language": "typescript",
+          "content": "export class DetailComponent {\n  station = null;\n\n  get displayTitle() {\n    if (!this.station) return 'Loading...';\n    return 'Station: ' + this.station.id;  // Bug: should be this.station.name\n  }\n}"
+        },
+        {
+          "name": "app.service.ts",
+          "language": "typescript",
+          "content": "export class AppService {\n  private stations = [\n    { id: 1, name: 'Relay Alpha' },\n    { id: 2, name: 'Probe Beta' },\n    { id: 3, name: 'Node Gamma' },\n  ];\n\n  getAll() {\n    return this.stations;\n  }\n\n  getById(id) {\n    return this.stations.find(s => s.id === id) ?? null;  // Bug: id from route is string, s.id is number\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "// catalog.component.ts — fixed\nexport class CatalogComponent {\n  searchTerm = '';\n  stations = [\n    { id: 1, name: 'Relay Alpha' },\n    { id: 2, name: 'Probe Beta' },\n    { id: 3, name: 'Node Gamma' },\n  ];\n  get filteredStations() {\n    if (!this.searchTerm) return this.stations;\n    return this.stations.filter(s =>\n      s.name.toLowerCase().includes(this.searchTerm.toLowerCase())\n    );\n  }\n}\n\n// detail.component.ts — fixed\nexport class DetailComponent {\n  station = null;\n\n  get displayTitle() {\n    if (!this.station) return 'Loading...';\n    return 'Station: ' + this.station.name;\n  }\n}\n\n// app.service.ts — fixed\nexport class AppService {\n  private stations = [\n    { id: 1, name: 'Relay Alpha' },\n    { id: 2, name: 'Probe Beta' },\n    { id: 3, name: 'Node Gamma' },\n  ];\n  getAll() { return this.stations; }\n  getById(id) {\n    return this.stations.find(s => s.id === Number(id)) ?? null;\n  }\n}",
+      "tests": [
+        {
+          "description": "CatalogComponent: filteredStations with 'alpha' should match by name",
+          "testCode": "const c = new CatalogComponent(); c.searchTerm = 'alpha'; if (c.filteredStations.length !== 1 || c.filteredStations[0].name !== 'Relay Alpha') throw new Error(`filteredStations('alpha') should return Relay Alpha, got ${JSON.stringify(c.filteredStations)}`);"
+        },
+        {
+          "description": "DetailComponent: displayTitle should use station.name",
+          "testCode": "const d = new DetailComponent(); d.station = { id: 2, name: 'Probe Beta' }; if (d.displayTitle !== 'Station: Probe Beta') throw new Error(`displayTitle should be 'Station: Probe Beta', got '${d.displayTitle}'`);"
+        },
+        {
+          "description": "AppService: getById should work with string id from route params",
+          "testCode": "const s = new AppService(); const result = s.getById('2'); if (!result || result.name !== 'Probe Beta') throw new Error(`getById('2') should return Probe Beta, got ${JSON.stringify(result)}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Describe each of the three bugs you fixed. For bug 3, explain why '2' === 2 is false in JavaScript and how Number() solves it.",
+        "keywords": ["type", "strict", "coerce", "number", "string"],
+        "minLength": 50
+      },
+      "hints": [
+        "Bug 1: Change String(s.id).includes(searchTerm) to s.name.toLowerCase().includes(searchTerm.toLowerCase())",
+        "Bug 2: Change this.station.id to this.station.name in displayTitle",
+        "Bug 3: Route params are always strings. '2' === 2 is false (strict equality, different types). Use Number(id) to coerce: s.id === Number(id)"
+      ],
+      "xpReward": 100,
+      "bonusXp": {
+        "noHints": 15,
+        "firstTry": 25,
+        "speedBonus": 20,
+        "speedThresholdMs": 2400000
+      },
+      "timeLimitMinutes": 60
+    }
+  ]
+}

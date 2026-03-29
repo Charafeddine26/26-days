@@ -1,0 +1,166 @@
+{
+  "dayNumber": 10,
+  "week": 2,
+  "title": "Async Fluency",
+  "narrativeIntro": "There's an easier way to speak with time. Instead of chaining and nesting, you can simply wait. The word is literal: await. Tell the system you're willing to pause, and it gives you the value when it's ready. The code reads like prose instead of machinery.",
+  "narrativeOutro": "The code you write now reads like a story: do this, wait for that, then continue. No more nesting into oblivion. The structures in this region respond to you fluidly, as if you've learned their natural cadence.",
+  "phmChapters": [13, 14],
+  "phmConnectionNote": "Ryland and Rocky develop a smoother communication system. You learn async/await -- the cleaner syntax for promises.",
+  "challengeIds": ["d10-c01", "d10-c02", "d10-c03", "d10-c04"],
+  "concepts": ["async-await", "async-function", "await", "try-catch", "promise-rewrite", "error-handling"],
+  "conceptsPreview": "Async/await syntax and asynchronous error handling",
+  "challenges": [
+    {
+      "id": "d10-c01",
+      "dayNumber": 10,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "steady",
+      "concepts": ["async-await", "promises", "execution-order"],
+      "week": 2,
+      "title": "Await Result",
+      "narrativeHook": "An async function awaits a promise. What value comes out the other side?",
+      "instructions": "Read the code below. An async function awaits a resolved promise and returns the value. The result is then logged via `.then()`.\n\nWithout running it, trace what `await Promise.resolve(\"ready\")` produces, what the function returns, and what `.then()` receives.",
+      "starterCode": "// Read-only — predict the output\nasync function getData() {\n  const value = await Promise.resolve(\"ready\");\n  return value;\n}\n\ngetData().then(result => console.log(result));",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: \"ready\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 7 }],
+      "predictPrompt": "What will be logged?",
+      "predictChoices": ["\"ready\"", "Promise { 'ready' }", "undefined", "Error"],
+      "predictAnswer": "\"ready\"",
+      "tests": [],
+      "hints": [
+        "await unwraps the promise and gives you the resolved value directly.",
+        "await Promise.resolve('ready') evaluates to the string 'ready'.",
+        "An async function wraps its return value in a promise, so .then() receives 'ready'."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d10-c02",
+      "dayNumber": 10,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["async-await", "promise-chain-to-async"],
+      "week": 2,
+      "title": "Rewrite as Async",
+      "narrativeHook": "A promise chain works but the nesting is growing. Rewrite it as readable async/await.",
+      "instructions": "The commented-out promise chain fetches a user then their posts. Rewrite `loadUserPosts` using async/await so it returns the number of posts.\n\nThe simulated API functions are read-only.",
+      "starterCode": "// Original promise chain (for reference only):\n// fetchUser(1)\n//   .then(user => fetchPosts(user.id))\n//   .then(posts => posts.length)\n//   .catch(err => \"Error: \" + err);\n\n// Simulated APIs (don't modify):\nfunction fetchUser(id) {\n  return Promise.resolve({ id, name: \"Grace\" });\n}\nfunction fetchPosts(userId) {\n  return Promise.resolve([{ title: \"Post 1\" }, { title: \"Post 2\" }]);\n}\n\n// Rewrite as async/await:\nasync function loadUserPosts() {\n  // Your code here\n}",
+      "solution": "function fetchUser(id) {\n  return Promise.resolve({ id, name: \"Grace\" });\n}\nfunction fetchPosts(userId) {\n  return Promise.resolve([{ title: \"Post 1\" }, { title: \"Post 2\" }]);\n}\n\nasync function loadUserPosts() {\n  try {\n    const user = await fetchUser(1);\n    const posts = await fetchPosts(user.id);\n    return posts.length;\n  } catch (err) {\n    return \"Error: \" + err;\n  }\n}",
+      "readOnlyRegions": [{ "startLine": 7, "endLine": 13 }],
+      "tests": [
+        {
+          "description": "loadUserPosts should return 2 (the number of posts)",
+          "testCode": "const result = await loadUserPosts(); if (result !== 2) throw new Error(`Expected 2, got ${result}`);"
+        },
+        {
+          "description": "loadUserPosts should be an async function",
+          "testCode": "if (loadUserPosts.constructor.name !== 'AsyncFunction') throw new Error('loadUserPosts should be declared with the async keyword');"
+        }
+      ],
+      "hints": [
+        "Add the async keyword before the function: async function loadUserPosts() { ... }",
+        "Use const user = await fetchUser(1); instead of .then(user => ...)",
+        "Wrap in try/catch to handle errors instead of .catch()"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d10-c03",
+      "dayNumber": 10,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["async-await", "async-function", "await"],
+      "week": 2,
+      "title": "Missing Async",
+      "narrativeHook": "The await is there but the function isn't async. The system chokes.",
+      "instructions": "This function uses `await` to get crew data and return the name. But it crashes with a syntax error.\n\nThere is exactly one bug. Find it and fix it.",
+      "starterCode": "// This should return the crew member's name, but it crashes.\n// Fix it.\nfunction getCrewData() {\n  const data = await Promise.resolve({ name: \"Grace\", role: \"scientist\" });\n  return data.name;\n}\n\nlet crewName = null;\ngetCrewData().then(name => { crewName = name; });",
+      "solution": "async function getCrewData() {\n  const data = await Promise.resolve({ name: \"Grace\", role: \"scientist\" });\n  return data.name;\n}\n\nlet crewName = null;\ngetCrewData().then(name => { crewName = name; });",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "getCrewData should be an async function",
+          "testCode": "if (getCrewData.constructor.name !== 'AsyncFunction') throw new Error('getCrewData must be declared with the async keyword');"
+        },
+        {
+          "description": "crewName should be 'Grace' after awaiting",
+          "testCode": "await new Promise(r => setTimeout(r, 10)); if (crewName !== 'Grace') throw new Error(`crewName should be 'Grace', got '${crewName}'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What does the async keyword do, and why is it required when using await?",
+        "keywords": ["async", "await", "function", "promise"],
+        "minLength": 25
+      },
+      "hints": [
+        "You can only use await inside a function declared with async.",
+        "Add the async keyword before the function keyword on line 3.",
+        "async function getCrewData() { ... } — that's the only change needed."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d10-c04",
+      "dayNumber": 10,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["async-await", "try-catch", "error-handling"],
+      "week": 2,
+      "title": "Safe Load",
+      "narrativeHook": "Fetch data, handle the loading state, handle the error state.",
+      "instructions": "Write an async function `safeLoad` that takes any promise and returns a result object:\n- If the promise resolves: return `{ ok: true, data: value }`\n- If the promise rejects: return `{ ok: false, error: message }`\n\nUse try/catch to handle both cases.",
+      "starterCode": "// safeLoad wraps any promise and normalizes the result:\n// { ok: true, data: value }    on resolve\n// { ok: false, error: message } on reject\nasync function safeLoad(promise) {\n  // Your code here\n}",
+      "solution": "async function safeLoad(promise) {\n  try {\n    const value = await promise;\n    return { ok: true, data: value };\n  } catch (err) {\n    return { ok: false, error: err };\n  }\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "Should return { ok: true, data: 'connected' } for a resolving promise",
+          "testCode": "const r = await safeLoad(Promise.resolve('connected')); if (!r.ok || r.data !== 'connected') throw new Error(`Expected { ok: true, data: 'connected' }, got ${JSON.stringify(r)}`);"
+        },
+        {
+          "description": "Should return { ok: false, error: 'timeout' } for a rejecting promise",
+          "testCode": "const r = await safeLoad(Promise.reject('timeout')); if (r.ok || r.error !== 'timeout') throw new Error(`Expected { ok: false, error: 'timeout' }, got ${JSON.stringify(r)}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is the role of try/catch inside an async function?",
+        "keywords": ["catch", "reject", "error", "await"],
+        "minLength": 25
+      },
+      "hints": [
+        "Use try { const value = await promise; } to handle the resolved case.",
+        "Use catch (err) { } to intercept the rejected case -- err receives the rejection value.",
+        "Return the appropriate object from each branch: { ok: true, data: value } or { ok: false, error: err }."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

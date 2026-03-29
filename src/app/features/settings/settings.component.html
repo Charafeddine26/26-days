@@ -1,0 +1,137 @@
+<div class="min-h-screen bg-drift-deep p-6 md:p-10 animate-fade-in">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <button
+      (click)="goHome()"
+      class="flex items-center gap-2 text-drift-text-secondary hover:text-drift-lavender transition-colors mb-6"
+    >
+      <lucide-icon [img]="icons.ChevronLeft" [size]="18"></lucide-icon>
+      <span class="text-sm font-body">Back to Map</span>
+    </button>
+
+    <h1 class="font-display text-3xl text-drift-text-primary mb-8">Settings</h1>
+
+    <div class="space-y-6">
+      <!-- Start Date -->
+      <div class="drift-card">
+        <div class="flex items-center gap-3 mb-3">
+          <lucide-icon [img]="icons.Calendar" [size]="18" class="text-drift-lavender"></lucide-icon>
+          <h3 class="font-body text-sm font-medium text-drift-text-primary">Internship Start Date</h3>
+        </div>
+        <input
+          type="date"
+          [value]="startDate()"
+          (input)="onStartDateChange($any($event.target).value)"
+          class="bg-drift-surface text-drift-text-primary font-body text-sm px-4 py-2 rounded-drift-sm border border-drift-lavender/15 focus:border-drift-lavender/40 focus:outline-none transition-colors w-full"
+        />
+      </div>
+
+      <!-- Calendar Lock -->
+      <div class="drift-card">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-body text-sm font-medium text-drift-text-primary">Calendar Lock</h3>
+            <p class="text-xs text-drift-text-tertiary mt-1">Days unlock based on real calendar dates</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              [checked]="calendarLock()"
+              (change)="onCalendarLockChange($any($event.target).checked)"
+              class="sr-only peer"
+            />
+            <div class="w-10 h-5 bg-drift-surface rounded-full peer peer-checked:bg-drift-lavender/40 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-drift-text-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sound Volume -->
+      <div class="drift-card">
+        <div class="flex items-center gap-3 mb-3">
+          <lucide-icon [img]="icons.Volume2" [size]="18" class="text-drift-ice"></lucide-icon>
+          <h3 class="font-body text-sm font-medium text-drift-text-primary">Sound Volume</h3>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          [value]="soundVolume()"
+          (input)="onVolumeChange(+$any($event.target).value)"
+          class="w-full accent-drift-lavender"
+        />
+      </div>
+
+      <!-- Export / Import -->
+      <div class="drift-card">
+        <h3 class="font-body text-sm font-medium text-drift-text-primary mb-4">Data</h3>
+        <div class="flex gap-3">
+          <button (click)="exportProgress()" class="drift-btn-secondary flex items-center gap-2">
+            <lucide-icon [img]="icons.Download" [size]="16"></lucide-icon>
+            <span>Export</span>
+          </button>
+          <button (click)="triggerImport()" class="drift-btn-secondary flex items-center gap-2">
+            <lucide-icon [img]="icons.Upload" [size]="16"></lucide-icon>
+            <span>Import</span>
+          </button>
+        </div>
+        @if (importSuccess()) {
+          <p class="text-xs text-drift-sage mt-2">Progress imported successfully.</p>
+        }
+        @if (importError()) {
+          <p class="text-xs text-drift-fail mt-2">{{ importError() }}</p>
+        }
+      </div>
+
+      <!-- Dev Tools -->
+      <div class="drift-card border-drift-gold/20">
+        <div class="flex items-center gap-3 mb-3">
+          <lucide-icon [img]="icons.Unlock" [size]="18" class="text-drift-gold"></lucide-icon>
+          <h3 class="font-body text-sm font-medium text-drift-gold">Dev Tools</h3>
+        </div>
+        <p class="text-xs text-drift-text-tertiary mb-4">Unlock all 26 days for testing. Challenges remain fresh.</p>
+        <button
+          (click)="devUnlockAll()"
+          [disabled]="devUnlockDone()"
+          class="drift-btn-secondary flex items-center gap-2 border-drift-gold/20 text-drift-gold hover:bg-drift-gold/10 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <lucide-icon [img]="icons.Unlock" [size]="14"></lucide-icon>
+          <span>{{ devUnlockDone() ? 'All days unlocked' : 'Unlock all days' }}</span>
+        </button>
+      </div>
+
+      <!-- Reset -->
+      <div class="drift-card border-drift-fail/10">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-body text-sm font-medium text-drift-fail">Reset All Data</h3>
+            <p class="text-xs text-drift-text-tertiary mt-1">This cannot be undone</p>
+          </div>
+          @if (!showResetConfirm()) {
+            <button
+              (click)="showResetConfirm.set(true)"
+              class="text-sm text-drift-fail border border-drift-fail/20 rounded-drift-sm px-4 py-2 hover:bg-drift-fail/10 transition-colors"
+            >
+              <lucide-icon [img]="icons.Trash2" [size]="16"></lucide-icon>
+            </button>
+          } @else {
+            <div class="flex gap-2">
+              <button
+                (click)="showResetConfirm.set(false)"
+                class="drift-btn-secondary !py-1.5 !px-3 text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                (click)="confirmReset()"
+                class="text-xs bg-drift-fail text-drift-void px-3 py-1.5 rounded-drift-sm font-medium"
+              >
+                Confirm Reset
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

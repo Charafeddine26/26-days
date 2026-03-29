@@ -1,0 +1,232 @@
+{
+  "dayNumber": 1,
+  "week": 1,
+  "title": "Awakening",
+  "narrativeIntro": "You open your eyes to soft light. It's not sunlight -- it's something cooler, more diffused, like dawn filtered through deep water. You're floating, or close to it. The space around you is vast and formless, a watercolor indigo that stretches in every direction.\n\nThere are structures here. You can feel them more than see them -- shapes at the edge of perception, dormant, waiting. They're built in a language you don't understand. Not yet.\n\nThe first step is always the same: name what you see.",
+  "narrativeOutro": "Five small lights where there were none. It doesn't seem like much, but look at the map -- where everything was dark, something now responds to you. The Drift noticed. You named things, and naming things is the first act of understanding.\n\nRest. Tomorrow, the patterns get more complex.",
+  "phmChapters": [1, 2],
+  "phmConnectionNote": "Like Ryland, you wake up with no context. Everything is unfamiliar. You start by naming what you see.",
+  "challengeIds": ["d01-c01", "d01-c02", "d01-c03", "d01-c04", "d01-c05"],
+  "concepts": ["typeof", "primitive-types", "variables", "let", "const", "assignment", "reassignment-error", "type-coercion", "strings", "numbers", "booleans", "string-concatenation"],
+  "conceptsPreview": "Variables, constants, and basic types",
+  "challenges": [
+    {
+      "id": "d01-c01",
+      "dayNumber": 1,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["typeof", "primitive-types"],
+      "week": 1,
+      "title": "The First Signal",
+      "narrativeHook": "A symbol pulses faintly on the nearest surface. What does it represent?",
+      "instructions": "Read the code below carefully. Without running it, predict what `console.log(result)` will output.\n\nThe variable `signal` holds a value. The `typeof` operator is applied to it. What does the console respond?",
+      "starterCode": "// Read-only — predict the output\nlet signal = 42;\nlet result = typeof signal;\nconsole.log(result);",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: \"number\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 4 }],
+      "predictPrompt": "What will be logged to the console?",
+      "predictChoices": ["42", "\"number\"", "\"string\"", "undefined"],
+      "predictAnswer": "\"number\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What does the typeof operator return, and why is it a string?",
+        "keywords": ["string", "type", "describes"],
+        "minLength": 30
+      },
+      "hints": [
+        "typeof returns a string describing the type of a value — not the value itself.",
+        "typeof 42 doesn't return the number. It returns a word.",
+        "Numbers are described by the word \"number\". That's what typeof returns."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d01-c02",
+      "dayNumber": 1,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["variables", "let", "const", "assignment"],
+      "week": 1,
+      "title": "Naming Things",
+      "narrativeHook": "The console responds to names. Give this value an identity.",
+      "instructions": "The system has detected three signals but they haven't been named. Declare the variables as instructed in the comments.\n\n- `station` should hold `\"Drift-7\"` — this value might change later.\n- `crew` should hold `1` — this will never change.\n- `status` should hold `undefined` — the value isn't known yet, but it will be once the system wakes up.",
+      "starterCode": "// Declare a variable called 'station' with the value \"Drift-7\"\n// (this value might change later)\n// Your code here\n\n// Declare a constant called 'crew' with the value 1\n// (this will never change)\n// Your code here\n\n// Declare a variable called 'status' with the value undefined\n// (we don't know the status yet)\n// Your code here",
+      "solution": "// Declare a variable called 'station' with the value \"Drift-7\"\n// (this value might change later)\nlet station = \"Drift-7\";\n\n// Declare a constant called 'crew' with the value 1\n// (this will never change)\nconst crew = 1;\n\n// Declare a variable called 'status' with the value undefined\n// (we don't know the status yet)\nlet status = undefined;",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "station should equal 'Drift-7'",
+          "testCode": "if (station !== 'Drift-7') throw new Error(`Expected 'Drift-7', got '${station}'`);"
+        },
+        {
+          "description": "station should be declared with let (reassignable)",
+          "testCode": "try { station = 'test'; station = 'Drift-7'; } catch(e) { throw new Error('station should be reassignable — use let, not const'); }"
+        },
+        {
+          "description": "crew should equal 1",
+          "testCode": "if (crew !== 1) throw new Error(`Expected 1, got ${crew}`);"
+        },
+        {
+          "description": "crew should be a constant (not reassignable)",
+          "testCode": "try { crew = 2; throw new Error('crew should not be reassignable — use const, not let'); } catch(e) { if (e.message.includes('should not')) throw e; }"
+        },
+        {
+          "description": "status should be undefined",
+          "testCode": "if (status !== undefined) throw new Error(`Expected undefined, got ${status}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "When would you use let vs const?",
+        "keywords": ["change", "reassign", "constant"],
+        "minLength": 30
+      },
+      "hints": [
+        "Use 'let' for values that might change, 'const' for values that won't.",
+        "You can explicitly assign undefined to a variable: let x = undefined;",
+        "The pattern: const crew = 1; for fixed values. let station = \"Drift-7\"; for changeable ones."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d01-c03",
+      "dayNumber": 1,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "gentle",
+      "concepts": ["const", "reassignment-error"],
+      "week": 1,
+      "title": "The Corrupted Label",
+      "narrativeHook": "Something was named wrong. The system rejects it. Find the error.",
+      "instructions": "This code tries to update the station's name, but it crashes. The system throws an error on the second line because a naming rule was broken.\n\nFind and fix the single bug. The station name should successfully update to `\"Drift-9\"`.",
+      "starterCode": "const stationName = \"Drift-7\";\nstationName = \"Drift-9\";\nconsole.log(stationName);",
+      "solution": "let stationName = \"Drift-7\";\nstationName = \"Drift-9\";\nconsole.log(stationName);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "stationName should equal 'Drift-9'",
+          "testCode": "if (stationName !== 'Drift-9') throw new Error(`Expected 'Drift-9', got '${stationName}'`);"
+        },
+        {
+          "description": "Code should run without errors",
+          "testCode": "if (typeof stationName === 'undefined') throw new Error('stationName was never declared');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why did using const cause the error?",
+        "keywords": ["const", "reassign", "change"],
+        "minLength": 25
+      },
+      "hints": [
+        "Read the error message carefully — what does 'Assignment to constant variable' tell you?",
+        "const means the variable can never be reassigned after its initial value is set.",
+        "Change const to let on the first line. That's the only change needed."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d01-c04",
+      "dayNumber": 1,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["let-vs-const", "strings", "numbers", "booleans"],
+      "week": 1,
+      "title": "Fixed and Fluid",
+      "narrativeHook": "Two values. The system asks which one can change and which is fixed.",
+      "instructions": "Declare the following four variables with the correct keyword — `let` or `const` — based on whether the value should be changeable.\n\n- `maxFuel` — holds `100`, never changes\n- `currentFuel` — starts at `100`, can decrease over time\n- `engineRunning` — starts as `false`, can be toggled\n- `shipName` — holds `\"Hail Mary\"`, never changes\n\nThe system will test both the values and whether each variable is correctly fixed or fluid.",
+      "starterCode": "// maxFuel: 100, never changes\n// Your code here\n\n// currentFuel: starts at 100, can decrease\n// Your code here\n\n// engineRunning: starts as false, can be toggled\n// Your code here\n\n// shipName: \"Hail Mary\", never changes\n// Your code here",
+      "solution": "// maxFuel: 100, never changes\nconst maxFuel = 100;\n\n// currentFuel: starts at 100, can decrease\nlet currentFuel = 100;\n\n// engineRunning: starts as false, can be toggled\nlet engineRunning = false;\n\n// shipName: \"Hail Mary\", never changes\nconst shipName = \"Hail Mary\";",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "maxFuel should be 100 and constant",
+          "testCode": "if (maxFuel !== 100) throw new Error(`maxFuel should be 100, got ${maxFuel}`); try { maxFuel = 0; throw new Error('maxFuel should be constant — use const'); } catch(e) { if (e.message.includes('should be')) throw e; }"
+        },
+        {
+          "description": "currentFuel should be 100 and reassignable",
+          "testCode": "if (currentFuel !== 100) throw new Error(`currentFuel should start at 100, got ${currentFuel}`); try { currentFuel = 50; currentFuel = 100; } catch(e) { throw new Error('currentFuel should be reassignable — use let, not const'); }"
+        },
+        {
+          "description": "engineRunning should be false and reassignable",
+          "testCode": "if (engineRunning !== false) throw new Error(`engineRunning should start as false, got ${engineRunning}`); try { engineRunning = true; engineRunning = false; } catch(e) { throw new Error('engineRunning should be reassignable — use let, not const'); }"
+        },
+        {
+          "description": "shipName should be 'Hail Mary' and constant",
+          "testCode": "if (shipName !== 'Hail Mary') throw new Error(`shipName should be 'Hail Mary', got '${shipName}'`); try { shipName = 'x'; throw new Error('shipName should be constant — use const'); } catch(e) { if (e.message.includes('should be')) throw e; }"
+        }
+      ],
+      "hints": [
+        "If a value should never change after being set, use const. If it needs to be updated later, use let.",
+        "Two of these are fixed (const) and two are fluid (let). Which values does the description say can change?",
+        "const maxFuel = 100; and const shipName = \"Hail Mary\"; are fixed. let currentFuel = 100; and let engineRunning = false; are fluid."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d01-c05",
+      "dayNumber": 1,
+      "order": 5,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["string-concatenation", "type-coercion"],
+      "week": 1,
+      "title": "Echo",
+      "narrativeHook": "You type a name. The system echoes something back. What will it say?",
+      "instructions": "Read the code below. Two lines will be logged to the console. Predict both.\n\nPay close attention to what happens when a string meets a number through the `+` operator. The system doesn't always do what you expect.",
+      "starterCode": "// Read-only — predict the output\nlet count = 5;\nlet message = \"Signals detected: \" + count;\nconsole.log(message);\nconsole.log(typeof message);",
+      "solution": "// No code changes — this is a prediction challenge.\n// Line 1 logs: Signals detected: 5\n// Line 2 logs: string",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 5 }],
+      "predictPrompt": "What two lines will the console respond with?",
+      "predictChoices": [
+        "Signals detected: 5\nnumber",
+        "Signals detected: 5\nstring",
+        "Signals detected: 5\nundefined",
+        "Error: cannot add string and number"
+      ],
+      "predictAnswer": "Signals detected: 5\nstring",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why is the result a string even though count is a number?",
+        "keywords": ["coercion", "convert", "string", "concatenat"],
+        "minLength": 30
+      },
+      "hints": [
+        "When you use + between a string and a number, JavaScript doesn't refuse. It converts one of them.",
+        "The number becomes part of the string. The result of string + anything is always a string.",
+        "So typeof message will be \"string\" — the number 5 was absorbed into the text."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    }
+  ]
+}

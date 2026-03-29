@@ -1,0 +1,264 @@
+{
+  "dayNumber": 3,
+  "week": 1,
+  "title": "Responses",
+  "narrativeIntro": "The Drift doesn't just store data -- it reacts. Touch a structure and it changes state. Provide a condition and the entire pathway reroutes. This place is conditional at its core: if one thing is true, the light flows one way. If not, another path illuminates.\n\nYou're not just reading anymore. You're making decisions. The Drift follows.",
+  "narrativeOutro": "You've taught the system to choose. Conditions, branches, cascading logic -- the Drift's pathways are becoming more sophisticated under your hands. What was binary is now nuanced. Three more lights join the constellation.",
+  "phmChapters": [5, 6],
+  "phmConnectionNote": "Ryland begins experimenting with the ship, getting the systems to respond. You learn to make code respond to conditions.",
+  "challengeIds": ["d03-c01", "d03-c02", "d03-c03", "d03-c04", "d03-c05"],
+  "concepts": ["if-else", "comparison", "boolean", "comparison-operators", "return", "logical-operators", "negation", "boolean-logic", "switch", "complex-conditions", "conditionals", "typeof", "arrays", "combined-logic"],
+  "conceptsPreview": "Conditionals, switch statements, and logical operators",
+  "challenges": [
+    {
+      "id": "d03-c01",
+      "dayNumber": 3,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["if-else", "comparison", "boolean"],
+      "week": 1,
+      "title": "Which Path",
+      "narrativeHook": "Two paths diverge. The condition is set. Which path lights up?",
+      "instructions": "Read the code below. The fuel gauge holds a value, and three pathways diverge based on that value.\n\nWithout running it, trace the conditions from top to bottom and predict which path the system takes -- what does the console respond with?",
+      "starterCode": "// Read-only — predict the output\nconst fuel = 30;\nif (fuel > 50) {\n  console.log(\"Safe\");\n} else if (fuel > 20) {\n  console.log(\"Low\");\n} else {\n  console.log(\"Critical\");\n}",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: \"Low\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 9 }],
+      "predictPrompt": "What will be logged to the console?",
+      "predictChoices": ["\"Safe\"", "\"Low\"", "\"Critical\""],
+      "predictAnswer": "\"Low\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does the code log 'Low' and not 'Safe' or 'Critical'?",
+        "keywords": ["30", "50", "20", "condition", "false"],
+        "minLength": 25
+      },
+      "hints": [
+        "Trace the conditions from top to bottom -- the first true one wins.",
+        "Is 30 > 50? No. Is 30 > 20? Yes.",
+        "The else if block runs because fuel > 50 is false but fuel > 20 is true."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d03-c02",
+      "dayNumber": 3,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["if-else", "comparison-operators", "return"],
+      "week": 1,
+      "title": "Decision Gate",
+      "narrativeHook": "The system needs a decision gate. Write the condition that routes the flow.",
+      "instructions": "Write a function `checkAccess` that takes a `clearanceLevel` (number) and returns:\n- `\"granted\"` if clearance is 3 or higher\n- `\"limited\"` if clearance is 1 or 2\n- `\"denied\"` if clearance is 0 or less\n\nCheck the highest threshold first -- otherwise a level-3 clearance might match the wrong branch.",
+      "starterCode": "function checkAccess(clearanceLevel) {\n  // Your code here\n}",
+      "solution": "function checkAccess(clearanceLevel) {\n  if (clearanceLevel >= 3) {\n    return \"granted\";\n  } else if (clearanceLevel >= 1) {\n    return \"limited\";\n  } else {\n    return \"denied\";\n  }\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "clearance 5 should return 'granted'",
+          "testCode": "if (checkAccess(5) !== 'granted') throw new Error('Expected granted for clearance 5');"
+        },
+        {
+          "description": "clearance 3 should return 'granted'",
+          "testCode": "if (checkAccess(3) !== 'granted') throw new Error('Expected granted for clearance 3');"
+        },
+        {
+          "description": "clearance 2 should return 'limited'",
+          "testCode": "if (checkAccess(2) !== 'limited') throw new Error('Expected limited for clearance 2');"
+        },
+        {
+          "description": "clearance 0 should return 'denied'",
+          "testCode": "if (checkAccess(0) !== 'denied') throw new Error('Expected denied for clearance 0');"
+        },
+        {
+          "description": "clearance -1 should return 'denied'",
+          "testCode": "if (checkAccess(-1) !== 'denied') throw new Error('Expected denied for clearance -1');"
+        }
+      ],
+      "hints": [
+        "Use >= for 'greater than or equal to'.",
+        "Check the highest threshold first -- otherwise clearance 3 could match the level-1 branch before reaching level-3.",
+        "if (clearanceLevel >= 3) { return 'granted'; } else if (clearanceLevel >= 1) { return 'limited'; } else { return 'denied'; }"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d03-c03",
+      "dayNumber": 3,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["logical-operators", "negation", "boolean-logic"],
+      "week": 1,
+      "title": "Inverted Logic",
+      "narrativeHook": "The logic is inverted. Things that should pass are blocked, and vice versa.",
+      "instructions": "The alarm system is backwards -- it activates when everything is fine and stays silent when there's danger.\n\nThere is exactly one bug: the condition logic. Fix it so `shouldAlarm` returns `true` when any danger is present and `false` when all is clear.",
+      "starterCode": "function shouldAlarm(oxygenLow, hullBreach, fireDetected) {\n  if (!oxygenLow && !hullBreach && !fireDetected) {\n    return true;  // alarm ON\n  } else {\n    return false; // alarm OFF\n  }\n}",
+      "solution": "function shouldAlarm(oxygenLow, hullBreach, fireDetected) {\n  if (oxygenLow || hullBreach || fireDetected) {\n    return true;\n  } else {\n    return false;\n  }\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "should alarm when oxygen is low",
+          "testCode": "if (shouldAlarm(true, false, false) !== true) throw new Error('Should alarm when oxygen is low');"
+        },
+        {
+          "description": "should alarm when hull breach detected",
+          "testCode": "if (shouldAlarm(false, true, false) !== true) throw new Error('Should alarm on hull breach');"
+        },
+        {
+          "description": "should alarm when fire detected",
+          "testCode": "if (shouldAlarm(false, false, true) !== true) throw new Error('Should alarm on fire');"
+        },
+        {
+          "description": "should NOT alarm when everything is fine",
+          "testCode": "if (shouldAlarm(false, false, false) !== false) throw new Error('Should not alarm when all clear');"
+        },
+        {
+          "description": "should alarm when multiple dangers present",
+          "testCode": "if (shouldAlarm(true, true, false) !== true) throw new Error('Should alarm on multiple dangers');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is the difference between && and || in a condition like this?",
+        "keywords": ["and", "or", "any", "all"],
+        "minLength": 30
+      },
+      "hints": [
+        "The alarm should be ON when any danger is present -- not when all dangers are absent.",
+        "Replace && (all must be true) with || (any can be true).",
+        "Remove the ! (not) operators from each flag. The correct condition is: oxygenLow || hullBreach || fireDetected."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d03-c04",
+      "dayNumber": 3,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["switch", "complex-conditions"],
+      "week": 1,
+      "title": "Cascade Check",
+      "narrativeHook": "A series of checks, each more specific. Build the cascade.",
+      "instructions": "Write a function `getStatusMessage` that takes a status code (string) and returns the appropriate message using a `switch` statement:\n- `\"green\"` → `\"All systems operational\"`\n- `\"yellow\"` → `\"Minor issues detected\"`\n- `\"red\"` → `\"Critical failure\"`\n- anything else → `\"Unknown status\"`",
+      "starterCode": "function getStatusMessage(code) {\n  // Use a switch statement\n}",
+      "solution": "function getStatusMessage(code) {\n  switch (code) {\n    case \"green\":\n      return \"All systems operational\";\n    case \"yellow\":\n      return \"Minor issues detected\";\n    case \"red\":\n      return \"Critical failure\";\n    default:\n      return \"Unknown status\";\n  }\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "'green' should return 'All systems operational'",
+          "testCode": "if (getStatusMessage('green') !== 'All systems operational') throw new Error('Wrong message for green');"
+        },
+        {
+          "description": "'yellow' should return 'Minor issues detected'",
+          "testCode": "if (getStatusMessage('yellow') !== 'Minor issues detected') throw new Error('Wrong message for yellow');"
+        },
+        {
+          "description": "'red' should return 'Critical failure'",
+          "testCode": "if (getStatusMessage('red') !== 'Critical failure') throw new Error('Wrong message for red');"
+        },
+        {
+          "description": "unknown code should return 'Unknown status'",
+          "testCode": "if (getStatusMessage('blue') !== 'Unknown status') throw new Error('Wrong message for unknown code');"
+        }
+      ],
+      "hints": [
+        "switch (code) { case 'value': return 'result'; } -- each case needs a return.",
+        "Don't forget the default case for anything that doesn't match.",
+        "Each case ends with return, so no break is needed."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d03-c05",
+      "dayNumber": 3,
+      "order": 5,
+      "type": "build",
+      "difficulty": "demanding",
+      "concepts": ["conditionals", "typeof", "arrays", "combined-logic"],
+      "week": 1,
+      "title": "Classify",
+      "narrativeHook": "The Drift presents raw data. Filter it, categorize it, respond differently to each type.",
+      "instructions": "Write a function `classify` that takes any value and returns a string describing it:\n- number and positive → `\"positive number\"`\n- number and negative → `\"negative number\"`\n- number and zero → `\"zero\"`\n- non-empty string → `\"text\"`\n- empty string → `\"empty text\"`\n- boolean → `\"flag\"`\n- array → `\"collection\"`\n- anything else → `\"unknown\"`",
+      "starterCode": "function classify(value) {\n  // Your code here\n}",
+      "solution": "function classify(value) {\n  if (Array.isArray(value)) return \"collection\";\n  if (typeof value === \"number\") {\n    if (value > 0) return \"positive number\";\n    if (value < 0) return \"negative number\";\n    return \"zero\";\n  }\n  if (typeof value === \"string\") {\n    return value.length > 0 ? \"text\" : \"empty text\";\n  }\n  if (typeof value === \"boolean\") return \"flag\";\n  return \"unknown\";\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "classify(42) should return 'positive number'",
+          "testCode": "if (classify(42) !== 'positive number') throw new Error(`classify(42) returned '${classify(42)}', expected 'positive number'`);"
+        },
+        {
+          "description": "classify(-5) should return 'negative number'",
+          "testCode": "if (classify(-5) !== 'negative number') throw new Error(`classify(-5) returned '${classify(-5)}', expected 'negative number'`);"
+        },
+        {
+          "description": "classify(0) should return 'zero'",
+          "testCode": "if (classify(0) !== 'zero') throw new Error(`classify(0) returned '${classify(0)}', expected 'zero'`);"
+        },
+        {
+          "description": "classify('hello') should return 'text'",
+          "testCode": "if (classify('hello') !== 'text') throw new Error(`classify('hello') returned '${classify('hello')}', expected 'text'`);"
+        },
+        {
+          "description": "classify('') should return 'empty text'",
+          "testCode": "if (classify('') !== 'empty text') throw new Error(\"classify('') returned '\" + classify('') + \"', expected 'empty text'\");"
+        },
+        {
+          "description": "classify(true) should return 'flag'",
+          "testCode": "if (classify(true) !== 'flag') throw new Error(`classify(true) returned '${classify(true)}', expected 'flag'`);"
+        },
+        {
+          "description": "classify([1, 2]) should return 'collection'",
+          "testCode": "if (classify([1, 2]) !== 'collection') throw new Error(`classify([1,2]) returned '${classify([1,2])}', expected 'collection'`);"
+        },
+        {
+          "description": "classify(null) should return 'unknown'",
+          "testCode": "if (classify(null) !== 'unknown') throw new Error(`classify(null) returned '${classify(null)}', expected 'unknown'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why do we need Array.isArray() instead of typeof to detect arrays?",
+        "keywords": ["typeof", "object", "array"],
+        "minLength": 30
+      },
+      "hints": [
+        "Check for arrays FIRST using Array.isArray() -- typeof [] returns 'object', which would match the wrong branch later.",
+        "Use typeof to branch on 'number', 'string', and 'boolean' after ruling out arrays.",
+        "For numbers, nest the positive/negative/zero checks inside the typeof === 'number' branch."
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

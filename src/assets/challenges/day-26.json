@@ -1,0 +1,70 @@
+{
+  "dayNumber": 26,
+  "week": 4,
+  "title": "FINAL BOSS — Resonance",
+  "narrativeIntro": "Twenty-five days ago you woke up in the dark. You didn't know what a variable was, or a component, or a promise. Now look at the map. Look at what you built.\n\nOne structure remains. The largest. The deepest. It sits at the convergence of all four clusters, a beacon that's been waiting for someone with enough understanding to activate it.\n\nThis is your final challenge. Build a real application — one that talks to a real API, with real routing, real state management, real patterns. Not a tutorial. A thing that works.\n\nYou have 90 minutes. But you won't need them all.",
+  "narrativeOutro": "The beacon ignites.\n\nNot slowly this time. A wave of light sweeps from the lower-left of the map to the upper-right, tracing the exact path you walked over 26 days. Every node you activated, every connection you made, every structure you brought online — they all resonate, all at once, a constellation of understanding that spans the entire Drift.\n\nYou built this. Not the app. Not the code. This — the knowledge in your mind, the patterns you can now see, the confidence that you can look at someone else's code and understand it.\n\nYour internship starts soon. You're ready.\n\nThe Drift is alive. And so are you.",
+  "phmChapters": [],
+  "phmConnectionNote": "The final mission. Everything on the line. Ryland's arc concludes. Yours is about to begin.",
+  "challengeIds": ["d26-c01"],
+  "concepts": ["all", "integration", "services", "routing", "http", "forms", "rxjs", "patterns"],
+  "conceptsPreview": "Final boss — build a complete mini-application from scratch",
+  "challenges": [
+    {
+      "id": "d26-c01",
+      "dayNumber": 26,
+      "order": 1,
+      "type": "build",
+      "difficulty": "boss",
+      "concepts": ["services", "routing", "http", "forms", "rxjs", "crud", "state", "composition"],
+      "week": 4,
+      "title": "Resonance",
+      "narrativeHook": "Everything you've learned. One application. Build it.",
+      "instructions": "Build a `MissionControl` application in `mission-control.ts`.\n\nRequirements:\n\n1. **`MissionStore` service** — holds missions `{ id, name, status: 'pending'|'active'|'complete' }`. Implements `getAll()`, `getActive()`, `create(name)`, `launch(id)`, `complete(id)`.\n\n2. **`MissionDashboard` class** — uses `MissionStore`. Exposes:\n   - `stats` getter: `{ total, active, complete }`\n   - `search(term)` method: filters missions by name (case-insensitive), stores in `results`\n\n3. **`MissionPipeline` class** — processes a list of mission names:\n   - `run(names)` async method: creates all missions, launches those with names containing 'alpha', returns the final state from `store.getAll()`\n\nAll three tests must pass. You have 90 minutes.",
+      "environment": "stackblitz",
+      "starterCode": "// mission-control.ts — build your final application here\n\nexport class MissionStore {\n  missions: { id: number; name: string; status: 'pending' | 'active' | 'complete' }[] = [];\n  nextId = 1;\n  // Implement: getAll(), getActive(), create(name), launch(id), complete(id)\n}\n\nexport class MissionDashboard {\n  results: any[] = [];\n  store: MissionStore;\n\n  constructor(store: MissionStore) {\n    this.store = store; // assign explicitly — constructor shorthand is not supported in this sandbox\n  }\n  // Implement: get stats() → { total, active, complete }\n  //            search(term) → filters missions by name into this.results\n}\n\nexport class MissionPipeline {\n  store: MissionStore;\n\n  constructor(store: MissionStore) {\n    this.store = store;\n  }\n  // Implement: async run(names) → creates all missions, launches those containing 'alpha', returns store.getAll()\n}",
+      "files": [
+        {
+          "name": "mission-control.ts",
+          "language": "typescript",
+          "content": "// mission-control.ts — build your final application here\n\nexport class MissionStore {\n  missions: { id: number; name: string; status: 'pending' | 'active' | 'complete' }[] = [];\n  nextId = 1;\n  // Implement: getAll(), getActive(), create(name), launch(id), complete(id)\n}\n\nexport class MissionDashboard {\n  results: any[] = [];\n  store: MissionStore;\n\n  constructor(store: MissionStore) {\n    this.store = store; // assign explicitly — constructor shorthand is not supported in this sandbox\n  }\n  // Implement: get stats() → { total, active, complete }\n  //            search(term) → filters missions by name into this.results\n}\n\nexport class MissionPipeline {\n  store: MissionStore;\n\n  constructor(store: MissionStore) {\n    this.store = store;\n  }\n  // Implement: async run(names) → creates all missions, launches those containing 'alpha', returns store.getAll()\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class MissionStore {\n  missions = [];\n  nextId = 1;\n\n  getAll() { return [...this.missions]; }\n  getActive() { return this.missions.filter(m => m.status === 'active'); }\n\n  create(name) {\n    const m = { id: this.nextId++, name, status: 'pending' };\n    this.missions.push(m);\n    return m;\n  }\n\n  launch(id) {\n    const m = this.missions.find(m => m.id === id);\n    if (!m) return false;\n    m.status = 'active';\n    return true;\n  }\n\n  complete(id) {\n    const m = this.missions.find(m => m.id === id);\n    if (!m) return false;\n    m.status = 'complete';\n    return true;\n  }\n}\n\nexport class MissionDashboard {\n  results = [];\n  store;\n\n  constructor(store) {\n    this.store = store;\n  }\n\n  get stats() {\n    const all = this.store.getAll();\n    return {\n      total: all.length,\n      active: all.filter(m => m.status === 'active').length,\n      complete: all.filter(m => m.status === 'complete').length,\n    };\n  }\n\n  search(term) {\n    const t = term.toLowerCase();\n    this.results = this.store.getAll().filter(m => m.name.toLowerCase().includes(t));\n  }\n}\n\nexport class MissionPipeline {\n  store;\n\n  constructor(store) {\n    this.store = store;\n  }\n\n  async run(names) {\n    for (const name of names) {\n      const m = this.store.create(name);\n      if (name.toLowerCase().includes('alpha')) {\n        this.store.launch(m.id);\n      }\n    }\n    return this.store.getAll();\n  }\n}",
+      "tests": [
+        {
+          "description": "MissionDashboard.stats should correctly count total, active, and complete missions",
+          "testCode": "const store = new MissionStore(); store.create('Alpha One'); store.create('Beta Two'); store.create('Alpha Three'); store.launch(1); store.complete(2); const dash = new MissionDashboard(store); const s = dash.stats; if (s.total !== 3) throw new Error(`total should be 3, got ${s.total}`); if (s.active !== 1) throw new Error(`active should be 1, got ${s.active}`); if (s.complete !== 1) throw new Error(`complete should be 1, got ${s.complete}`);"
+        },
+        {
+          "description": "MissionDashboard.search should filter missions by name (case-insensitive)",
+          "testCode": "const store = new MissionStore(); store.create('Alpha Relay'); store.create('Beta Node'); store.create('Alpha Beacon'); const dash = new MissionDashboard(store); dash.search('alpha'); if (dash.results.length !== 2) throw new Error(`search('alpha') should return 2, got ${dash.results.length}`);"
+        },
+        {
+          "description": "MissionPipeline.run should create missions and launch those containing 'alpha'",
+          "testCode": "const store = new MissionStore(); const pipe = new MissionPipeline(store); const all = await pipe.run(['Alpha Survey', 'Beta Probe', 'Alpha Core']); if (all.length !== 3) throw new Error(`run should create 3 missions, got ${all.length}`); const active = all.filter(m => m.status === 'active'); if (active.length !== 2) throw new Error(`2 missions should be active (alpha ones), got ${active.length}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Looking back at all 26 days: describe how the three classes you built today (Store, Dashboard, Pipeline) each map to a different week's concepts. What pattern did you apply from Day 23's smart/dumb component lesson to separate these concerns?",
+        "keywords": ["service", "component", "pattern", "week"],
+        "minLength": 60
+      },
+      "hints": [
+        "MissionStore is a service (Week 3 Day 16) — holds state, exposes methods, no UI knowledge. Declare `missions = []` and `nextId = 1` as plain fields.",
+        "MissionDashboard and MissionPipeline need a reference to the store. Declare a field and assign it explicitly in the constructor: `store; constructor(store) { this.store = store; }` — TypeScript constructor shorthand won't survive the sandbox's type-stripping.",
+        "MissionPipeline is a workflow orchestrator — `run(names)` is async. Create each mission, then launch those whose name includes 'alpha' (case-insensitive).",
+        "For launch/complete: find the mission by id, update its status property directly."
+      ],
+      "xpReward": 200,
+      "bonusXp": {
+        "noHints": 25,
+        "firstTry": 50,
+        "speedBonus": 25,
+        "speedThresholdMs": 3600000
+      },
+      "timeLimitMinutes": 90
+    }
+  ]
+}

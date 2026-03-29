@@ -1,0 +1,118 @@
+@if (day(); as d) {
+<div class="min-h-screen bg-drift-void flex items-center justify-center p-6">
+  <div class="max-w-lg w-full animate-fade-in">
+
+    <!-- Level-up banner -->
+    @if (leveledUpTo(); as lvl) {
+    <div class="mb-6 rounded-[--radius-drift-sm] border border-drift-gold/40 bg-drift-gold/8 px-5 py-4 flex items-center gap-4"
+         style="box-shadow: var(--shadow-glow-gold);">
+      <lucide-icon [img]="icons.Trophy" [size]="28" class="text-drift-gold flex-shrink-0"></lucide-icon>
+      <div>
+        <p class="text-drift-gold text-xs font-body tracking-widest uppercase font-semibold">Niveau atteint</p>
+        <p class="font-display text-lg text-drift-text-primary leading-tight">{{ lvl.name }}</p>
+      </div>
+      <span class="ml-auto text-2xl font-bold text-drift-gold">{{ lvl.level }}</span>
+    </div>
+    }
+
+    <!-- Header ring -->
+    <div class="text-center mb-8">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-drift-sage/10 border border-drift-sage/20 flex items-center justify-center"
+           style="box-shadow: var(--shadow-glow-sage);">
+        <lucide-icon [img]="icons.Sparkles" [size]="36" class="text-drift-sage"></lucide-icon>
+      </div>
+      <p class="text-drift-sage text-sm font-body tracking-widest uppercase mb-2">Day {{ d.dayNumber }} Complete</p>
+      <h1 class="font-display text-3xl md:text-4xl text-drift-text-primary mb-6">{{ d.title }}</h1>
+
+      <!-- Narrative Outro -->
+      <div class="drift-card-narrative mb-8 text-left text-narrative italic mx-auto max-w-[480px]">
+        <p class="text-drift-text-primary narrative-drop-cap" style="line-height: 2.0;">
+          @for (word of displayedWords(); track $index) {
+             <span class="animate-fade-in mr-1 inline-block">{{ word }}</span>
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="flex items-center justify-center gap-8 mb-8">
+      <div class="text-center">
+        <p class="text-3xl font-bold text-drift-gold">+{{ totalXpEarned() }}</p>
+        <p class="text-xs text-drift-text-tertiary mt-1">XP Earned</p>
+      </div>
+      <div class="w-px h-10 bg-drift-surface"></div>
+      <div class="text-center">
+        <div class="flex items-center justify-center gap-1.5">
+          <lucide-icon [img]="icons.Flame" [size]="20" class="text-drift-rose"></lucide-icon>
+          <span class="text-3xl font-bold text-drift-rose">{{ streak() }}</span>
+        </div>
+        <p class="text-xs text-drift-text-tertiary mt-1">Day Streak</p>
+      </div>
+    </div>
+
+    <!-- XP bar -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-drift-text-tertiary">Level {{ currentLevel().level }} — {{ currentLevel().name }}</span>
+        @if (currentLevel().maxXp !== Infinity) {
+          <span class="text-xs text-drift-text-ghost">
+            {{ currentLevel().minXp + (levelProgress() * (currentLevel().maxXp - currentLevel().minXp)) | number:'1.0-0' }}
+            / {{ currentLevel().maxXp }} XP
+          </span>
+        } @else {
+          <span class="text-xs text-drift-text-ghost">Max level</span>
+        }
+      </div>
+      <div class="h-2 rounded-full bg-drift-surface overflow-hidden">
+        <div
+          class="h-full rounded-full bg-drift-gold transition-all duration-1000 ease-out"
+          [style.width.%]="levelProgress() * 100"
+          style="box-shadow: 0 0 8px rgba(197,151,91,0.5);"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Challenge breakdown -->
+    @if (challengeRows().length > 0) {
+    <div class="drift-card mb-8">
+      <p class="text-xs text-drift-text-tertiary uppercase tracking-widest mb-4">Challenges</p>
+      <div class="flex flex-col gap-3">
+        @for (row of challengeRows(); track row.title) {
+        <div class="flex items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-drift-text-primary truncate">{{ row.title }}</p>
+            <div class="flex items-center gap-2 mt-0.5">
+              @if (row.firstTry) {
+                <span class="inline-flex items-center gap-1 text-xs text-drift-sage">
+                  <lucide-icon [img]="icons.Star" [size]="10"></lucide-icon>
+                  First try
+                </span>
+              }
+            </div>
+          </div>
+          <span class="text-sm font-semibold text-drift-gold flex-shrink-0">+{{ row.xpEarned }}</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Return Button -->
+    <div class="text-center transition-all duration-[2000ms]" [class.opacity-0]="!showReturnButton()" [class.pointer-events-none]="!showReturnButton()">
+      <button
+        (click)="goHome()"
+        class="inline-flex items-center gap-2 px-8 py-3 rounded-[--radius-drift-sm] text-sm font-medium bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender transition-all"
+        style="box-shadow: var(--shadow-1), var(--shadow-glow-lavender);"
+      >
+        Return to The Drift
+        <lucide-icon [img]="icons.ArrowRight" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
+  </div>
+</div>
+} @else {
+<div class="flex items-center justify-center h-screen bg-drift-void">
+  <span class="text-drift-text-secondary text-sm">Loading...</span>
+</div>
+}

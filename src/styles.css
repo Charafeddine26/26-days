@@ -1,0 +1,861 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import 'tailwindcss';
+@source "./**/*.{html,ts}";
+
+/* ============================================================
+   THE DRIFT — Design System
+   All colors, fonts, shadows, and CSS custom properties
+   ============================================================ */
+
+@theme {
+  /* ---- Backgrounds (deep to light) ---- */
+  --color-drift-void: #0f0e1a;
+  --color-drift-deep: #171528;
+  --color-drift-mid: #1e1b35;
+  --color-drift-surface: #262342;
+  --color-drift-raised: #2e2a50;
+
+  /* ---- Accent Colors ---- */
+  --color-drift-lavender: #b8a9e8;
+  --color-drift-rose: #e8a9c0;
+  --color-drift-gold: #e8cfa9;
+  --color-drift-ice: #a9d8e8;
+  --color-drift-sage: #a9e8c0;
+
+  /* ---- Text ---- */
+  --color-drift-text-primary: #ede8f5;
+  --color-drift-text-secondary: #9b93b4;
+  --color-drift-text-tertiary: #6b6488;
+  --color-drift-text-ghost: #4a4468;
+
+  /* ---- Semantic ---- */
+  --color-drift-pass: #7de8a9;
+  --color-drift-fail: #e87d8a;
+  --color-drift-warning: #e8c77d;
+  --color-drift-info: #7db8e8;
+
+  /* ---- Glow ---- */
+  --color-drift-glow-lavender: #c4b5f0;
+  --color-drift-glow-rose: #f0b5cd;
+  --color-drift-glow-gold: #f0d9b5;
+  --color-drift-glow-ice: #b5e0f0;
+  --color-drift-glow-sage: #b5f0cd;
+
+  /* ---- Fonts ---- */
+  --font-display: 'Cormorant Garamond', 'Garamond', serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ---- Border Radius ---- */
+  --radius-drift-sm: 8px;
+  --radius-drift-md: 12px;
+  --radius-drift-lg: 16px;
+  --radius-drift-xl: 24px;
+
+  /* ---- Easing ---- */
+  --ease-drift: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-drift-in: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-drift-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-drift-bloom: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   CSS Custom Properties (for use outside Tailwind)
+   ============================================================ */
+:root {
+  /* Shadows — tinted with drift-void, never grey */
+  --shadow-1: 0 2px 8px rgba(15, 14, 26, 0.3), 0 1px 3px rgba(15, 14, 26, 0.2);
+  --shadow-2: 0 4px 16px rgba(15, 14, 26, 0.4), 0 2px 6px rgba(15, 14, 26, 0.2);
+  --shadow-3: 0 8px 32px rgba(15, 14, 26, 0.5), 0 4px 12px rgba(15, 14, 26, 0.3);
+
+  /* Glow shadows */
+  --shadow-glow-lavender: 0 0 20px rgba(184, 169, 232, 0.15), 0 0 40px rgba(184, 169, 232, 0.08);
+  --shadow-glow-rose: 0 0 20px rgba(232, 169, 192, 0.15), 0 0 40px rgba(232, 169, 192, 0.08);
+  --shadow-glow-gold: 0 0 20px rgba(232, 207, 169, 0.15), 0 0 40px rgba(232, 207, 169, 0.08);
+  --shadow-glow-sage: 0 0 20px rgba(169, 232, 192, 0.15), 0 0 40px rgba(169, 232, 192, 0.08);
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-drift-deep);
+    color: var(--color-drift-text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Deep void/space noise applied globally to the background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    filter: url(#noise-void);
+    opacity: 0.02;
+    z-index: -1;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* ============================================================
+   Utility Classes — Drift Glass Effect
+   ============================================================ */
+@layer components {
+  .drift-glass {
+    background: rgba(30, 27, 53, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(184, 169, 232, 0.08);
+  }
+
+  .drift-card {
+    position: relative;
+    background-color: var(--color-drift-mid);
+    border: none; /* Replaced by directional borders */
+    border-top: 1px solid rgba(184, 169, 232, 0.1);
+    border-left: 1px solid rgba(184, 169, 232, 0.1);
+    border-right: 1px solid rgba(184, 169, 232, 0.04);
+    border-bottom: 1px solid rgba(184, 169, 232, 0.04);
+    border-radius: var(--radius-drift-md);
+    padding: 24px;
+    box-shadow:
+      var(--shadow-2),
+      inset 0 1px 0 rgba(184, 169, 232, 0.06);
+    background-image: linear-gradient(135deg, rgba(184, 169, 232, 0.03) 0%, transparent 60%);
+    transition: all 400ms var(--ease-drift-out);
+    transform-style: preserve-3d;
+  }
+
+  .drift-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-drift-md);
+    pointer-events: none;
+    filter: url(#noise-mid);
+    opacity: 0.025;
+    z-index: 0;
+  }
+
+  .drift-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .perspective-container {
+    perspective: 1000px;
+  }
+
+  .drift-card:hover {
+    transform: translateY(-2px) rotateX(1deg) rotateY(-0.5deg);
+    box-shadow:
+      var(--shadow-3),
+      inset 0 1px 0 rgba(184, 169, 232, 0.08);
+  }
+
+  .drift-card-narrative {
+    position: relative;
+    background: rgba(38, 35, 66, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: none;
+    border-top: 1px solid rgba(232, 169, 192, 0.1);
+    border-right: 1px solid rgba(232, 169, 192, 0.04);
+    border-bottom: 1px solid rgba(232, 169, 192, 0.04);
+    border-radius: var(--radius-drift-md);
+    padding: 32px;
+    box-shadow:
+      var(--shadow-2),
+      inset 0 1px 0 rgba(232, 169, 192, 0.06);
+    background-image: linear-gradient(
+      135deg,
+      rgba(232, 169, 192, 0.04) 0%,
+      rgba(184, 169, 232, 0.02) 100%
+    );
+    transition: all 400ms var(--ease-drift-out);
+  }
+
+  .drift-card-narrative::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-drift-md);
+    pointer-events: none;
+    filter: url(#noise-surface);
+    opacity: 0.03;
+    z-index: 0;
+  }
+
+  .drift-card-narrative::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, rgba(232, 169, 192, 0.8) 0%, transparent 100%);
+    border-top-left-radius: var(--radius-drift-md);
+    border-bottom-left-radius: var(--radius-drift-md);
+    z-index: 1;
+  }
+
+  .drift-card-narrative > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .drift-btn-primary {
+    background: linear-gradient(135deg, var(--color-drift-lavender), #9b8ad8);
+    color: var(--color-drift-void);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 10px 20px;
+    border-radius: var(--radius-drift-sm);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-1), var(--shadow-glow-lavender);
+    transition: all 200ms var(--ease-drift);
+  }
+
+  .drift-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      var(--shadow-2),
+      0 0 20px rgba(184, 169, 232, 0.25),
+      0 0 40px rgba(184, 169, 232, 0.12);
+  }
+
+  .drift-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-1);
+  }
+
+  .drift-btn-primary:disabled {
+    background: var(--color-drift-surface);
+    color: var(--color-drift-text-ghost);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .drift-btn-secondary {
+    background: transparent;
+    color: var(--color-drift-lavender);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 10px 20px;
+    border-radius: var(--radius-drift-sm);
+    border: 1px solid rgba(184, 169, 232, 0.2);
+    cursor: pointer;
+    transition: all 200ms var(--ease-drift);
+  }
+
+  .drift-btn-secondary:hover {
+    background: rgba(184, 169, 232, 0.08);
+    border-color: rgba(184, 169, 232, 0.35);
+    box-shadow: var(--shadow-glow-lavender);
+  }
+
+  .drift-btn-secondary:active {
+    background: rgba(184, 169, 232, 0.12);
+  }
+
+  .drift-btn-success {
+    background: linear-gradient(135deg, var(--color-drift-sage), #78d0a0);
+    color: var(--color-drift-void);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 10px 20px;
+    border-radius: var(--radius-drift-sm);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-1), var(--shadow-glow-sage);
+    transition: all 200ms var(--ease-drift);
+  }
+
+  .drift-btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      var(--shadow-2),
+      0 0 20px rgba(169, 232, 192, 0.25),
+      0 0 40px rgba(169, 232, 192, 0.12);
+  }
+
+  .drift-btn-success:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* ============================================================
+     Typography & Structure Overhaul Classes
+     ============================================================ */
+
+  /* The Narrative Voice */
+  .text-narrative {
+    font-family: var(--font-display);
+    font-size: 1.375rem; /* ~22px */
+    line-height: 1.95;
+    max-width: 520px;
+  }
+
+  .text-narrative.italic {
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .text-narrative-heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .narrative-drop-cap::first-letter {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 3em;
+    color: rgba(184, 169, 232, 0.6);
+    float: left;
+    line-height: 0.8;
+    margin-right: 0.1em;
+    margin-top: 0.1em;
+  }
+
+  .narrative-dialogue {
+    padding-left: 24px;
+    border-left: 1px solid rgba(232, 169, 192, 0.2);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  /* Code outside editor */
+  .code-outside-editor {
+    background-color: var(--color-drift-void);
+    border-left: 2px solid var(--color-drift-lavender);
+    padding: 12px 16px;
+    box-shadow: inset 0 1px 4px rgba(15, 14, 26, 0.5);
+    border-radius: var(--radius-drift-sm);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  .code-outside-editor-inline {
+    background-color: var(--color-drift-void);
+    border-left: 2px solid var(--color-drift-lavender);
+    padding: 2px 8px;
+    box-shadow: inset 0 1px 4px rgba(15, 14, 26, 0.5);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  /* Global Visual Enhancements */
+  .vignette-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9000;
+    box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.85); /* 5-10% darkening effect mapped via shadow */
+  }
+
+  .scroll-fade-y {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      black 24px,
+      black calc(100% - 48px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      black 24px,
+      black calc(100% - 48px),
+      transparent 100%
+    );
+  }
+}
+
+/* ============================================================
+   Monaco Editor Override
+   ============================================================ */
+ngx-monaco-editor {
+  display: block !important;
+  height: 100% !important;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 400ms var(--ease-drift-out) both;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   Constellation Map — Node Animations
+   ============================================================ */
+
+/* SVG transform-origin fix: must be fill-box for <g> elements */
+.constellation-node-group {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes node-awakening-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.07);
+  }
+}
+
+@keyframes node-active-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.11);
+  }
+}
+
+.node-pulse-awakening {
+  animation: node-awakening-pulse 2.6s ease-in-out infinite;
+}
+
+.node-pulse-active {
+  animation: node-active-pulse 1.8s ease-in-out infinite;
+}
+
+/* Locked-node shake on click */
+@keyframes constellation-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  12% {
+    transform: translate(-3px, 2px);
+  }
+  25% {
+    transform: translate(3px, -2px);
+  }
+  37% {
+    transform: translate(-2px, -3px);
+  }
+  50% {
+    transform: translate(3px, 2px);
+  }
+  62% {
+    transform: translate(-2px, 1px);
+  }
+  75% {
+    transform: translate(2px, -1px);
+  }
+  87% {
+    transform: translate(-1px, 2px);
+  }
+}
+
+.constellation-shake {
+  animation: constellation-shake 0.55s var(--ease-drift) both;
+}
+
+/* ============================================================
+   Unlock Animations
+   ============================================================ */
+
+/* Node bloom — normal day completion */
+@keyframes node-bloom-in {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.2;
+  }
+  45% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.node-bloom-in {
+  animation: node-bloom-in 0.75s var(--ease-drift-bloom) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Node gold bloom — boss completion */
+@keyframes node-gold-bloom-in {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.15;
+  }
+  35% {
+    transform: scale(1.55);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.45);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.node-gold-bloom-in {
+  animation: node-gold-bloom-in 0.98s var(--ease-drift-bloom) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Connection draw — stroke-dashoffset technique */
+.connection-drawing {
+  stroke-dasharray: var(--line-len);
+  stroke-dashoffset: var(--line-len);
+  animation: connection-draw 0.68s var(--ease-drift-out) forwards;
+}
+
+@keyframes connection-draw {
+  from {
+    stroke-dashoffset: var(--line-len);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Next-node awaken — dormant node comes to life */
+@keyframes node-awaken-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.node-awaken-in {
+  animation: node-awaken-in 0.56s var(--ease-drift-out) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Week beacon — static glow state once activated */
+.constellation-beacon {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Beacon activation burst — plays on boss completion */
+@keyframes beacon-activate {
+  0% {
+    transform: scale(0.2) rotate(45deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.5) rotate(45deg);
+    opacity: 1;
+  }
+  65% {
+    transform: scale(0.88) rotate(45deg);
+  }
+  82% {
+    transform: scale(1.08) rotate(45deg);
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+.beacon-activating {
+  animation: beacon-activate 1.1s var(--ease-drift-bloom) both;
+}
+
+/* ============================================================
+   Constellation Tooltip
+   ============================================================ */
+.constellation-tooltip {
+  background: rgba(15, 14, 26, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(184, 169, 232, 0.14);
+  border-radius: var(--radius-drift-sm);
+  padding: 10px 14px;
+  min-width: 110px;
+  box-shadow: var(--shadow-3);
+  animation: fade-in 120ms var(--ease-drift-out) both;
+}
+
+/* ============================================================
+   Skeleton Loaders
+   ============================================================ */
+@keyframes skeleton-shimmer {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.skeleton-pulse {
+  background-color: var(--color-drift-surface);
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+/* ============================================================
+   Countdown Urgency Pulses
+   ============================================================ */
+@keyframes pulse-medium {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes pulse-fast {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse-medium {
+  animation: pulse-medium 1.4s ease-in-out infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 0.75s ease-in-out infinite;
+}
+
+/* ============================================================
+   Phase 3 Animations
+   ============================================================ */
+
+@keyframes light-sweep {
+  from { transform: translateX(-100%); opacity: 1; }
+  to { transform: translateX(100%); opacity: 1; }
+}
+
+@keyframes reveal-char {
+  from { opacity: 0; filter: blur(4px); transform: translateY(4px); }
+  to { opacity: 1; filter: blur(0px); transform: translateY(0); }
+}
+
+.animate-reveal-char {
+  animation: reveal-char 400ms var(--ease-drift-out) forwards;
+}
+
+.test-row-pass {
+  animation: test-row-pass 400ms ease-out forwards;
+}
+
+@keyframes test-row-pass {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.6) drop-shadow(0 0 6px rgba(169, 232, 192, 0.4)); color: var(--color-drift-sage); }
+  100% { filter: brightness(1); color: var(--color-drift-sage); }
+}
+
+/* ============================================================
+   Route Entrance — Challenge slide-in from right
+   ============================================================ */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-right 380ms var(--ease-drift-out) both;
+}
+
+/* ============================================================
+   Reduced Motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 200ms !important;
+  }
+
+  .particle-field-canvas {
+    display: none !important;
+  }
+}
+
+/* ============================================================
+   Orbital Rings (Phase 2)
+   ============================================================ */
+@keyframes orbit-spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbit-spin-ccw {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.orbit-anim-1 {
+  animation: orbit-spin-cw 12s linear infinite;
+  transform-box: fill-box;
+}
+
+.orbit-anim-2 {
+  animation: orbit-spin-ccw 18s linear infinite;
+  transform-box: fill-box;
+}
+
+/* ============================================================
+   Phase 4 - Idle & Awakening & Ripple Skeleton
+   ============================================================ */
+
+.idle-state text {
+  opacity: 0.4;
+  transition: opacity 4s var(--ease-drift-out);
+}
+
+text {
+  transition: opacity 0.5s var(--ease-drift-out);
+}
+
+.idle-state .node-pulse-active {
+  animation-duration: 4s;
+}
+
+.idle-state .node-pulse-awakening {
+  animation-duration: 5s;
+}
+
+.idle-state .constellation-svg {
+  filter: brightness(0.9);
+  transition: filter 4s var(--ease-drift-out);
+}
+
+.awakening-state .constellation-svg {
+  filter: brightness(1.15) saturate(1.2);
+  transition: filter 0.6s var(--ease-drift-out);
+}
+
+/* Ripple skeleton loader */
+.skeleton-pulse {
+  position: relative;
+  background-color: var(--color-drift-surface);
+  animation: none;
+  overflow: hidden;
+}
+
+.skeleton-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  filter: url(#noise-void);
+  opacity: 0.05;
+}
+
+.skeleton-pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(184, 169, 232, 0.05) 50%,
+    transparent 100%
+  );
+  animation: skeleton-ripple 1.5s ease-in-out infinite;
+  animation-delay: var(--ripple-delay, 0ms);
+}
+
+@keyframes skeleton-ripple {
+  0% { transform: translateX(-50%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(250%); opacity: 0; }
+}
+
+/* Pre-render constellation loading state */
+.preload-constellation {
+  opacity: 0.15;
+  filter: blur(2px);
+  animation: pulse-slow 2s infinite;
+}
+

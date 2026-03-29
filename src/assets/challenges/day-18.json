@@ -1,0 +1,220 @@
+{
+  "dayNumber": 18,
+  "week": 3,
+  "title": "HTTP",
+  "narrativeIntro": "The Drift doesn't exist in isolation. There are signals from outside — data sources, APIs, external systems that respond to requests. Angular speaks to them through HTTP: get, post, put, delete. The verbs of the external world. You're about to open a channel.",
+  "narrativeOutro": "The Drift is connected now. Data flows in from the outside, rendered by your components, managed by your services, navigated by your routes. The system is becoming real.",
+  "phmChapters": [23],
+  "phmConnectionNote": "Ryland sends and receives data from external sources. You learn Angular's HttpClient.",
+  "challengeIds": ["d18-c01", "d18-c02", "d18-c03", "d18-c04"],
+  "concepts": ["http", "httpClient", "observable", "subscribe", "loading-state", "error-handling", "HttpErrorResponse", "provideHttpClient"],
+  "conceptsPreview": "HttpClient, Observable, subscribe, loading and error states, HttpErrorResponse",
+  "challenges": [
+    {
+      "id": "d18-c01",
+      "dayNumber": 18,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["observable", "subscribe", "http", "provideHttpClient"],
+      "week": 3,
+      "title": "Cold Observable",
+      "narrativeHook": "An HTTP call is written. Nobody subscribes. What travels across the network?",
+      "instructions": "An Angular service creates an HTTP GET Observable but the component never calls `.subscribe()` or uses the `async` pipe.\n\nWithout running it, predict what happens at the network level.",
+      "starterCode": "// Read-only — predict what happens\n\n// In app.config.ts:\n// export const appConfig = {\n//   providers: [provideHttpClient()]\n// };\n\n// In a service:\n// getSignals(): Observable<Signal[]> {\n//   return this.http.get<Signal[]>('/api/signals');\n// }\n\n// In a component:\n// ngOnInit() {\n//   const signals$ = this.signalService.getSignals();\n//   // No .subscribe(), no async pipe\n// }\n\n// What HTTP request is made?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: No HTTP request is made. Observables are lazy — they do nothing until subscribed.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 18 }],
+      "predictPrompt": "What HTTP request is sent when the component initializes?",
+      "predictChoices": [
+        "No request — Observables are lazy and do nothing until subscribed",
+        "A GET request to /api/signals is sent immediately",
+        "A GET request is sent but the response is ignored",
+        "An error is thrown because nothing subscribed"
+      ],
+      "predictAnswer": "No request — Observables are lazy and do nothing until subscribed",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What does it mean for an Observable to be 'lazy', and what two things can trigger HTTP execution? Also, what must be added to app.config.ts before HttpClient can be injected?",
+        "keywords": ["subscribe", "lazy", "async", "pipe", "provideHttpClient"],
+        "minLength": 30
+      },
+      "hints": [
+        "Observables are cold (lazy) by default — they represent a potential operation, not an ongoing one.",
+        "HttpClient.get() returns an Observable. The HTTP request only fires when something subscribes to it.",
+        "Two ways to subscribe: .subscribe() explicitly, or the async pipe in a template.",
+        "In a real Angular app, HttpClient must be registered with provideHttpClient() in app.config.ts before it can be injected into any service."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d18-c02",
+      "dayNumber": 18,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["http", "httpClient", "loading-state", "subscribe", "observable"],
+      "week": 3,
+      "title": "Loading State",
+      "narrativeHook": "The request goes out. Something should show while waiting. Something else when it arrives.",
+      "instructions": "Complete `SignalFeedComponent.ngOnInit()` to manage loading state using Angular's Observable pattern.\n\n- Call `this.signalService.getSignals().subscribe({...})`\n- `next(data)`: set `this.signals = data`, set `this.loading = false`\n- `error(err)`: set `this.error = err.message`, set `this.loading = false`\n\nThe mock context at the top simulates Angular's `HttpClient` and `Observable`. In a real app:\n- `import { HttpClient } from '@angular/common/http'`\n- `import { Observable } from 'rxjs'`\n- Add `provideHttpClient()` to `app.config.ts`",
+      "environment": "stackblitz",
+      "starterCode": "// Real Angular imports (for reference — mock context below is used here):\n// import { HttpClient } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs =>\n      obs.next([{ id: 1, label: 'alpha' }, { id: 2, label: 'beta' }, { id: 3, label: 'gamma' }])\n    );\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignals() {\n    return this.http.get('/api/signals'); // Returns Observable<Signal[]>\n  }\n}\n\nclass SignalFeedComponent {\n  loading = true;\n  signals = [];\n  error = '';\n\n  constructor(signalService) { this.signalService = signalService; }\n\n  ngOnInit() {\n    // Call this.signalService.getSignals().subscribe({...})\n    // next(data): set this.signals = data, set this.loading = false\n    // error(err): set this.error = err.message, set this.loading = false\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "signal-feed.component.ts",
+          "language": "typescript",
+          "content": "// Real Angular imports (for reference — mock context below is used here):\n// import { HttpClient } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs =>\n      obs.next([{ id: 1, label: 'alpha' }, { id: 2, label: 'beta' }, { id: 3, label: 'gamma' }])\n    );\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignals() {\n    return this.http.get('/api/signals'); // Returns Observable<Signal[]>\n  }\n}\n\nclass SignalFeedComponent {\n  loading = true;\n  signals = [];\n  error = '';\n\n  constructor(signalService) { this.signalService = signalService; }\n\n  ngOnInit() {\n    // Call this.signalService.getSignals().subscribe({...})\n    // next(data): set this.signals = data, set this.loading = false\n    // error(err): set this.error = err.message, set this.loading = false\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 24 }],
+      "solution": "// Real Angular imports (for reference — mock context below is used here):\n// import { HttpClient } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs =>\n      obs.next([{ id: 1, label: 'alpha' }, { id: 2, label: 'beta' }, { id: 3, label: 'gamma' }])\n    );\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignals() {\n    return this.http.get('/api/signals');\n  }\n}\n\nclass SignalFeedComponent {\n  loading = true;\n  signals = [];\n  error = '';\n\n  constructor(signalService) { this.signalService = signalService; }\n\n  ngOnInit() {\n    this.signalService.getSignals().subscribe({\n      next: (data) => {\n        this.signals = data;\n        this.loading = false;\n      },\n      error: (err) => {\n        this.error = err.message || 'Failed to load signals';\n        this.loading = false;\n      }\n    });\n  }\n}",
+      "tests": [
+        {
+          "description": "loading should start as true",
+          "testCode": "const c = new SignalFeedComponent(new SignalService(new HttpClient())); if (!c.loading) throw new Error('loading should start as true before ngOnInit');"
+        },
+        {
+          "description": "loading should be false after ngOnInit completes",
+          "testCode": "const c = new SignalFeedComponent(new SignalService(new HttpClient())); c.ngOnInit(); if (c.loading) throw new Error('loading should be false after ngOnInit completes');"
+        },
+        {
+          "description": "signals should have 3 items after ngOnInit",
+          "testCode": "const c = new SignalFeedComponent(new SignalService(new HttpClient())); c.ngOnInit(); if (c.signals.length !== 3) throw new Error(`signals should have 3 items, got ${c.signals.length}`);"
+        },
+        {
+          "description": "signals should contain the alpha signal",
+          "testCode": "const c = new SignalFeedComponent(new SignalService(new HttpClient())); c.ngOnInit(); if (!c.signals.some(s => s.label === 'alpha')) throw new Error('signals should contain { id: 1, label: \"alpha\" }');"
+        }
+      ],
+      "hints": [
+        "The subscribe method takes an object with next and error callbacks: .subscribe({ next: (data) => { ... }, error: (err) => { ... } })",
+        "In the next callback, assign data to this.signals and set this.loading = false.",
+        "In the error callback, set this.error = err.message and set this.loading = false. Both callbacks should reset loading."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d18-c03",
+      "dayNumber": 18,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["http", "subscribe", "observable", "httpClient"],
+      "week": 3,
+      "title": "Missing Subscribe",
+      "narrativeHook": "The component calls http.get(). The data never arrives. The Observable was created but never listened to.",
+      "instructions": "The component calls `loadReadings()` in `ngOnInit` but `readings` is always empty.\n\nThere is exactly one bug: the Observable returned by `this.http.get()` is never subscribed to. Fix it.\n\nThis is the same mistake as forgetting to subscribe in a real Angular service — `http.get('/api/readings')` returns a cold Observable. Nothing happens until you call `.subscribe()`.",
+      "environment": "stackblitz",
+      "starterCode": "// Real Angular pattern (for reference):\n// import { HttpClient } from '@angular/common/http';\n// this.http.get<number[]>('/api/readings') returns Observable<number[]>\n// Without .subscribe(), no HTTP request fires and no data arrives.\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs => obs.next([42, 67, 91, 55]));\n  }\n}\n// --- End mock context ---\n\nclass ReadingsService {\n  constructor(http) { this.http = http; }\n  getReadings() {\n    return this.http.get('/api/readings'); // Returns Observable<number[]>\n  }\n}\n\nclass ReadoutComponent {\n  readings = [];\n\n  constructor(service) { this.service = service; }\n\n  loadReadings() {\n    this.service.getReadings();  // Bug: Observable is created but never subscribed to\n  }\n}",
+      "files": [
+        {
+          "name": "readout.component.ts",
+          "language": "typescript",
+          "content": "// Real Angular pattern (for reference):\n// import { HttpClient } from '@angular/common/http';\n// this.http.get<number[]>('/api/readings') returns Observable<number[]>\n// Without .subscribe(), no HTTP request fires and no data arrives.\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs => obs.next([42, 67, 91, 55]));\n  }\n}\n// --- End mock context ---\n\nclass ReadingsService {\n  constructor(http) { this.http = http; }\n  getReadings() {\n    return this.http.get('/api/readings'); // Returns Observable<number[]>\n  }\n}\n\nclass ReadoutComponent {\n  readings = [];\n\n  constructor(service) { this.service = service; }\n\n  loadReadings() {\n    this.service.getReadings();  // Bug: Observable is created but never subscribed to\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 22 }],
+      "solution": "// Real Angular pattern (for reference):\n// import { HttpClient } from '@angular/common/http';\n// this.http.get<number[]>('/api/readings') returns Observable<number[]>\n// Without .subscribe(), no HTTP request fires and no data arrives.\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass HttpClient {\n  get(url) {\n    return new Observable(obs => obs.next([42, 67, 91, 55]));\n  }\n}\n// --- End mock context ---\n\nclass ReadingsService {\n  constructor(http) { this.http = http; }\n  getReadings() {\n    return this.http.get('/api/readings');\n  }\n}\n\nclass ReadoutComponent {\n  readings = [];\n\n  constructor(service) { this.service = service; }\n\n  loadReadings() {\n    this.service.getReadings().subscribe(data => {\n      this.readings = data;\n    });\n  }\n}",
+      "tests": [
+        {
+          "description": "loadReadings() should populate the readings array",
+          "testCode": "const c = new ReadoutComponent(new ReadingsService(new HttpClient())); c.loadReadings(); if (c.readings.length === 0) throw new Error('readings is empty — the Observable was not subscribed to');"
+        },
+        {
+          "description": "readings should contain 4 values",
+          "testCode": "const c = new ReadoutComponent(new ReadingsService(new HttpClient())); c.loadReadings(); if (c.readings.length !== 4) throw new Error(`readings should have 4 values, got ${c.readings.length}`);"
+        },
+        {
+          "description": "readings should contain 91",
+          "testCode": "const c = new ReadoutComponent(new ReadingsService(new HttpClient())); c.loadReadings(); if (!c.readings.includes(91)) throw new Error('readings should include 91');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What happens to an Angular HttpClient Observable if you call http.get() but never call .subscribe() on the result?",
+        "keywords": ["lazy", "subscribe", "request", "nothing"],
+        "minLength": 25
+      },
+      "hints": [
+        "The Observable returned by http.get() is lazy — calling getReadings() does nothing until you subscribe.",
+        "Chain .subscribe() directly: this.service.getReadings().subscribe(data => { this.readings = data; });",
+        "The subscribe callback receives the emitted value — assign it to this.readings inside the callback."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d18-c04",
+      "dayNumber": 18,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["http", "error-handling", "loading-state", "subscribe", "HttpErrorResponse"],
+      "week": 3,
+      "title": "Three-State Fetch",
+      "narrativeHook": "Every HTTP call has three possible outcomes: loading, success, failure. Model all three — the way Angular does it.",
+      "instructions": "Complete `DataLoaderComponent.load()` using Angular's Observable subscribe pattern:\n\n1. Set `this.status = 'loading'` immediately\n2. Subscribe to `this.service.getSignal()` with a `next` and `error` handler\n3. `next(data)`: set `status = 'success'`, store `data` in `result`\n4. `error(err)`: set `status = 'error'`, store `err.message` in `errorMsg`\n\n`err` is an `HttpErrorResponse` — Angular's typed error object for HTTP failures. Access its message with `err.message`.\n\nIn a real app: `import { HttpClient, HttpErrorResponse } from '@angular/common/http'`",
+      "environment": "stackblitz",
+      "starterCode": "// Real Angular imports (for reference):\n// import { HttpClient, HttpErrorResponse } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass HttpErrorResponse {\n  constructor(init) {\n    this.message = init.message || 'Unknown error';\n    this.status = init.status || 0;\n  }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass MockHttpClient {\n  constructor(shouldFail) { this._shouldFail = shouldFail; }\n  get(url) {\n    const shouldFail = this._shouldFail;\n    return new Observable(obs => {\n      if (shouldFail) {\n        obs.error(new HttpErrorResponse({ message: 'Connection refused', status: 503 }));\n      } else {\n        obs.next({ id: 'XK7', payload: 'Signal acquired' });\n        obs.complete();\n      }\n    });\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignal() {\n    return this.http.get('/api/signal'); // Returns Observable<Signal>\n  }\n}\n\nclass DataLoaderComponent {\n  status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'\n  result = null;\n  errorMsg = '';\n\n  constructor(service) { this.service = service; }\n\n  load() {\n    // 1. Set this.status = 'loading'\n    // 2. Subscribe to this.service.getSignal()\n    //    next(data): set this.status = 'success', this.result = data\n    //    error(err): set this.status = 'error', this.errorMsg = err.message\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "data-loader.component.ts",
+          "language": "typescript",
+          "content": "// Real Angular imports (for reference):\n// import { HttpClient, HttpErrorResponse } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass HttpErrorResponse {\n  constructor(init) {\n    this.message = init.message || 'Unknown error';\n    this.status = init.status || 0;\n  }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass MockHttpClient {\n  constructor(shouldFail) { this._shouldFail = shouldFail; }\n  get(url) {\n    const shouldFail = this._shouldFail;\n    return new Observable(obs => {\n      if (shouldFail) {\n        obs.error(new HttpErrorResponse({ message: 'Connection refused', status: 503 }));\n      } else {\n        obs.next({ id: 'XK7', payload: 'Signal acquired' });\n        obs.complete();\n      }\n    });\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignal() {\n    return this.http.get('/api/signal'); // Returns Observable<Signal>\n  }\n}\n\nclass DataLoaderComponent {\n  status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'\n  result = null;\n  errorMsg = '';\n\n  constructor(service) { this.service = service; }\n\n  load() {\n    // 1. Set this.status = 'loading'\n    // 2. Subscribe to this.service.getSignal()\n    //    next(data): set this.status = 'success', this.result = data\n    //    error(err): set this.status = 'error', this.errorMsg = err.message\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 38 }],
+      "solution": "// Real Angular imports (for reference):\n// import { HttpClient, HttpErrorResponse } from '@angular/common/http';\n// import { Observable } from 'rxjs';\n// In app.config.ts: provideHttpClient()\n\n// --- Mock context: do not modify ---\nclass HttpErrorResponse {\n  constructor(init) {\n    this.message = init.message || 'Unknown error';\n    this.status = init.status || 0;\n  }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n  }\n}\n\nclass MockHttpClient {\n  constructor(shouldFail) { this._shouldFail = shouldFail; }\n  get(url) {\n    const shouldFail = this._shouldFail;\n    return new Observable(obs => {\n      if (shouldFail) {\n        obs.error(new HttpErrorResponse({ message: 'Connection refused', status: 503 }));\n      } else {\n        obs.next({ id: 'XK7', payload: 'Signal acquired' });\n        obs.complete();\n      }\n    });\n  }\n}\n// --- End mock context ---\n\nclass SignalService {\n  constructor(http) { this.http = http; }\n  getSignal() {\n    return this.http.get('/api/signal');\n  }\n}\n\nclass DataLoaderComponent {\n  status = 'idle';\n  result = null;\n  errorMsg = '';\n\n  constructor(service) { this.service = service; }\n\n  load() {\n    this.status = 'loading';\n    this.service.getSignal().subscribe({\n      next: (data) => {\n        this.result = data;\n        this.status = 'success';\n      },\n      error: (err) => {\n        this.errorMsg = err.message;\n        this.status = 'error';\n      }\n    });\n  }\n}",
+      "tests": [
+        {
+          "description": "status should start as 'idle'",
+          "testCode": "const c = new DataLoaderComponent(new SignalService(new MockHttpClient(false))); if (c.status !== 'idle') throw new Error(`status should start as 'idle', got '${c.status}'`);"
+        },
+        {
+          "description": "load() should set status to 'success' on a successful response",
+          "testCode": "const c = new DataLoaderComponent(new SignalService(new MockHttpClient(false))); c.load(); if (c.status !== 'success') throw new Error(`status should be 'success', got '${c.status}'`);"
+        },
+        {
+          "description": "result should contain the response data on success",
+          "testCode": "const c = new DataLoaderComponent(new SignalService(new MockHttpClient(false))); c.load(); if (!c.result || c.result.id !== 'XK7') throw new Error(`result should have id 'XK7', got ${JSON.stringify(c.result)}`);"
+        },
+        {
+          "description": "load() should set status to 'error' when HttpErrorResponse fires",
+          "testCode": "const c = new DataLoaderComponent(new SignalService(new MockHttpClient(true))); c.load(); if (c.status !== 'error') throw new Error(`status should be 'error', got '${c.status}'`);"
+        },
+        {
+          "description": "errorMsg should contain the HttpErrorResponse message",
+          "testCode": "const c = new DataLoaderComponent(new SignalService(new MockHttpClient(true))); c.load(); if (c.errorMsg !== 'Connection refused') throw new Error(`errorMsg should be 'Connection refused', got '${c.errorMsg}'`);"
+        }
+      ],
+      "hints": [
+        "Set this.status = 'loading' as the very first line of load(), before subscribing.",
+        "Use the object form of subscribe: .subscribe({ next: (data) => { ... }, error: (err) => { ... } })",
+        "The error handler receives an HttpErrorResponse object. Access its message with err.message — just like a real Angular HTTP error."
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

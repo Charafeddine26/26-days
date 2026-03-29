@@ -1,0 +1,220 @@
+{
+  "dayNumber": 17,
+  "week": 3,
+  "title": "Routing",
+  "narrativeIntro": "The Drift has rooms. Or rather, it has views — distinct spaces you can navigate between, each with its own purpose. Routing is how you map addresses to views, how you move from one context to another without losing your place. The builders designed pathways. You're learning to walk them.",
+  "narrativeOutro": "You can navigate The Drift now. Not just see it, not just understand it, but move through it with purpose. Each route is a door, each parameter is a key. The application has spatial awareness.",
+  "phmChapters": [22],
+  "phmConnectionNote": "Ryland navigates between different sections of the ship's systems. You learn Angular routing.",
+  "challengeIds": ["d17-c01", "d17-c02", "d17-c03", "d17-c04"],
+  "concepts": ["routing", "routes", "routerLink", "activatedRoute", "route-params", "router-outlet"],
+  "conceptsPreview": "Angular routing — routes config, routerLink, route parameters, and ActivatedRoute",
+  "challenges": [
+    {
+      "id": "d17-c01",
+      "dayNumber": 17,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["routing", "routes", "router-outlet"],
+      "week": 3,
+      "title": "Route Match",
+      "narrativeHook": "A URL arrives. The router inspects its map. Which component renders?",
+      "instructions": "A routes array defines two routes. The current URL is `/signals/7`.\n\nWithout running it, identify which route matches and what component Angular renders at `<router-outlet>`.",
+      "starterCode": "// Read-only — predict which component renders\n\n// APP SHELL (app.component.html):\n// <nav>...</nav>\n// <router-outlet></router-outlet>   ← matched component renders here\n\n// const routes: Routes = [\n//   { path: 'signals', component: SignalListComponent },\n//   { path: 'signals/:id', component: SignalDetailComponent },\n//   { path: '**', component: NotFoundComponent },\n// ];\n\n// Current URL: /signals/7\n// Which component renders at <router-outlet>?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: SignalDetailComponent — the path 'signals/:id' matches '/signals/7'.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 14 }],
+      "predictPrompt": "Which component renders when the URL is /signals/7?",
+      "predictChoices": [
+        "SignalDetailComponent",
+        "SignalListComponent",
+        "NotFoundComponent",
+        "Both SignalListComponent and SignalDetailComponent"
+      ],
+      "predictAnswer": "SignalDetailComponent",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does 'signals/:id' match '/signals/7' instead of 'signals', even though 'signals' is listed first?",
+        "keywords": ["param", "segment", "match", "order"],
+        "minLength": 25
+      },
+      "hints": [
+        "Angular matches routes top-to-bottom. The first route that fully matches the URL wins. 'signals' doesn't match /signals/7 because it has no :id segment — so the router keeps looking and finds 'signals/:id'.",
+        "'/signals' only matches the exact path '/signals' with nothing after it.",
+        "'/signals/7' has two segments — 'signals' and '7'. The route 'signals/:id' matches both segments."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d17-c02",
+      "dayNumber": 17,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["routing", "routerLink"],
+      "week": 3,
+      "title": "Link the Beacons",
+      "narrativeHook": "The nav bar needs links. Each beacon gets its own page. Wire them up.",
+      "instructions": "The template is already written — it uses `[routerLink]` to generate a dynamic link for each beacon.\n\nYour job: populate the `beacons` array with three entries:\n- `{ id: 1, name: 'Alpha' }`\n- `{ id: 2, name: 'Beta' }`\n- `{ id: 3, name: 'Gamma' }`\n\nStudy `NAV_TEMPLATE` — `[routerLink]=\"['/beacon', beacon.id]\"` generates `/beacon/1`, `/beacon/2`, `/beacon/3` as each beacon renders. This is declarative navigation: no method call, no class code — just a binding in the template.",
+      "environment": "stackblitz",
+      "starterCode": "const NAV_TEMPLATE = `\n  <nav>\n    @for (beacon of beacons; track beacon.id) {\n      <a [routerLink]=\"['/beacon', beacon.id]\">{{ beacon.name }}</a>\n    }\n  </nav>\n`;\n\nexport class BeaconNavComponent {\n  beacons = [];\n  // Populate with: { id: 1, name: 'Alpha' }, { id: 2, name: 'Beta' }, { id: 3, name: 'Gamma' }\n}",
+      "files": [
+        {
+          "name": "beacon-nav.component.ts",
+          "language": "typescript",
+          "content": "const NAV_TEMPLATE = `\n  <nav>\n    @for (beacon of beacons; track beacon.id) {\n      <a [routerLink]=\"['/beacon', beacon.id]\">{{ beacon.name }}</a>\n    }\n  </nav>\n`;\n\nexport class BeaconNavComponent {\n  beacons = [];\n  // Populate with: { id: 1, name: 'Alpha' }, { id: 2, name: 'Beta' }, { id: 3, name: 'Gamma' }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "const NAV_TEMPLATE = `\n  <nav>\n    @for (beacon of beacons; track beacon.id) {\n      <a [routerLink]=\"['/beacon', beacon.id]\">{{ beacon.name }}</a>\n    }\n  </nav>\n`;\n\nexport class BeaconNavComponent {\n  beacons = [\n    { id: 1, name: 'Alpha' },\n    { id: 2, name: 'Beta' },\n    { id: 3, name: 'Gamma' },\n  ];\n}",
+      "tests": [
+        {
+          "description": "beacons should have 3 entries",
+          "testCode": "const c = new BeaconNavComponent(); if (c.beacons.length !== 3) throw new Error(`beacons should have 3 entries, got ${c.beacons.length}`);"
+        },
+        {
+          "description": "first beacon should be { id: 1, name: 'Alpha' }",
+          "testCode": "const c = new BeaconNavComponent(); if (c.beacons[0].id !== 1 || c.beacons[0].name !== 'Alpha') throw new Error(`first beacon should be { id: 1, name: 'Alpha' }, got ${JSON.stringify(c.beacons[0])}`);"
+        },
+        {
+          "description": "last beacon should be { id: 3, name: 'Gamma' }",
+          "testCode": "const c = new BeaconNavComponent(); if (c.beacons[2].id !== 3 || c.beacons[2].name !== 'Gamma') throw new Error(`last beacon should be { id: 3, name: 'Gamma' }, got ${JSON.stringify(c.beacons[2])}`);"
+        },
+        {
+          "description": "NAV_TEMPLATE should use [routerLink]",
+          "testCode": "if (!NAV_TEMPLATE.includes('[routerLink]')) throw new Error('NAV_TEMPLATE must contain [routerLink] — do not remove the template binding');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "The template uses `[routerLink]=\"['/beacon', beacon.id]\"`. Why is the value an array instead of a plain string like `\"/beacon/1\"`? What href does Angular generate for the beacon with id 2?",
+        "keywords": ["array", "segment", "dynamic", "generate"],
+        "minLength": 30
+      },
+      "hints": [
+        "Just fill in the beacons array — the template is already written for you. Add three objects with id and name.",
+        "[routerLink] takes an array of path segments. ['/beacon', beacon.id] joins them: '/beacon' + 1 = '/beacon/1'. This makes the id dynamic.",
+        "Compare this to router.navigate(['/beacon', id]) — same array format, different context: [routerLink] is declarative (in the template), router.navigate() is imperative (in the class)."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d17-c03",
+      "dayNumber": 17,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["routing", "router", "navigate"],
+      "week": 3,
+      "title": "Wrong Navigation",
+      "narrativeHook": "The logout button navigates to the home page. It goes nowhere instead.",
+      "instructions": "This component injects `Router` and calls `navigate()` on logout — but nothing happens.\n\nThere is exactly one bug in the navigation call. Fix it.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\nimport { Router } from '@angular/router';\n\nexport class DashboardComponent {\n  isLoggedIn = true;\n\n  constructor(private router: Router) {}\n\n  logout() {\n    this.isLoggedIn = false;\n    this.router.navigate('/home');  // Bug: wrong argument\n  }\n}",
+      "files": [
+        {
+          "name": "dashboard.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\nimport { Router } from '@angular/router';\n\nexport class DashboardComponent {\n  isLoggedIn = true;\n\n  constructor(private router: Router) {}\n\n  logout() {\n    this.isLoggedIn = false;\n    this.router.navigate('/home');  // Bug: wrong argument\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\nimport { Router } from '@angular/router';\n\nexport class DashboardComponent {\n  isLoggedIn = true;\n\n  constructor(private router: Router) {}\n\n  logout() {\n    this.isLoggedIn = false;\n    this.router.navigate(['/home']);\n  }\n}",
+      "tests": [
+        {
+          "description": "logout() should set isLoggedIn to false",
+          "testCode": "const navigated = []; const c = new DashboardComponent({ navigate: (path) => navigated.push(path) }); c.logout(); if (c.isLoggedIn) throw new Error('logout() should set isLoggedIn to false');"
+        },
+        {
+          "description": "logout() should call router.navigate with an array",
+          "testCode": "const navigated = []; const c = new DashboardComponent({ navigate: (path) => navigated.push(path) }); c.logout(); if (!Array.isArray(navigated[0])) throw new Error(`router.navigate() should receive an array, got ${typeof navigated[0]}`);"
+        },
+        {
+          "description": "router.navigate should receive ['/home']",
+          "testCode": "const navigated = []; const c = new DashboardComponent({ navigate: (path) => navigated.push(path) }); c.logout(); if (navigated[0][0] !== '/home') throw new Error(`navigate should be called with ['/home'], got ${JSON.stringify(navigated[0])}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why does router.navigate() take an array of path segments instead of a plain string?",
+        "keywords": ["array", "segments", "params", "navigate"],
+        "minLength": 25
+      },
+      "hints": [
+        "router.navigate() expects an array of path segments: router.navigate(['/home'])",
+        "Passing a string directly ('/home') doesn't match the method signature — it expects an array.",
+        "The array format allows dynamic segments: router.navigate(['/signals', signalId])"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d17-c04",
+      "dayNumber": 17,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["routing", "activatedRoute", "route-params", "services"],
+      "week": 3,
+      "title": "Route + Service",
+      "narrativeHook": "The detail page knows its ID from the route. It asks the service for the matching record.",
+      "instructions": "Complete the `BeaconDetailComponent`:\n\n- `BeaconService` is already complete\n- The constructor is pre-filled — `route` and `beaconService` are already assigned\n- In `ngOnInit`, read the `id` route param (it's a number string)\n- Call `this.beaconService.find(Number(id))` and store the result in `this.beacon`\n- `displayName` getter returns `beacon.name.toUpperCase()` if beacon exists, otherwise `'NOT FOUND'`",
+      "environment": "stackblitz",
+      "starterCode": "import { Component, OnInit } from '@angular/core';\nimport { Injectable } from '@angular/core';\nimport { ActivatedRoute } from '@angular/router';\n\n@Injectable({ providedIn: 'root' })\nexport class BeaconService {\n  private beacons = [\n    { id: 1, name: 'alpha' },\n    { id: 2, name: 'beta' },\n    { id: 3, name: 'gamma' },\n  ];\n\n  find(id) {\n    return this.beacons.find(b => b.id === id) ?? null;\n  }\n}\n\nexport class BeaconDetailComponent implements OnInit {\n  beacon = null;\n  route;\n  beaconService;\n\n  constructor(route, beaconService) {\n    this.route = route;           // assign explicitly — shorthand won't survive the sandbox\n    this.beaconService = beaconService;\n  }\n\n  ngOnInit() {\n    // Read 'id' from route params, convert to number, call beaconService.find()\n    // Your code here\n  }\n\n  get displayName() {\n    // Return beacon.name uppercased, or 'NOT FOUND' if null\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "beacon-detail.component.ts",
+          "language": "typescript",
+          "content": "import { Component, OnInit } from '@angular/core';\nimport { Injectable } from '@angular/core';\nimport { ActivatedRoute } from '@angular/router';\n\n@Injectable({ providedIn: 'root' })\nexport class BeaconService {\n  private beacons = [\n    { id: 1, name: 'alpha' },\n    { id: 2, name: 'beta' },\n    { id: 3, name: 'gamma' },\n  ];\n\n  find(id) {\n    return this.beacons.find(b => b.id === id) ?? null;\n  }\n}\n\nexport class BeaconDetailComponent implements OnInit {\n  beacon = null;\n  route;\n  beaconService;\n\n  constructor(route, beaconService) {\n    this.route = route;           // assign explicitly — shorthand won't survive the sandbox\n    this.beaconService = beaconService;\n  }\n\n  ngOnInit() {\n    // Read 'id' from route params, convert to number, call beaconService.find()\n    // Your code here\n  }\n\n  get displayName() {\n    // Return beacon.name uppercased, or 'NOT FOUND' if null\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component, OnInit } from '@angular/core';\nimport { Injectable } from '@angular/core';\nimport { ActivatedRoute } from '@angular/router';\n\n@Injectable({ providedIn: 'root' })\nexport class BeaconService {\n  private beacons = [\n    { id: 1, name: 'alpha' },\n    { id: 2, name: 'beta' },\n    { id: 3, name: 'gamma' },\n  ];\n\n  find(id) {\n    return this.beacons.find(b => b.id === id) ?? null;\n  }\n}\n\nexport class BeaconDetailComponent implements OnInit {\n  beacon = null;\n  route;\n  beaconService;\n\n  constructor(route, beaconService) {\n    this.route = route;\n    this.beaconService = beaconService;\n  }\n\n  ngOnInit() {\n    const id = this.route.snapshot.paramMap.get('id');\n    this.beacon = this.beaconService.find(Number(id));\n  }\n\n  get displayName() {\n    return this.beacon ? this.beacon.name.toUpperCase() : 'NOT FOUND';\n  }\n}",
+      "tests": [
+        {
+          "description": "BeaconService.find(2) should return { id: 2, name: 'beta' }",
+          "testCode": "const s = new BeaconService(); const b = s.find(2); if (!b || b.name !== 'beta') throw new Error(`find(2) should return beta beacon, got ${JSON.stringify(b)}`);"
+        },
+        {
+          "description": "BeaconService.find(99) should return null",
+          "testCode": "const s = new BeaconService(); if (s.find(99) !== null) throw new Error('find(99) should return null');"
+        },
+        {
+          "description": "displayName should return uppercased beacon name",
+          "testCode": "const mockRoute = { snapshot: { paramMap: { get: () => '1' } } }; const s = new BeaconService(); const c = new BeaconDetailComponent(mockRoute, s); c.ngOnInit(); if (c.displayName !== 'ALPHA') throw new Error(`displayName should be 'ALPHA', got '${c.displayName}'`);"
+        },
+        {
+          "description": "displayName should return 'NOT FOUND' for missing id",
+          "testCode": "const mockRoute = { snapshot: { paramMap: { get: () => '99' } } }; const s = new BeaconService(); const c = new BeaconDetailComponent(mockRoute, s); c.ngOnInit(); if (c.displayName !== 'NOT FOUND') throw new Error(`displayName for missing id should be 'NOT FOUND', got '${c.displayName}'`);"
+        }
+      ],
+      "hints": [
+        "The constructor is pre-filled — both this.route and this.beaconService are already assigned. Go straight to ngOnInit.",
+        "In ngOnInit: const id = this.route.snapshot.paramMap.get('id'); — route params are always strings, so convert: this.beacon = this.beaconService.find(Number(id));",
+        "The displayName getter: return this.beacon ? this.beacon.name.toUpperCase() : 'NOT FOUND';"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

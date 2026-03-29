@@ -1,0 +1,70 @@
+{
+  "dayNumber": 7,
+  "week": 1,
+  "title": "First Light",
+  "narrativeIntro": "A structure at the center of the first cluster has been dark since you arrived. It's larger than the others -- a nexus point, something the builders clearly intended to be important. Every skill you've gathered this week connects here.\n\nIt's time to bring it online. No hints. No fragments. Just you and what you've learned.\n\nYou have 45 minutes.",
+  "narrativeOutro": "The nexus ignites. Not with fire -- with light. A slow, warm bloom that spreads through every node you've activated this week, connecting them, making them brighter than they were alone. The first cluster of The Drift is alive.\n\nYou did that. Seven days ago you woke up with nothing.\n\nThe second region awaits, and the signals there are more complex. But you're not the same person who woke up in the dark.",
+  "phmChapters": [10],
+  "phmConnectionNote": "Ryland has his first major success on the ship. You prove everything you've learned this week.",
+  "challengeIds": ["d07-c01"],
+  "concepts": ["variables", "arrays", "objects", "functions", "DOM", "events", "conditionals", "loops"],
+  "conceptsPreview": "Boss battle: synthesize all Week 1 skills into one interactive build",
+  "challenges": [
+    {
+      "id": "d07-c01",
+      "dayNumber": 7,
+      "order": 1,
+      "type": "build",
+      "difficulty": "boss",
+      "timeLimitMinutes": 45,
+      "concepts": ["variables", "arrays", "objects", "functions", "DOM", "events", "conditionals", "loops"],
+      "week": 1,
+      "title": "First Light",
+      "narrativeHook": "A nexus point waits at the center of the first cluster. Everything you've learned this week connects here. Bring it online.",
+      "instructions": "Build a \"Crew Log\" interactive page from scratch.\n\nRequirements:\n1. An array of crew member objects, each with: name, role, status (\"active\" or \"inactive\"). Include at least 3 crew members.\n\n2. A function `renderCrewList()` that:\n   - Clears the crew list container\n   - Creates a DOM element for each crew member showing their name, role, and status\n   - Active members should have a green-tinted background (#1a3a1a)\n   - Inactive members should have a red-tinted background (#3a1a1a)\n\n3. A button \"Add Crew Member\" that, when clicked:\n   - Prompts for a name using prompt()\n   - Adds a new crew member object with that name, role \"recruit\", status \"active\"\n   - Re-renders the list\n\n4. Each crew member element should have a \"Toggle Status\" button that switches their status between \"active\" and \"inactive\" and re-renders.\n\nStart with the provided HTML structure.",
+      "starterCode": "// HTML is provided: <div id=\"app\"></div>\n// Build everything in JavaScript\n\n// Your crew data\n\n\n// Your renderCrewList function\n\n\n// Your add crew button logic\n\n\n// Initial render\n",
+      "solution": "const crew = [\n  { name: \"Grace\", role: \"scientist\", status: \"active\" },\n  { name: \"Ilyukhina\", role: \"commander\", status: \"active\" },\n  { name: \"Shapiro\", role: \"engineer\", status: \"inactive\" }\n];\n\nfunction renderCrewList() {\n  const app = document.getElementById('app');\n  app.innerHTML = '';\n\n  const title = document.createElement('h1');\n  title.textContent = 'Crew Log';\n  app.appendChild(title);\n\n  const addBtn = document.createElement('button');\n  addBtn.textContent = 'Add Crew Member';\n  addBtn.addEventListener('click', () => {\n    const name = prompt('Enter crew member name:');\n    if (name) {\n      crew.push({ name, role: 'recruit', status: 'active' });\n      renderCrewList();\n    }\n  });\n  app.appendChild(addBtn);\n\n  const list = document.createElement('div');\n  crew.forEach((member) => {\n    const card = document.createElement('div');\n    card.style.padding = '10px';\n    card.style.margin = '5px 0';\n    card.style.backgroundColor = member.status === 'active' ? '#1a3a1a' : '#3a1a1a';\n    card.innerHTML = `<strong>${member.name}</strong> — ${member.role} (${member.status})`;\n\n    const toggleBtn = document.createElement('button');\n    toggleBtn.textContent = 'Toggle Status';\n    toggleBtn.style.marginLeft = '10px';\n    toggleBtn.addEventListener('click', () => {\n      member.status = member.status === 'active' ? 'inactive' : 'active';\n      renderCrewList();\n    });\n    card.appendChild(toggleBtn);\n    list.appendChild(card);\n  });\n  app.appendChild(list);\n}\n\nrenderCrewList();",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "Page should show at least 3 crew members",
+          "testCode": "const cards = document.querySelectorAll('#app div div'); if (cards.length < 3) throw new Error('Need at least 3 crew members rendered in the list');"
+        },
+        {
+          "description": "Crew member names should be visible on the page",
+          "testCode": "const app = document.getElementById('app'); if (!app || !app.textContent.match(/[A-Z][a-z]+/)) throw new Error('Crew names not visible in the app container');"
+        },
+        {
+          "description": "Each crew member should have a Toggle Status button",
+          "testCode": "const toggleBtns = [...document.querySelectorAll('button')].filter(b => b.textContent.includes('Toggle')); if (toggleBtns.length < 3) throw new Error('Need a Toggle Status button for each of the 3+ crew members');"
+        },
+        {
+          "description": "An 'Add Crew Member' button should exist",
+          "testCode": "const addBtn = [...document.querySelectorAll('button')].find(b => b.textContent.includes('Add')); if (!addBtn) throw new Error('Add Crew Member button not found on the page');"
+        },
+        {
+          "description": "Toggling a crew member should update their status display",
+          "testCode": "const toggleBtns = [...document.querySelectorAll('button')].filter(b => b.textContent.includes('Toggle')); if (toggleBtns.length > 0) { toggleBtns[0].click(); } const app = document.getElementById('app'); if (!app.textContent.includes('inactive') && !app.textContent.includes('active')) throw new Error('Toggling should update the status text in the crew member element');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How did renderCrewList() make the Toggle and Add features work correctly? What pattern did you use to keep the display in sync with the data?",
+        "keywords": ["render", "data", "array", "function"],
+        "minLength": 40
+      },
+      "hints": [
+        "Start with the data: an array of at least 3 crew member objects, each with name, role, and status properties.",
+        "Write renderCrewList() to loop through the array and create a DOM element per member. Clear the container first with app.innerHTML = '' before re-rendering.",
+        "For Toggle Status: add an addEventListener that flips member.status between 'active' and 'inactive', then calls renderCrewList() again.",
+        "Wire Add Crew Member last. Use prompt() to get a name, push a new object into the array, then call renderCrewList()."
+      ],
+      "xpReward": 100,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 0,
+        "speedBonus": 25,
+        "speedThresholdMs": 2700000
+      }
+    }
+  ]
+}

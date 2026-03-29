@@ -1,0 +1,453 @@
+@if (challenge(); as c) {
+  <div class="flex flex-col h-screen bg-drift-void text-drift-text-primary font-body animate-slide-in">
+
+    <!-- Top Bar — gold-tinted border signals this is different -->
+    <header class="flex items-center gap-4 px-6 py-3 bg-drift-deep border-b border-drift-gold/20">
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-1.5 text-drift-text-secondary hover:text-drift-lavender transition-colors text-sm"
+      >
+        <lucide-icon [img]="icons.ChevronLeft" [size]="16"></lucide-icon>
+        <span>Day {{ c.dayNumber }}</span>
+      </button>
+      <div class="h-4 w-px bg-drift-surface"></div>
+      <span class="text-xs text-drift-text-tertiary font-mono">{{ c.title }}</span>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-drift-gold/12 text-drift-gold border border-drift-gold/25">
+        Boss Battle
+      </span>
+      <div class="flex-1"></div>
+      <span class="text-xs text-drift-text-ghost">1/1</span>
+    </header>
+
+    @if (c.type === 'predict') {
+      <!-- ==================== PREDICT MODE ==================== -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex overflow-hidden">
+
+          <!-- Instructions Panel -->
+          <div class="w-[35%] min-w-[320px] border-r border-drift-surface/50 overflow-y-auto p-6">
+            @if (showExplainGate()) {
+              <div class="animate-fade-in">
+                <h2 class="font-display text-xl text-drift-text-primary mb-2">Explain to Continue</h2>
+                <p class="text-sm text-drift-text-secondary mb-6">{{ c.explainGate?.prompt }}</p>
+                <textarea
+                  class="w-full min-h-[120px] bg-drift-void border border-drift-lavender/15 focus:border-drift-lavender/30 rounded-[--radius-drift-sm] p-4 text-sm font-body text-drift-text-primary resize-y outline-none transition-colors"
+                  placeholder="Explain in your own words..."
+                  [ngModel]="explanation()"
+                  (ngModelChange)="explanation.set($event)"
+                ></textarea>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="text-xs" [class]="explanation().length >= (c.explainGate?.minLength ?? 0) ? 'text-drift-sage' : 'text-drift-text-tertiary'">
+                    {{ explanation().length }}/{{ c.explainGate?.minLength ?? 0 }} characters
+                  </span>
+                  <button
+                    (click)="submitExplanation()"
+                    [disabled]="explanation().length < (c.explainGate?.minLength ?? 0)"
+                    class="px-4 py-2 rounded-[--radius-drift-sm] text-sm font-medium transition-all"
+                    [class]="explanation().length >= (c.explainGate?.minLength ?? 0)
+                      ? 'bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender cursor-pointer'
+                      : 'bg-drift-surface text-drift-text-ghost cursor-not-allowed'"
+                  >Continue</button>
+                </div>
+              </div>
+            } @else {
+              <h2 class="text-lg font-semibold mb-2">{{ c.title }}</h2>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border mb-4" [class]="typeBadgeClass()">
+                <lucide-icon [img]="typeIcon()" [size]="12"></lucide-icon>
+                {{ c.type }}
+              </span>
+              <p class="font-display text-base italic text-drift-text-primary/80 mb-4 leading-relaxed">
+                "{{ c.narrativeHook }}"
+              </p>
+              <div class="w-full h-px bg-drift-surface my-5"></div>
+              <div class="text-sm text-drift-text-primary leading-relaxed whitespace-pre-line">{{ c.instructions }}</div>
+            }
+          </div>
+
+          <!-- Code Display + Prediction Panel -->
+          <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Timer in header for predict mode -->
+            @if (c.timeLimitMinutes) {
+              <div class="flex items-center justify-end px-4 py-2 bg-drift-deep border-b border-drift-surface/50">
+                <div
+                  class="flex items-center gap-1.5 font-mono font-bold text-base transition-colors"
+                  [class]="timerColorClass()"
+                  [class.animate-pulse]="timerPulsing()"
+                >
+                  <lucide-icon [img]="icons.Clock" [size]="14"></lucide-icon>
+                  {{ timerDisplay() }}
+                </div>
+              </div>
+            }
+            @if (showTimesUpMessage()) {
+              <div class="px-4 py-2 bg-drift-fail/8 border-b border-drift-fail/15 text-xs text-drift-text-secondary">
+                Time's up. But you can keep working.
+              </div>
+            }
+            <div class="flex-1 overflow-hidden">
+              <ngx-monaco-editor
+                class="block h-full"
+                [options]="{ theme: 'drift', language: 'javascript', fontSize: 14, readOnly: true, domReadOnly: true, minimap: { enabled: false }, wordWrap: 'on', scrollBeyondLastLine: false }"
+                [ngModel]="c.starterCode"
+              ></ngx-monaco-editor>
+            </div>
+
+            @if (c.predictChoices && !predictionSubmitted()) {
+              <div class="border-t border-drift-surface/50 p-6">
+                <p class="text-sm font-medium text-drift-text-secondary mb-4">{{ c.predictPrompt }}</p>
+                <div class="flex flex-col gap-2">
+                  @for (choice of c.predictChoices; track choice) {
+                    <button
+                      (click)="selectedPrediction.set(choice)"
+                      class="text-left px-4 py-3 rounded-[--radius-drift-sm] border text-sm font-mono transition-all"
+                      [class]="selectedPrediction() === choice
+                        ? 'border-drift-lavender bg-drift-lavender/8 text-drift-text-primary'
+                        : 'border-drift-surface bg-drift-mid text-drift-text-secondary hover:bg-drift-surface hover:border-drift-lavender/30'"
+                    >{{ choice }}</button>
+                  }
+                </div>
+                <div class="flex justify-end mt-4">
+                  <button
+                    (click)="submitPrediction()"
+                    [disabled]="!selectedPrediction()"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-[--radius-drift-sm] text-sm font-medium transition-all"
+                    [class]="selectedPrediction()
+                      ? 'bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender cursor-pointer'
+                      : 'bg-drift-surface text-drift-text-ghost cursor-not-allowed'"
+                  >
+                    <lucide-icon [img]="icons.Send" [size]="14"></lucide-icon>
+                    Submit Prediction
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (predictionSubmitted()) {
+              <div class="border-t border-drift-surface/50 p-6">
+                @if (predictionCorrect()) {
+                  <div class="flex items-center gap-2 text-drift-pass mb-3">
+                    <lucide-icon [img]="icons.CircleCheck" [size]="20"></lucide-icon>
+                    <span class="font-medium">Correct!</span>
+                  </div>
+                } @else {
+                  <div class="mb-3">
+                    <div class="flex items-center gap-2 text-drift-fail mb-2">
+                      <lucide-icon [img]="icons.CircleX" [size]="20"></lucide-icon>
+                      <span class="font-medium">Not quite</span>
+                    </div>
+                    <p class="text-sm text-drift-text-secondary mb-2">
+                      The correct answer is: <span class="font-mono text-drift-pass">{{ c.predictAnswer }}</span>
+                    </p>
+                    <p class="text-xs text-drift-text-tertiary italic mb-4">{{ c.solution }}</p>
+                    @if (!challengeCompleted()) {
+                      <button
+                        (click)="acknowledgeWrongPrediction()"
+                        class="px-5 py-2 rounded-[--radius-drift-sm] text-sm font-medium bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender transition-all"
+                      >I Understand</button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (c.hints.length > 0 && !showExplainGate()) {
+          <div class="border-t border-drift-surface/50 px-6 py-3">
+            <button (click)="showHints.set(!showHints())" class="flex items-center gap-2 text-xs text-drift-text-tertiary hover:text-drift-text-secondary transition-colors">
+              <lucide-icon [img]="icons.Lightbulb" [size]="14"></lucide-icon>
+              Hints ({{ hintsRevealed() }}/{{ c.hints.length }} used)
+            </button>
+            @if (showHints()) {
+              <div class="mt-3 space-y-2">
+                @for (hint of c.hints; track hint; let i = $index) {
+                  @if (i < hintsRevealed()) {
+                    <p class="text-sm text-drift-text-secondary pl-5">{{ hint }}</p>
+                  } @else if (i === hintsRevealed()) {
+                    <button (click)="revealHint()" class="text-xs text-drift-lavender hover:text-drift-glow-lavender pl-5 transition-colors">
+                      Reveal Hint {{ i + 1 }} <span class="text-drift-text-ghost ml-2">-10 XP</span>
+                    </button>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    } @else {
+      <!-- ==================== CODE MODE ==================== -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+
+        <div class="flex-1 flex overflow-hidden min-h-0">
+
+          <!-- Instructions Panel (35%) -->
+          <div class="w-[35%] min-w-[320px] border-r border-drift-surface/50 overflow-y-auto p-6 flex flex-col">
+            @if (showExplainGate()) {
+              <div class="animate-fade-in">
+                <h2 class="font-display text-xl text-drift-text-primary mb-2">Explain to Continue</h2>
+                <p class="text-sm text-drift-text-secondary mb-6">{{ c.explainGate?.prompt }}</p>
+                <textarea
+                  class="w-full min-h-[120px] bg-drift-void border border-drift-lavender/15 focus:border-drift-lavender/30 rounded-[--radius-drift-sm] p-4 text-sm font-body text-drift-text-primary resize-y outline-none transition-colors"
+                  placeholder="Explain in your own words..."
+                  [ngModel]="explanation()"
+                  (ngModelChange)="explanation.set($event)"
+                ></textarea>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="text-xs" [class]="explanation().length >= (c.explainGate?.minLength ?? 0) ? 'text-drift-sage' : 'text-drift-text-tertiary'">
+                    {{ explanation().length }}/{{ c.explainGate?.minLength ?? 0 }} characters
+                  </span>
+                  <button
+                    (click)="submitExplanation()"
+                    [disabled]="explanation().length < (c.explainGate?.minLength ?? 0)"
+                    class="px-4 py-2 rounded-[--radius-drift-sm] text-sm font-medium transition-all"
+                    [class]="explanation().length >= (c.explainGate?.minLength ?? 0)
+                      ? 'bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender cursor-pointer'
+                      : 'bg-drift-surface text-drift-text-ghost cursor-not-allowed'"
+                  >Continue</button>
+                </div>
+              </div>
+            } @else {
+              <h2 class="text-lg font-semibold mb-2">{{ c.title }}</h2>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border mb-4" [class]="typeBadgeClass()">
+                <lucide-icon [img]="typeIcon()" [size]="12"></lucide-icon>
+                {{ c.type }}
+              </span>
+              <p class="font-display text-base italic text-drift-text-primary/80 mb-4 leading-relaxed">
+                "{{ c.narrativeHook }}"
+              </p>
+              <div class="w-full h-px bg-drift-surface my-5"></div>
+              <div class="text-sm text-drift-text-primary leading-relaxed whitespace-pre-line">{{ c.instructions }}</div>
+
+              @if (c.hints.length > 0) {
+                <div class="mt-auto pt-6">
+                  <button (click)="showHints.set(!showHints())" class="flex items-center gap-2 text-xs text-drift-text-tertiary hover:text-drift-text-secondary transition-colors">
+                    <lucide-icon [img]="icons.Lightbulb" [size]="14"></lucide-icon>
+                    Hints ({{ hintsRevealed() }}/{{ c.hints.length }} used)
+                  </button>
+                  @if (showHints()) {
+                    <div class="mt-3 space-y-2">
+                      @for (hint of c.hints; track hint; let i = $index) {
+                        @if (i < hintsRevealed()) {
+                          <p class="text-sm text-drift-text-secondary pl-5">{{ hint }}</p>
+                        } @else if (i === hintsRevealed()) {
+                          <button (click)="revealHint()" class="text-xs text-drift-lavender hover:text-drift-glow-lavender pl-5 transition-colors">
+                            Reveal Hint {{ i + 1 }} <span class="text-drift-text-ghost ml-2">-10 XP</span>
+                          </button>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Editor Panel (65%) -->
+          <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Editor Header: file tabs (left) + timer (right) -->
+            <div class="flex items-center px-4 py-2 bg-drift-deep border-b border-drift-surface/50 text-xs gap-1 min-w-0">
+              @if (hasMultipleFiles()) {
+                <!-- Multi-file tab bar -->
+                @for (file of c.files; track file.name; let i = $index) {
+                  <button
+                    (click)="switchFile(i)"
+                    class="px-3 py-1.5 font-mono transition-all shrink-0"
+                    [class]="activeFileIndex() === i
+                      ? 'text-drift-text-primary border-b-2 border-drift-lavender -mb-px pb-[5px]'
+                      : 'text-drift-text-secondary hover:text-drift-text-primary'"
+                  >{{ file.name }}</button>
+                }
+              } @else {
+                <span class="font-mono text-drift-text-secondary">{{ activeFile()?.name ?? 'script.js' }}</span>
+              }
+
+              <div class="flex-1"></div>
+
+              <!-- Timer display -->
+              @if (c.timeLimitMinutes) {
+                <div
+                  class="flex items-center gap-1.5 font-mono font-bold text-sm transition-colors shrink-0"
+                  [class]="timerColorClass()"
+                  [class.animate-pulse]="timerPulsing()"
+                >
+                  <lucide-icon [img]="icons.Clock" [size]="13"></lucide-icon>
+                  {{ timerDisplay() }}
+                </div>
+              }
+            </div>
+
+            <!-- Time's up banner — soft, non-blocking -->
+            @if (showTimesUpMessage()) {
+              <div class="px-4 py-2 bg-drift-fail/8 border-b border-drift-fail/15 text-xs text-drift-text-secondary animate-fade-in">
+                Time's up. But you can keep working.
+              </div>
+            }
+
+            <!-- Editor or StackBlitz -->
+            @if (c.environment === 'stackblitz') {
+              <div id="sb-container" class="flex-1 overflow-hidden" style="min-height: 0;"></div>
+            } @else {
+              <div class="flex-1 overflow-hidden">
+                <ngx-monaco-editor
+                  class="block h-full"
+                  [options]="editorOptions()"
+                  [ngModel]="activeFileContent()"
+                  (ngModelChange)="onCodeChange($event)"
+                ></ngx-monaco-editor>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Bottom: Output / Tests Panel -->
+        <div class="h-[28%] min-h-[160px] border-t border-drift-surface/50 flex flex-col bg-drift-deep">
+          <div class="flex items-center px-4 py-2 border-b border-drift-surface/50">
+            <div class="flex gap-1">
+              <button
+                (click)="activeTab.set('console')"
+                class="px-3 py-1.5 rounded-[--radius-drift-sm] text-xs font-medium transition-colors"
+                [class]="activeTab() === 'console'
+                  ? 'bg-drift-surface text-drift-text-primary'
+                  : 'text-drift-text-tertiary hover:text-drift-text-secondary'"
+              >Console</button>
+              <button
+                (click)="activeTab.set('tests')"
+                class="px-3 py-1.5 rounded-[--radius-drift-sm] text-xs font-medium transition-colors"
+                [class]="activeTab() === 'tests'
+                  ? 'bg-drift-surface text-drift-text-primary'
+                  : 'text-drift-text-tertiary hover:text-drift-text-secondary'"
+              >Tests ({{ testPassCount() }}/{{ testTotalCount() }})</button>
+            </div>
+            <div class="flex-1"></div>
+            <div class="flex items-center gap-2">
+              <button
+                (click)="runCode()"
+                [disabled]="isRunning()"
+                class="flex items-center gap-1.5 px-4 py-1.5 rounded-[--radius-drift-sm] text-xs font-medium bg-drift-surface text-drift-text-secondary hover:text-drift-text-primary hover:bg-drift-raised transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                @if (isRunning()) {
+                  <lucide-icon [img]="icons.Loader" [size]="12" class="animate-spin"></lucide-icon>
+                } @else {
+                  <lucide-icon [img]="icons.Play" [size]="12"></lucide-icon>
+                }
+                Run
+              </button>
+              <button
+                (click)="submitCode()"
+                [disabled]="isRunning()"
+                class="flex items-center gap-1.5 px-4 py-1.5 rounded-[--radius-drift-sm] text-xs font-medium bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                @if (isRunning()) {
+                  <lucide-icon [img]="icons.Loader" [size]="12" class="animate-spin"></lucide-icon>
+                } @else {
+                  <lucide-icon [img]="icons.Send" [size]="12"></lucide-icon>
+                }
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="flex-1 overflow-y-auto p-4 font-mono text-sm">
+            @if (activeTab() === 'console') {
+              @if (executionResult(); as r) {
+                @for (line of r.output; track $index) {
+                  <div class="flex gap-2 py-0.5">
+                    <span class="text-drift-text-ghost select-none">></span>
+                    <span class="text-drift-text-primary">{{ line }}</span>
+                  </div>
+                }
+                @if (r.error) {
+                  <div class="flex gap-2 py-0.5">
+                    <span class="text-drift-text-ghost select-none">></span>
+                    <span class="text-drift-fail">{{ r.error }}</span>
+                  </div>
+                }
+                @if (r.output.length === 0 && !r.error) {
+                  <p class="text-drift-text-ghost italic">No console output.</p>
+                }
+              } @else {
+                <p class="text-drift-text-ghost italic">No output yet. Run your code to see results.</p>
+              }
+            } @else {
+              @if (executionResult(); as r) {
+                @for (t of r.testResults; track t.description) {
+                  <div class="flex items-start gap-2 py-1.5">
+                    @if (t.passed) {
+                      <lucide-icon [img]="icons.CircleCheck" [size]="14" class="text-drift-pass mt-0.5 shrink-0"></lucide-icon>
+                      <span class="text-drift-pass">{{ t.description }}</span>
+                    } @else {
+                      <lucide-icon [img]="icons.CircleX" [size]="14" class="text-drift-fail mt-0.5 shrink-0"></lucide-icon>
+                      <div>
+                        <span class="text-drift-fail">{{ t.description }}</span>
+                        @if (t.expected) {
+                          <p class="text-xs text-drift-text-tertiary mt-0.5">{{ t.expected }}</p>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              } @else {
+                @for (test of c.tests; track test.description) {
+                  <div class="flex items-center gap-2 py-1.5 text-drift-text-ghost">
+                    <span class="w-3.5 h-3.5 rounded-full border border-drift-text-ghost/30 shrink-0"></span>
+                    <span>{{ test.description }}</span>
+                  </div>
+                }
+                @if (c.tests.length === 0) {
+                  <p class="text-drift-text-ghost italic">No tests for this challenge type.</p>
+                }
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Boss Completion Overlay — gold bloom, more dramatic than standard challenge -->
+    @if (showCompletion()) {
+      <div class="fixed inset-0 bg-drift-void/85 backdrop-blur-sm flex items-center justify-center z-50">
+        <div
+          class="bg-drift-deep border border-drift-gold/25 rounded-[--radius-drift-md] p-12 text-center max-w-md w-full animate-fade-in"
+          style="box-shadow: 0 0 60px rgba(232, 207, 169, 0.18), 0 0 120px rgba(232, 207, 169, 0.07), 0 8px 32px rgba(15, 14, 26, 0.5);"
+        >
+          <p class="text-xs font-body tracking-widest uppercase text-drift-gold/50 mb-3">Week {{ c.week }} Complete</p>
+          <h2 class="font-display text-3xl text-drift-text-primary mb-1">Boss Battle</h2>
+          <p class="font-display text-xl text-drift-gold mb-8">Complete</p>
+
+          <div class="text-5xl font-bold text-drift-gold mb-2">+{{ earnedXp() }} XP</div>
+
+          @if (c.bonusXp) {
+            <div class="space-y-1.5 mb-8 text-sm min-h-[2.5rem]">
+              @if (noHintBonusEarned()) {
+                <p class="text-drift-sage">No hints  +{{ c.bonusXp.noHints }} XP</p>
+              }
+              @if (speedBonusEarned()) {
+                <p class="text-drift-gold/70">Completed under time  +{{ c.bonusXp.speedBonus }} XP</p>
+              } @else if (c.timeLimitMinutes && timerExpired()) {
+                <p class="text-drift-text-ghost text-xs">Timer expired — speed bonus lost</p>
+              }
+            </div>
+          }
+
+          <button
+            (click)="continueAction()"
+            class="px-8 py-3 rounded-[--radius-drift-sm] text-sm font-medium bg-drift-lavender text-drift-void hover:bg-drift-glow-lavender transition-all"
+          >
+            Complete Day
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+} @else {
+  <div class="flex items-center justify-center h-screen bg-drift-void">
+    <div class="flex items-center gap-3 text-drift-text-secondary">
+      <lucide-icon [img]="icons.Loader" [size]="20" class="animate-spin"></lucide-icon>
+      <span class="font-body text-sm">Loading boss battle...</span>
+    </div>
+  </div>
+}

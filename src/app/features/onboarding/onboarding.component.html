@@ -1,0 +1,91 @@
+<div class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-[3000ms]"
+     [style.background-color]="phase() === 0 ? '#050409' : '#0F0E1A'">
+     
+  <!-- Subtle noise that fades in -->
+  <div class="absolute inset-0 pointer-events-none transition-opacity duration-[3000ms]"
+       [style.opacity]="phase() === 0 ? '0' : '0.04'"
+       style="filter: url(#noise-void);"></div>
+
+  <!-- The First Light -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-1000"
+       [class.opacity-0]="phase() === 0">
+       
+      <div class="relative flex items-center justify-center">
+        <!-- Center solid pixel -->
+        <div class="rounded-full bg-drift-text-primary transition-all duration-[2000ms] ease-out shadow-drift-glow-lavender"
+             [ngClass]="phase() >= 1 ? 'w-1 h-1' : 'w-px h-px'"></div>
+        
+        <!-- Glow -->
+        <div class="absolute rounded-full transition-all duration-[2000ms] ease-out"
+             style="background: radial-gradient(circle, rgba(237,232,245,0.4) 0%, transparent 70%);"
+             [ngClass]="phase() >= 1 ? 'w-10 h-10' : 'w-0 h-0'"></div>
+             
+        <!-- Ripple Ring -->
+        <div class="absolute rounded-full border border-drift-text-primary/20 transition-all duration-[2000ms] ease-out"
+             [ngClass]="phase() >= 1 ? 'w-[120px] h-[120px] opacity-0' : 'w-0 h-0 opacity-100'"></div>
+             
+        <!-- Pulse effect -->
+        <div class="absolute rounded-full transition-all duration-1000"
+             [style.box-shadow]="pulseActive() ? '0 0 60px 10px rgba(184,169,232,0.2)' : 'none'"></div>
+      </div>
+  </div>
+
+  <div class="max-w-lg w-full text-center relative z-10">
+    <!-- Sequence: Text Cadence -->
+    @if (phase() === 2) {
+      <div class="space-y-6 flex flex-col items-center justify-center min-h-[200px]">
+        @for (sentence of displayedSentences(); track $index; let sIdx = $index) {
+          <div class="font-display text-drift-text-primary text-xl md:text-2xl leading-relaxed max-w-[480px]">
+            @for (word of sentence; track $index) {
+              <span class="animate-fade-in inline-block mr-1.5">{{ word }}</span>
+            }
+          </div>
+        }
+
+        <button
+          [class.opacity-0]="!showBeginButton()"
+          [class.pointer-events-none]="!showBeginButton()"
+          (click)="nextStep()"
+          class="drift-btn-primary inline-flex items-center gap-2 !px-8 !py-3 !text-base mt-8 transition-opacity duration-1000"
+        >
+          <span>Begin Setup</span>
+          <lucide-icon [img]="icons.ArrowRight" [size]="18"></lucide-icon>
+        </button>
+      </div>
+    }
+
+    <!-- Step 2: Configuration -->
+    @if (phase() === 3) {
+      <div class="space-y-8 animate-fade-in">
+        <div class="space-y-3">
+          <h2 class="font-display text-3xl text-drift-text-primary">When does it begin?</h2>
+          <p class="font-body text-drift-text-secondary text-sm">
+            Set your internship start date. The 26-day countdown starts from here.
+          </p>
+        </div>
+
+        <div class="drift-card inline-block">
+          <div class="flex items-center gap-3">
+            <lucide-icon [img]="icons.Calendar" [size]="20" class="text-drift-lavender"></lucide-icon>
+            <input
+              type="date"
+              [value]="startDate()"
+              (input)="onDateChange($any($event.target).value)"
+              class="bg-drift-surface text-drift-text-primary font-body text-base px-4 py-2 rounded-drift-sm border border-drift-lavender/15 focus:border-drift-lavender/40 focus:outline-none transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <button
+            (click)="begin()"
+            class="drift-btn-primary inline-flex items-center gap-2 !px-8 !py-3 !text-base"
+          >
+            <span>Enter the Drift</span>
+            <lucide-icon [img]="icons.ArrowRight" [size]="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

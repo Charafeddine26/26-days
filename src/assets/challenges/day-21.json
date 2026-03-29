@@ -1,0 +1,256 @@
+{
+  "dayNumber": 21,
+  "week": 4,
+  "title": "Forms",
+  "narrativeIntro": "The final region requires precision. Input, validation, error handling — every piece of data that enters the system must be verified and shaped. The builders were careful here. Forms are how users speak to applications, and that conversation must be handled with care.",
+  "narrativeOutro": "Forms are the most human part of any application. They're where real people type real things and expect the system to understand. You handle that now — validation, feedback, guidance. The Drift's final region begins to glow.",
+  "phmChapters": [26],
+  "phmConnectionNote": "Ryland needs precise input mechanisms for critical operations. You learn Angular forms.",
+  "challengeIds": ["d21-c05", "d21-c01", "d21-c02", "d21-c03", "d21-c04"],
+  "concepts": ["reactive-forms", "formGroup", "formControl", "validators", "form-state", "valueChanges", "formBuilder"],
+  "conceptsPreview": "Reactive forms, FormGroup, FormControl, validators, valueChanges, and FormBuilder",
+  "challenges": [
+    {
+      "id": "d21-c01",
+      "dayNumber": 21,
+      "order": 2,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["reactive-forms", "form-state", "validators"],
+      "week": 4,
+      "title": "Form State",
+      "narrativeHook": "A form is touched, dirty, and invalid. The template must respond to all three.",
+      "instructions": "A reactive form has one `Validators.required` control. The user has typed into it (dirty, touched) but then deleted the text (value is now `''`).\n\nPredict the form's state properties.",
+      "starterCode": "// Read-only — predict the values\n\n// const form = new FormGroup({\n//   callsign: new FormControl('', Validators.required)\n// });\n\n// User typed 'alpha', then deleted it.\n// form.get('callsign').value is now ''\n\n// What are these values?\n// form.valid\n// form.dirty\n// form.touched",
+      "solution": "// No code changes — this is a prediction challenge.\n// form.valid = false (empty string fails Validators.required)\n// form.dirty = true (user changed the value)\n// form.touched = true (user focused and blurred the field)",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 13 }],
+      "predictPrompt": "What are form.valid, form.dirty, and form.touched?",
+      "predictChoices": [
+        "valid: false, dirty: true, touched: true",
+        "valid: false, dirty: false, touched: true",
+        "valid: true, dirty: true, touched: true",
+        "valid: false, dirty: true, touched: false"
+      ],
+      "predictAnswer": "valid: false, dirty: true, touched: true",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What is the difference between a form being 'dirty' and being 'touched'?",
+        "keywords": ["dirty", "touched", "changed", "focused"],
+        "minLength": 25
+      },
+      "hints": [
+        "valid: Validators.required fails for empty string → false.",
+        "dirty: the user changed the value (typed then deleted) → true.",
+        "touched: the user focused and then blurred (left) the field → true."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d21-c02",
+      "dayNumber": 21,
+      "order": 3,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["reactive-forms", "formGroup", "formControl", "validators"],
+      "week": 4,
+      "title": "Build a Form",
+      "narrativeHook": "A crew registration form. Two fields, both required. Build the reactive form group.",
+      "instructions": "Complete the `RegistrationComponent`:\n\n- Build a `FormGroup` with two `FormControl`s:\n  - `callsign` — required, minLength 3\n  - `rank` — required\n- `isValid` getter returns `this.form.valid`\n- `getValues()` returns `this.form.value`",
+      "environment": "stackblitz",
+      "starterCode": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(value = '', ...validators) {\n    this.value = value;\n    this._validators = validators.flat();\n  }\n  get errors() {\n    for (const v of this._validators) { const e = v(this); if (e) return e; } return null;\n  }\n  get valid() { return !this.errors; }\n}\nclass FormGroup {\n  constructor(controls) { this.controls = controls; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(name) { return this.controls[name]; }\n}\n\nexport class RegistrationComponent {\n  form: FormGroup;\n\n  constructor() {\n    // Build the FormGroup with callsign (required, minLength 3) and rank (required)\n    // Your code here\n  }\n\n  get isValid(): boolean {\n    return this.form.valid;\n  }\n\n  getValues() {\n    return this.form.value;\n  }\n}",
+      "files": [
+        {
+          "name": "registration.component.ts",
+          "language": "typescript",
+          "content": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(value = '', ...validators) {\n    this.value = value;\n    this._validators = validators.flat();\n  }\n  get errors() {\n    for (const v of this._validators) { const e = v(this); if (e) return e; } return null;\n  }\n  get valid() { return !this.errors; }\n}\nclass FormGroup {\n  constructor(controls) { this.controls = controls; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(name) { return this.controls[name]; }\n}\n\nexport class RegistrationComponent {\n  form: FormGroup;\n\n  constructor() {\n    // Build the FormGroup with callsign (required, minLength 3) and rank (required)\n    // Your code here\n  }\n\n  get isValid(): boolean {\n    return this.form.valid;\n  }\n\n  getValues() {\n    return this.form.value;\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(value = '', ...validators) {\n    this.value = value;\n    this._validators = validators.flat();\n  }\n  get errors() {\n    for (const v of this._validators) { const e = v(this); if (e) return e; } return null;\n  }\n  get valid() { return !this.errors; }\n}\nclass FormGroup {\n  constructor(controls) { this.controls = controls; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(name) { return this.controls[name]; }\n}\n\nexport class RegistrationComponent {\n  form = new FormGroup({\n    callsign: new FormControl('', Validators.required, Validators.minLength(3)),\n    rank: new FormControl('', Validators.required),\n  });\n\n  get isValid(): boolean {\n    return this.form.valid;\n  }\n\n  getValues() {\n    return this.form.value;\n  }\n}",
+      "tests": [
+        {
+          "description": "form should be invalid when both fields are empty",
+          "testCode": "const c = new RegistrationComponent(); if (c.isValid) throw new Error('form should be invalid when fields are empty');"
+        },
+        {
+          "description": "form should be invalid when callsign is too short",
+          "testCode": "const c = new RegistrationComponent(); c.form.get('callsign').value = 'ab'; c.form.get('rank').value = 'commander'; if (c.isValid) throw new Error('form should be invalid when callsign < 3 chars');"
+        },
+        {
+          "description": "form should be valid when both fields are filled correctly",
+          "testCode": "const c = new RegistrationComponent(); c.form.get('callsign').value = 'alpha'; c.form.get('rank').value = 'commander'; if (!c.isValid) throw new Error('form should be valid with callsign=alpha and rank=commander');"
+        },
+        {
+          "description": "getValues() should return both field values",
+          "testCode": "const c = new RegistrationComponent(); c.form.get('callsign').value = 'gamma'; c.form.get('rank').value = 'pilot'; const v = c.getValues(); if (v.callsign !== 'gamma' || v.rank !== 'pilot') throw new Error(`getValues() returned ${JSON.stringify(v)}`);"
+        }
+      ],
+      "hints": [
+        "Create the form in the constructor: this.form = new FormGroup({ callsign: new FormControl('', Validators.required, Validators.minLength(3)), rank: new FormControl('', Validators.required) });",
+        "Or use the field initializer syntax: form = new FormGroup({ ... });",
+        "Both FormControl constructors take (initialValue, ...validators)."
+      ],
+      "explainGate": {
+        "prompt": "In real Angular codebases, most developers use FormBuilder instead of constructing FormGroup and FormControl by hand. How does `this.fb.group({ callsign: ['', [Validators.required, Validators.minLength(3)]], rank: ['', Validators.required] })` compare to what you just built? What does FormBuilder add?",
+        "keywords": ["shorthand", "equivalent", "inject", "group", "same", "cleaner"],
+        "minLength": 30
+      },
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d21-c03",
+      "dayNumber": 21,
+      "order": 4,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["reactive-forms", "formControl", "validators"],
+      "week": 4,
+      "title": "Validator Short-Circuit",
+      "narrativeHook": "The form validates but always says valid. The validator runs — it just never rejects.",
+      "instructions": "The `passwordValidator` should reject passwords shorter than 8 characters. It always returns `null` (valid).\n\nThere is exactly one bug in the validator function. Fix it.",
+      "environment": "stackblitz",
+      "starterCode": "export function passwordValidator(control) {\n  const value = control.value || '';\n  if (value.length > 8) {   // Bug: should be < 8\n    return { tooShort: true };\n  }\n  return null;\n}\n\nexport class LoginComponent {\n  passwordControl = { value: '', _validator: passwordValidator };\n\n  get passwordError(): string | null {\n    const err = passwordValidator(this.passwordControl);\n    return err ? 'Password too short' : null;\n  }\n}",
+      "files": [
+        {
+          "name": "login.component.ts",
+          "language": "typescript",
+          "content": "export function passwordValidator(control) {\n  const value = control.value || '';\n  if (value.length > 8) {   // Bug: should be < 8\n    return { tooShort: true };\n  }\n  return null;\n}\n\nexport class LoginComponent {\n  passwordControl = { value: '', _validator: passwordValidator };\n\n  get passwordError(): string | null {\n    const err = passwordValidator(this.passwordControl);\n    return err ? 'Password too short' : null;\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export function passwordValidator(control) {\n  const value = control.value || '';\n  if (value.length < 8) {\n    return { tooShort: true };\n  }\n  return null;\n}\n\nexport class LoginComponent {\n  passwordControl = { value: '', _validator: passwordValidator };\n\n  get passwordError(): string | null {\n    const err = passwordValidator(this.passwordControl);\n    return err ? 'Password too short' : null;\n  }\n}",
+      "tests": [
+        {
+          "description": "passwordValidator should return error for password shorter than 8 chars",
+          "testCode": "const err = passwordValidator({ value: 'abc' }); if (!err || !err.tooShort) throw new Error('passwordValidator should return { tooShort: true } for short passwords');"
+        },
+        {
+          "description": "passwordValidator should return null for password of 8+ chars",
+          "testCode": "const err = passwordValidator({ value: 'longpass1' }); if (err !== null) throw new Error(`passwordValidator should return null for valid password, got ${JSON.stringify(err)}`);"
+        },
+        {
+          "description": "LoginComponent.passwordError should return message for short password",
+          "testCode": "const c = new LoginComponent(); c.passwordControl.value = 'short'; if (c.passwordError !== 'Password too short') throw new Error(`passwordError should be 'Password too short', got '${c.passwordError}'`);"
+        }
+      ],
+      "hints": [
+        "The condition is inverted: value.length > 8 returns an error only for LONG passwords.",
+        "A password shorter than 8 characters should be rejected: change > to <",
+        "if (value.length < 8) { return { tooShort: true }; }"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d21-c04",
+      "dayNumber": 21,
+      "order": 5,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["reactive-forms", "formGroup", "validators", "form-state"],
+      "week": 4,
+      "title": "Submit Guard",
+      "narrativeHook": "The form submits only when valid. Invalid submissions are blocked and explained.",
+      "instructions": "Complete the `CommandFormComponent`:\n\n- `form` has two fields: `target` (required, minLength 2) and `power` (required)\n- `submit()` does nothing if `form.invalid`, otherwise sets `submitted = true` and stores `form.value` in `lastSubmission`\n- `canSubmit` getter returns `form.valid`",
+      "environment": "stackblitz",
+      "starterCode": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(v = '', ...vs) { this.value = v; this._vs = vs.flat(); }\n  get errors() { for (const v of this._vs) { const e = v(this); if (e) return e; } return null; }\n  get valid() { return !this.errors; }\n  get invalid() { return !!this.errors; }\n}\nclass FormGroup {\n  constructor(c) { this.controls = c; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get invalid() { return !this.valid; }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(n) { return this.controls[n]; }\n}\n\nexport class CommandFormComponent {\n  // Build the form with target (required, minLength 2) and power (required)\n  form = /* Your code here */;\n\n  submitted = false;\n  lastSubmission: any = null;\n\n  get canSubmit(): boolean {\n    // Your code here\n  }\n\n  submit(): void {\n    // Guard: do nothing if invalid\n    // On valid: set submitted = true, store form.value in lastSubmission\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "command-form.component.ts",
+          "language": "typescript",
+          "content": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(v = '', ...vs) { this.value = v; this._vs = vs.flat(); }\n  get errors() { for (const v of this._vs) { const e = v(this); if (e) return e; } return null; }\n  get valid() { return !this.errors; }\n  get invalid() { return !!this.errors; }\n}\nclass FormGroup {\n  constructor(c) { this.controls = c; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get invalid() { return !this.valid; }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(n) { return this.controls[n]; }\n}\n\nexport class CommandFormComponent {\n  // Build the form with target (required, minLength 2) and power (required)\n  form = /* Your code here */;\n\n  submitted = false;\n  lastSubmission: any = null;\n\n  get canSubmit(): boolean {\n    // Your code here\n  }\n\n  submit(): void {\n    // Guard: do nothing if invalid\n    // On valid: set submitted = true, store form.value in lastSubmission\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "class Validators {\n  static required(c) { return c.value ? null : { required: true }; }\n  static minLength(n) { return c => c.value.length >= n ? null : { minLength: true }; }\n}\nclass FormControl {\n  constructor(v = '', ...vs) { this.value = v; this._vs = vs.flat(); }\n  get errors() { for (const v of this._vs) { const e = v(this); if (e) return e; } return null; }\n  get valid() { return !this.errors; }\n  get invalid() { return !!this.errors; }\n}\nclass FormGroup {\n  constructor(c) { this.controls = c; }\n  get valid() { return Object.values(this.controls).every(c => c.valid); }\n  get invalid() { return !this.valid; }\n  get value() { const v = {}; for (const [k, c] of Object.entries(this.controls)) v[k] = c.value; return v; }\n  get(n) { return this.controls[n]; }\n}\n\nexport class CommandFormComponent {\n  form = new FormGroup({\n    target: new FormControl('', Validators.required, Validators.minLength(2)),\n    power: new FormControl('', Validators.required),\n  });\n\n  submitted = false;\n  lastSubmission: any = null;\n\n  get canSubmit(): boolean {\n    return this.form.valid;\n  }\n\n  submit(): void {\n    if (this.form.invalid) return;\n    this.submitted = true;\n    this.lastSubmission = this.form.value;\n  }\n}",
+      "tests": [
+        {
+          "description": "submit() should not set submitted when form is invalid",
+          "testCode": "const c = new CommandFormComponent(); c.submit(); if (c.submitted) throw new Error('submit() should not set submitted when form is invalid');"
+        },
+        {
+          "description": "submit() should set submitted when form is valid",
+          "testCode": "const c = new CommandFormComponent(); c.form.get('target').value = 'beacon-7'; c.form.get('power').value = '80'; c.submit(); if (!c.submitted) throw new Error('submit() should set submitted when form is valid');"
+        },
+        {
+          "description": "submit() should store form values in lastSubmission",
+          "testCode": "const c = new CommandFormComponent(); c.form.get('target').value = 'relay'; c.form.get('power').value = '50'; c.submit(); if (!c.lastSubmission || c.lastSubmission.target !== 'relay') throw new Error(`lastSubmission.target should be 'relay', got ${JSON.stringify(c.lastSubmission)}`);"
+        },
+        {
+          "description": "canSubmit should reflect form validity",
+          "testCode": "const c = new CommandFormComponent(); if (c.canSubmit) throw new Error('canSubmit should be false when form is empty'); c.form.get('target').value = 'ab'; c.form.get('power').value = '100'; if (!c.canSubmit) throw new Error('canSubmit should be true when form is valid');"
+        }
+      ],
+      "hints": [
+        "form = new FormGroup({ target: new FormControl('', Validators.required, Validators.minLength(2)), power: new FormControl('', Validators.required) });",
+        "canSubmit getter: return this.form.valid;",
+        "submit(): if (this.form.invalid) return; this.submitted = true; this.lastSubmission = this.form.value;"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d21-c05",
+      "dayNumber": 21,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["valueChanges", "observable", "reactive-forms"],
+      "week": 4,
+      "title": "Watching the Stream",
+      "narrativeHook": "The form is wired and listening. Every keystroke becomes data. What arrives on the other end of this stream?",
+      "instructions": "An Angular reactive form has a `valueChanges` Observable on every control. It emits the control's current value each time the user types.\n\nA component subscribes to the `callsign` field's `valueChanges` in `ngOnInit`. The user types one character at a time: `'a'`, then `'l'`, then `'p'`.\n\nPredict what gets logged to the console.",
+      "starterCode": "// Read-only — predict the output\n\n// this.form = new FormGroup({\n//   callsign: new FormControl('', Validators.required)\n// });\n\n// In ngOnInit:\n// this.form.get('callsign').valueChanges.subscribe(value => {\n//   console.log('current:', value);\n// });\n\n// The user types one character at a time: 'a', then 'l', then 'p'.\n// Each keystroke fires a new valueChanges emission.\n// What appears in the console?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Three log lines, one per keystroke:\n// current: a\n// current: al\n// current: alp",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 14 }],
+      "predictPrompt": "What does the console log after the user types 'a', then 'l', then 'p'?",
+      "predictChoices": [
+        "current: alp\n(once — the final value only)",
+        "current: a\ncurrent: al\ncurrent: alp",
+        "current: [\"a\", \"al\", \"alp\"]\n(all values collected in an array)",
+        "Nothing — valueChanges only fires on form submit"
+      ],
+      "predictAnswer": "current: a\ncurrent: al\ncurrent: alp",
+      "tests": [],
+      "explainGate": {
+        "prompt": "valueChanges is an Observable. How would you use pipe(debounceTime(300)) with it — and why would you want that when wiring a search input to an API call?",
+        "keywords": ["pipe", "debounce", "operator", "wait", "delay", "observable"],
+        "minLength": 30
+      },
+      "hints": [
+        "valueChanges emits every time the control's value changes — once per keystroke, not once per form submit.",
+        "An Observable subscriber is called for each emission. Three keystrokes = three separate emissions.",
+        "The value emitted is the control's current value at the moment of each change: first 'a', then 'al', then 'alp'."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "dayNumber": 23,
+  "week": 4,
+  "title": "Real Patterns",
+  "narrativeIntro": "Theory becomes practice. The patterns you'll see in real codebases — at your internship, in production apps, in open-source projects. Smart and dumb components. Container patterns. Interceptors. The patterns that separate working code from professional code.",
+  "narrativeOutro": "These are the patterns that professionals use. Not because they're complex, but because they make complex applications manageable. You're writing code that a team could read, maintain, and build upon. That's what your internship will ask of you.",
+  "phmChapters": [28],
+  "phmConnectionNote": "Ryland applies everything he's learned to solve real, complex problems. You learn real-world Angular patterns.",
+  "challengeIds": ["d23-c01", "d23-c02", "d23-c03", "d23-c04"],
+  "concepts": ["smart-dumb-components", "container-pattern", "separation-of-concerns", "interceptors", "pure-functions"],
+  "conceptsPreview": "Smart/dumb components, container pattern, pure functions, HTTP interceptors, and separation of concerns",
+  "challenges": [
+    {
+      "id": "d23-c01",
+      "dayNumber": 23,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["smart-dumb-components", "input", "output"],
+      "week": 4,
+      "title": "Smart vs Dumb",
+      "narrativeHook": "One component knows everything. One component shows everything. What's the difference?",
+      "instructions": "A smart (container) component manages state. A dumb (presentational) component just renders what it's given.\n\nLooking at these two components, identify which is smart and which is dumb, and what the dumb component's responsibility is.",
+      "starterCode": "// Read-only — identify the pattern\n\n// class CrewListContainerComponent {\n//   crew: string[] = [];\n//   constructor(private crewService: CrewService) {}\n//   ngOnInit() { this.crew = this.crewService.getAll(); }\n//   onRemove(name: string) { this.crewService.remove(name); this.crew = this.crewService.getAll(); }\n// }\n\n// class CrewListComponent {\n//   @Input() items: string[] = [];\n//   @Output() remove = new EventEmitter<string>();\n// }\n\n// Which is smart? Which is dumb? What does each one know about?",
+      "solution": "// No code changes — this is a prediction challenge.\n// CrewListContainerComponent is smart: it fetches data and handles side effects.\n// CrewListComponent is dumb: it only renders items and emits events — no service knowledge.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 14 }],
+      "predictPrompt": "Which component is 'smart' and what makes it so?",
+      "predictChoices": [
+        "CrewListContainerComponent — it injects a service and manages state",
+        "CrewListComponent — it has @Input and @Output",
+        "Both are smart — they both render crew data",
+        "CrewListComponent — it handles the remove event"
+      ],
+      "predictAnswer": "CrewListContainerComponent — it injects a service and manages state",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What is the advantage of separating components into smart (container) and dumb (presentational) layers?",
+        "keywords": ["reuse", "test", "separate", "service"],
+        "minLength": 30
+      },
+      "hints": [
+        "Smart components: inject services, fetch data, manage state, handle side effects.",
+        "Dumb components: receive data via @Input, emit events via @Output, contain no service knowledge.",
+        "The dumb component is reusable — it doesn't care where its data comes from."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d23-c02",
+      "dayNumber": 23,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["pure-functions", "separation-of-concerns"],
+      "week": 4,
+      "title": "Pure Transformer",
+      "narrativeHook": "The same input always produces the same output. No side effects. No surprises.",
+      "instructions": "Write a pure `transform` function (no class needed) that:\n\n- Takes an `items` array (objects with `name` and `value`) and a `threshold` number\n- Returns only items where `value >= threshold`\n- Maps each to `{ label: name.toUpperCase(), score: value }`\n- Result is sorted by `score` descending",
+      "environment": "stackblitz",
+      "starterCode": "export function transform(items, threshold) {\n  // Filter, map, sort — no side effects\n  // Your code here\n}",
+      "files": [
+        {
+          "name": "transform.ts",
+          "language": "typescript",
+          "content": "export function transform(items, threshold) {\n  // Filter, map, sort — no side effects\n  // Your code here\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export function transform(items, threshold) {\n  return items\n    .filter(i => i.value >= threshold)\n    .map(i => ({ label: i.name.toUpperCase(), score: i.value }))\n    .sort((a, b) => b.score - a.score);\n}",
+      "tests": [
+        {
+          "description": "transform with threshold 50 should return 3 items",
+          "testCode": "const items = [{name:'alpha',value:80},{name:'beta',value:40},{name:'gamma',value:60},{name:'delta',value:50}]; const r = transform(items, 50); if (r.length !== 3) throw new Error(`Expected 3 items, got ${r.length}`);"
+        },
+        {
+          "description": "items should have uppercased labels",
+          "testCode": "const items = [{name:'alpha',value:80},{name:'beta',value:40},{name:'gamma',value:60}]; const r = transform(items, 50); if (r[0].label !== 'ALPHA' && r[0].label !== 'GAMMA') throw new Error(`Labels should be uppercase, got ${r[0].label}`);"
+        },
+        {
+          "description": "items should be sorted by score descending",
+          "testCode": "const items = [{name:'alpha',value:80},{name:'gamma',value:60}]; const r = transform(items, 0); if (r[0].score !== 80 || r[1].score !== 60) throw new Error(`Should be sorted descending: ${JSON.stringify(r)}`);"
+        },
+        {
+          "description": "items below threshold should be excluded",
+          "testCode": "const items = [{name:'low',value:30},{name:'high',value:90}]; const r = transform(items, 50); if (r.some(i => i.score < 50)) throw new Error('Items below threshold should be excluded');"
+        }
+      ],
+      "hints": [
+        "Chain .filter(i => i.value >= threshold) first.",
+        "Then .map(i => ({ label: i.name.toUpperCase(), score: i.value }))",
+        "Then .sort((a, b) => b.score - a.score) for descending order."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d23-c03",
+      "dayNumber": 23,
+      "order": 3,
+      "type": "refactor",
+      "difficulty": "steady",
+      "concepts": ["services", "separation-of-concerns", "single-responsibility"],
+      "week": 4,
+      "title": "Fat Component",
+      "narrativeHook": "The component does everything: fetches, filters, formats, calculates. It's impossible to test. Extract what doesn't belong.",
+      "instructions": "The `StatsComponent` calculates a summary inline. The `StatsService` should do that work, but its `getSummary()` method returns zeroes.\n\nMove the calculation into `StatsService.getSummary()`. The component should call the service instead of computing inline.",
+      "environment": "stackblitz",
+      "starterCode": "export class StatsService {\n  getSummary(values) {\n    // Move the calculation here from StatsComponent.summary\n    return { min: 0, max: 0, avg: 0 };\n  }\n}\n\nexport class StatsComponent {\n  stats;\n\n  constructor(stats) {\n    this.stats = stats;\n  }\n\n  values = [12, 87, 45, 63, 29, 54];\n\n  // Refactor: this calculation belongs in StatsService.getSummary()\n  get summary() {\n    const min = Math.min(...this.values);\n    const max = Math.max(...this.values);\n    const avg = Math.round(this.values.reduce((a, b) => a + b, 0) / this.values.length * 10) / 10;\n    return { min, max, avg };\n  }\n}",
+      "files": [
+        {
+          "name": "stats.component.ts",
+          "language": "typescript",
+          "content": "export class StatsService {\n  getSummary(values) {\n    // Move the calculation here from StatsComponent.summary\n    return { min: 0, max: 0, avg: 0 };\n  }\n}\n\nexport class StatsComponent {\n  stats;\n\n  constructor(stats) {\n    this.stats = stats;\n  }\n\n  values = [12, 87, 45, 63, 29, 54];\n\n  // Refactor: this calculation belongs in StatsService.getSummary()\n  get summary() {\n    const min = Math.min(...this.values);\n    const max = Math.max(...this.values);\n    const avg = Math.round(this.values.reduce((a, b) => a + b, 0) / this.values.length * 10) / 10;\n    return { min, max, avg };\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class StatsService {\n  getSummary(values) {\n    const min = Math.min(...values);\n    const max = Math.max(...values);\n    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length * 10) / 10;\n    return { min, max, avg };\n  }\n}\n\nexport class StatsComponent {\n  stats;\n\n  constructor(stats) {\n    this.stats = stats;\n  }\n\n  values = [12, 87, 45, 63, 29, 54];\n\n  get summary() {\n    return this.stats.getSummary(this.values);\n  }\n}",
+      "tests": [
+        {
+          "description": "StatsService.getSummary should return correct min",
+          "testCode": "const s = new StatsService(); const r = s.getSummary([12, 87, 45]); if (r.min !== 12) throw new Error(`min should be 12, got ${r.min}`);"
+        },
+        {
+          "description": "StatsService.getSummary should return correct max",
+          "testCode": "const s = new StatsService(); const r = s.getSummary([12, 87, 45]); if (r.max !== 87) throw new Error(`max should be 87, got ${r.max}`);"
+        },
+        {
+          "description": "StatsService.getSummary should return correct avg",
+          "testCode": "const s = new StatsService(); const r = s.getSummary([12, 87, 45]); const expected = Math.round((12+87+45)/3*10)/10; if (r.avg !== expected) throw new Error(`avg should be ${expected}, got ${r.avg}`);"
+        },
+        {
+          "description": "StatsComponent.summary should delegate to the service",
+          "testCode": "let called = false; const mockStats = { getSummary: (v) => { called = true; return { min: 0, max: 0, avg: 0 }; } }; const c = new StatsComponent(mockStats); c.summary; if (!called) throw new Error('StatsComponent.summary should call this.stats.getSummary()');"
+        }
+      ],
+      "hints": [
+        "Move the min/max/avg logic from the component's summary getter into StatsService.getSummary().",
+        "Replace the component's inline calculation with: return this.stats.getSummary(this.values);",
+        "The service method receives the values array as a parameter — compute min, max, avg from it."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d23-c04",
+      "dayNumber": 23,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["interceptors", "http"],
+      "week": 4,
+      "title": "Auth Interceptor",
+      "narrativeHook": "Every request needs a token. Don't add it to every call — intercept them all.",
+      "instructions": "Complete the `authInterceptor` function:\n\n- Clone the incoming request using `req.clone()`\n- Add an `Authorization` header to the clone: `setHeaders: { Authorization: authToken }`\n- Pass the cloned request to `next()` and return the result\n\nThe token is already defined as `authToken`. Angular interceptors must never mutate the original request — `clone()` creates an immutable copy with your changes applied.\n\nThis is the modern Angular functional interceptor pattern. Every outgoing HTTP request passes through this function automatically when registered in `app.config.ts`.",
+      "environment": "stackblitz",
+      "starterCode": "export function authInterceptor(req, next) {\n  const authToken = 'Bearer drift-7';\n  const authReq = req.clone({\n    // Add the Authorization header here using setHeaders\n  });\n  return next(authReq);\n}",
+      "files": [
+        {
+          "name": "auth.interceptor.ts",
+          "language": "typescript",
+          "content": "export function authInterceptor(req, next) {\n  const authToken = 'Bearer drift-7';\n  const authReq = req.clone({\n    // Add the Authorization header here using setHeaders\n  });\n  return next(authReq);\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export function authInterceptor(req, next) {\n  const authToken = 'Bearer drift-7';\n  const authReq = req.clone({\n    setHeaders: { Authorization: authToken },\n  });\n  return next(authReq);\n}",
+      "tests": [
+        {
+          "description": "cloned request should have an Authorization header",
+          "testCode": "const captured = []; const mockReq = { clone: (update) => ({ headers: update.setHeaders || {} }) }; const mockNext = (r) => { captured.push(r); return r; }; authInterceptor(mockReq, mockNext); if (!captured[0] || !captured[0].headers['Authorization']) throw new Error('cloned request should have an Authorization header — use setHeaders: { Authorization: authToken }');"
+        },
+        {
+          "description": "Authorization header should be 'Bearer drift-7'",
+          "testCode": "const captured = []; const mockReq = { clone: (update) => ({ headers: update.setHeaders || {} }) }; const mockNext = (r) => { captured.push(r); return r; }; authInterceptor(mockReq, mockNext); if (captured[0].headers['Authorization'] !== 'Bearer drift-7') throw new Error(`Authorization should be 'Bearer drift-7', got '${captured[0].headers['Authorization']}'`);"
+        },
+        {
+          "description": "next() should be called with the cloned request, not the original",
+          "testCode": "let nextCalledWith = null; const mockReq = { clone: (update) => ({ isClone: true, headers: update.setHeaders || {} }) }; const mockNext = (r) => { nextCalledWith = r; return r; }; authInterceptor(mockReq, mockNext); if (!nextCalledWith || !nextCalledWith.isClone) throw new Error('next() must be called with the cloned request — pass authReq, not req');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why must Angular interceptors use `req.clone()` instead of modifying `req` directly? What is `setHeaders` doing, and why is the functional interceptor (a plain function) considered simpler than the old class-based approach?",
+        "keywords": ["immutable", "clone", "header", "functional"],
+        "minLength": 40
+      },
+      "hints": [
+        "Inside req.clone({...}), use setHeaders to add headers: setHeaders: { Authorization: authToken }",
+        "req.clone() returns a new request with your changes applied — the original req is never modified. Return next(authReq), not next(req).",
+        "The full solution is three lines: const authReq = req.clone({ setHeaders: { Authorization: authToken } }); return next(authReq);"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

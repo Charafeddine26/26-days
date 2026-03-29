@@ -1,0 +1,221 @@
+{
+  "dayNumber": 6,
+  "week": 1,
+  "title": "The Living Document",
+  "narrativeIntro": "There's a layer beneath the code. A structure that the code manipulates -- a document that lives and changes. Nodes, elements, a tree of content that renders into something visible. The Drift shows you this layer now: the interface between logic and perception. What you code here becomes what you see.",
+  "narrativeOutro": "You can see it now -- the bridge between code and form. Everything visible is a node in a tree, and every node can be reached, changed, created, destroyed. The interface is yours to shape.",
+  "phmChapters": [9],
+  "phmConnectionNote": "Ryland interacts with the ship's interfaces more directly. You learn the DOM -- the living structure of a webpage.",
+  "challengeIds": ["d06-c01", "d06-c02", "d06-c03", "d06-c04", "d06-c05"],
+  "concepts": ["DOM", "querySelector", "null", "createElement", "appendChild", "textContent", "getElementById", "style", "classList", "setAttribute", "events", "addEventListener"],
+  "conceptsPreview": "DOM manipulation, element creation, and event handling",
+  "challenges": [
+    {
+      "id": "d06-c01",
+      "dayNumber": 6,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["DOM", "querySelector", "null", "textContent"],
+      "week": 1,
+      "title": "Query",
+      "narrativeHook": "You query the document for an element. What does it return?",
+      "instructions": "Given this HTML, predict what the two `console.log` calls will output:\n\n```html\n<div id=\"status\">Online</div>\n<p class=\"info\">System ready</p>\n```\n\nThe first query finds an element that exists. The second queries for an id that doesn't exist anywhere in the document.",
+      "starterCode": "// Assume the HTML above exists in the document\nconst el = document.querySelector('#status');\nconsole.log(el.textContent);\n\nconst missing = document.querySelector('#nonexistent');\nconsole.log(missing);",
+      "solution": "// No code changes — this is a prediction challenge.\n// Line 1: \"Online\"\n// Line 2: null",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 6 }],
+      "predictPrompt": "What two values will be logged?",
+      "predictChoices": [
+        "\"Online\"\nnull",
+        "\"Online\"\nundefined",
+        "\"<div id='status'>Online</div>\"\nnull",
+        "Error: element not found"
+      ],
+      "predictAnswer": "\"Online\"\nnull",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does querySelector return null for a missing element instead of throwing an error?",
+        "keywords": ["null", "exist", "error", "found"],
+        "minLength": 25
+      },
+      "hints": [
+        ".textContent returns the text inside an element, not the element's HTML tag.",
+        "querySelector returns null when no matching element is found -- it doesn't throw.",
+        "null is different from undefined: querySelector always returns either an element or null, never undefined."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d06-c02",
+      "dayNumber": 6,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["DOM", "createElement", "appendChild", "textContent"],
+      "week": 1,
+      "title": "Create and Attach",
+      "narrativeHook": "Create an element, give it content, attach it to the tree.",
+      "instructions": "Build a paragraph element from scratch and add it to the page:\n\n1. Create a `<p>` element\n2. Set its text content to `\"Signal received\"`\n3. Append it to `document.body`",
+      "starterCode": "// Create a <p> element\n// Your code here\n\n// Set its text content to \"Signal received\"\n// Your code here\n\n// Append it to document.body\n// Your code here",
+      "solution": "const paragraph = document.createElement('p');\nparagraph.textContent = \"Signal received\";\ndocument.body.appendChild(paragraph);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "A <p> element should exist in the body",
+          "testCode": "const p = document.querySelector('p'); if (!p) throw new Error('No <p> element found in document.body');"
+        },
+        {
+          "description": "The paragraph should contain 'Signal received'",
+          "testCode": "const p = document.querySelector('p'); if (p.textContent !== 'Signal received') throw new Error(`Paragraph text should be 'Signal received', got '${p.textContent}'`);"
+        }
+      ],
+      "hints": [
+        "document.createElement('p') creates a new <p> element -- it's not in the page yet.",
+        "element.textContent = 'text' sets the text content of an element.",
+        "document.body.appendChild(element) attaches the element to the page so it becomes visible."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d06-c03",
+      "dayNumber": 6,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["DOM", "getElementById"],
+      "week": 1,
+      "title": "Missing Connection",
+      "narrativeHook": "The element should appear but doesn't. Something in the DOM wiring is wrong.",
+      "instructions": "This code should update the display element to show 'Active', but it crashes instead. The HTML has a div with `id=\"display\"`.\n\nThere is exactly one bug. Find it and fix it.",
+      "starterCode": "// HTML: <div id=\"display\">Waiting...</div>\nconst display = document.getElementByld('display');\ndisplay.textContent = \"Active\";",
+      "solution": "// HTML: <div id=\"display\">Waiting...</div>\nconst display = document.getElementById('display');\ndisplay.textContent = \"Active\";",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "Display element should show 'Active'",
+          "testCode": "const el = document.getElementById('display'); if (!el || el.textContent !== 'Active') throw new Error('Display element should contain the text Active');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What was the typo and why is it so easy to miss?",
+        "keywords": ["Id", "ld", "case", "typo", "letter"],
+        "minLength": 20
+      },
+      "hints": [
+        "Read the method name letter by letter -- is it exactly 'getElementById'?",
+        "Compare: getElementByld (what's written) vs getElementById (the real method). Look at the 'I' vs 'l'.",
+        "The lowercase letter 'l' was used instead of the uppercase letter 'I' in 'Id'. Change getElementByld to getElementById."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d06-c04",
+      "dayNumber": 6,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["DOM", "style", "classList", "setAttribute"],
+      "week": 1,
+      "title": "Style and Modify",
+      "narrativeHook": "Change an element's text, its style, its attributes. Make it respond.",
+      "instructions": "Given a div with `id=\"panel\"`, make three modifications:\n\n1. Change its background color to `\"#1E1B35\"`\n2. Add the CSS class `\"active\"` to it\n3. Set a custom data attribute: `data-status=\"online\"`",
+      "starterCode": "// HTML: <div id=\"panel\" class=\"drift-panel\">Content</div>\nconst panel = document.getElementById('panel');\n\n// 1. Change background color to \"#1E1B35\"\n// Your code here\n\n// 2. Add the CSS class \"active\"\n// Your code here\n\n// 3. Set data-status to \"online\"\n// Your code here",
+      "solution": "const panel = document.getElementById('panel');\npanel.style.backgroundColor = \"#1E1B35\";\npanel.classList.add(\"active\");\npanel.setAttribute(\"data-status\", \"online\");",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 2 }],
+      "tests": [
+        {
+          "description": "Panel background color should be set",
+          "testCode": "const p = document.getElementById('panel'); if (!p.style.backgroundColor) throw new Error('Background color was not set on panel');"
+        },
+        {
+          "description": "Panel should have the 'active' class",
+          "testCode": "const p = document.getElementById('panel'); if (!p.classList.contains('active')) throw new Error('Panel is missing the active CSS class');"
+        },
+        {
+          "description": "data-status should be 'online'",
+          "testCode": "const p = document.getElementById('panel'); if (p.getAttribute('data-status') !== 'online') throw new Error(`data-status should be 'online', got '${p.getAttribute('data-status')}'`);"
+        }
+      ],
+      "hints": [
+        "element.style.backgroundColor = 'color' sets an inline style. Note: camelCase, not kebab-case.",
+        "element.classList.add('className') adds a CSS class without removing existing ones.",
+        "element.setAttribute('data-status', 'online') sets any attribute on the element."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d06-c05",
+      "dayNumber": 6,
+      "order": 5,
+      "type": "build",
+      "difficulty": "demanding",
+      "concepts": ["DOM", "events", "addEventListener", "createElement", "appendChild"],
+      "week": 1,
+      "title": "Interactive Element",
+      "narrativeHook": "Build a small interactive element from scratch: HTML, style, and behavior.",
+      "instructions": "Build a click counter from scratch. The page starts empty.\n\n1. Create a `<button>` element with the text `\"Click me\"`\n2. Create a `<p>` element with the text `\"Clicks: 0\"`\n3. Append both to `document.body`\n4. When the button is clicked, increment the counter and update the paragraph text to `\"Clicks: N\"`",
+      "starterCode": "// Build everything from scratch\nlet clickCount = 0;\n\n// Your code here",
+      "solution": "let clickCount = 0;\n\nconst button = document.createElement('button');\nbutton.textContent = \"Click me\";\n\nconst display = document.createElement('p');\ndisplay.textContent = \"Clicks: 0\";\n\nbutton.addEventListener('click', () => {\n  clickCount++;\n  display.textContent = `Clicks: ${clickCount}`;\n});\n\ndocument.body.appendChild(button);\ndocument.body.appendChild(display);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "A button with text 'Click me' should exist",
+          "testCode": "const btn = document.querySelector('button'); if (!btn || btn.textContent !== 'Click me') throw new Error('Button missing or has wrong text');"
+        },
+        {
+          "description": "A paragraph showing 'Clicks: 0' should exist initially",
+          "testCode": "const p = document.querySelector('p'); if (!p || !p.textContent.includes('Clicks: 0')) throw new Error('Paragraph missing or wrong initial text');"
+        },
+        {
+          "description": "Clicking the button should increment the counter",
+          "testCode": "const btn = document.querySelector('button'); btn.click(); const p = document.querySelector('p'); if (!p.textContent.includes('1')) throw new Error('Counter did not increment after one click');"
+        },
+        {
+          "description": "Multiple clicks should keep incrementing",
+          "testCode": "const btn = document.querySelector('button'); btn.click(); btn.click(); const p = document.querySelector('p'); if (!p.textContent.includes('3')) throw new Error('Counter should reach 3 after two more clicks');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How does addEventListener connect a user interaction to code execution?",
+        "keywords": ["event", "callback", "click", "function"],
+        "minLength": 30
+      },
+      "hints": [
+        "document.createElement creates elements, .textContent sets their text, .appendChild adds them to the page.",
+        "button.addEventListener('click', function) registers a function to run each time the button is clicked.",
+        "Inside the click handler, increment clickCount and update display.textContent using a template literal: `Clicks: ${clickCount}`"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

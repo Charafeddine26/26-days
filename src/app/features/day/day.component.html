@@ -1,0 +1,103 @@
+@if (day(); as d) {
+<div class="min-h-screen bg-drift-deep p-6 md:p-10 animate-fade-in scroll-fade-y">
+  <!-- Header -->
+  <div class="max-w-3xl mx-auto">
+    <button
+      (click)="goHome()"
+      class="flex items-center gap-2 text-drift-text-secondary hover:text-drift-lavender transition-colors mb-6"
+    >
+      <lucide-icon [img]="icons.ChevronLeft" [size]="18"></lucide-icon>
+      <span class="text-sm font-body">Back to Map</span>
+    </button>
+
+    <!-- Day Title -->
+    <div class="mb-8">
+      <p class="text-drift-lavender text-sm font-body tracking-widest uppercase mb-2">
+        Day {{ d.dayNumber }} &middot; Week {{ d.week }}
+      </p>
+      <h1 class="font-display text-3xl md:text-4xl text-drift-text-primary">{{ d.title }}</h1>
+    </div>
+
+    <!-- Narrative Card -->
+    <div class="drift-card-narrative mb-8 text-narrative italic">
+      <p class="text-drift-text-primary narrative-drop-cap">
+        {{ d.narrativeIntro }}
+      </p>
+      @if (d.phmChapters.length > 0) {
+        <div class="mt-4 pt-4 border-t border-drift-rose/10 flex items-center gap-2">
+          <lucide-icon [img]="icons.BookOpen" [size]="16" class="text-drift-rose"></lucide-icon>
+          <span class="text-sm text-drift-text-secondary">
+            PHM Chapters: {{ d.phmChapters.join(', ') }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <!-- Missions List -->
+    <div class="mb-6">
+      <h2 class="font-display text-xl text-drift-text-primary mb-4 text-narrative-heading">Missions</h2>
+      <div class="space-y-3 perspective-container">
+        @for (item of challengeStatuses(); track item.challenge.id) {
+          <div
+            class="drift-card flex items-center gap-4 transition-all duration-200"
+            [class.cursor-pointer]="item.status !== 'locked'"
+            [class.hover:border-drift-lavender/20]="item.status !== 'locked'"
+            [class.opacity-50]="item.status === 'locked'"
+            (click)="item.status !== 'locked' && goToChallenge(item.challenge)"
+          >
+            <!-- Status Icon -->
+            <div class="shrink-0">
+              @if (item.status === 'completed') {
+                <div class="w-10 h-10 rounded-full bg-drift-sage/15 flex items-center justify-center">
+                  <lucide-icon [img]="icons.CircleCheck" [size]="20" class="text-drift-sage"></lucide-icon>
+                </div>
+              } @else if (item.status === 'available') {
+                <div class="w-10 h-10 rounded-full bg-drift-lavender/15 flex items-center justify-center">
+                  <lucide-icon [img]="icons.Play" [size]="18" class="text-drift-lavender"></lucide-icon>
+                </div>
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-drift-surface flex items-center justify-center">
+                  <lucide-icon [img]="icons.Lock" [size]="16" class="text-drift-text-ghost"></lucide-icon>
+                </div>
+              }
+            </div>
+
+            <!-- Challenge Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-body text-drift-text-primary">{{ item.challenge.title }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full border {{ difficultyColor(item.challenge.difficulty) }} border-current/20 bg-current/5">
+                  {{ difficultyLabel(item.challenge.difficulty) }}
+                </span>
+              </div>
+              <div class="flex items-center gap-3 text-xs text-drift-text-tertiary">
+                <span>{{ typeLabel(item.challenge.type) }}</span>
+                <span>&middot;</span>
+                <span>{{ item.challenge.xpReward }} XP</span>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            @if (item.status !== 'locked') {
+              <div class="text-drift-text-ghost shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Concepts Preview -->
+    @if (d.conceptsPreview) {
+      <div class="drift-card mt-6">
+        <p class="text-sm text-drift-text-secondary">
+          <span class="text-drift-gold font-medium">Concepts:</span> {{ d.conceptsPreview }}
+        </p>
+      </div>
+    }
+  </div>
+</div>
+}

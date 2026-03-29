@@ -1,0 +1,261 @@
+{
+  "dayNumber": 22,
+  "week": 4,
+  "title": "RxJS Foundations",
+  "narrativeIntro": "The Drift speaks in streams. Not single values but continuous flows of data — events, HTTP responses, user interactions, time itself. RxJS is the language of these streams: Observables that emit, operators that transform, subscriptions that listen. The most powerful pattern in Angular lives here.",
+  "narrativeOutro": "Streams. Flows. Reactive patterns. You're no longer waiting for data — you're responding to it as it arrives, transforming it in flight, composing it into new streams. The Drift's final region pulses with current.",
+  "phmChapters": [27],
+  "phmConnectionNote": "Ryland learns to process continuous streams of data from the astrophage. You learn RxJS basics.",
+  "challengeIds": ["d22-c01", "d22-c02", "d22-c03", "d22-c04", "d22-c05"],
+  "concepts": ["observable", "subscribe", "pipe", "of", "map", "filter", "subject", "unsubscribe", "memory-leak", "takeUntil"],
+  "conceptsPreview": "of(), pipe(), map/filter operators, Subject, subscription cleanup, takeUntil",
+  "challenges": [
+    {
+      "id": "d22-c01",
+      "dayNumber": 22,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["observable", "map", "filter", "subscribe", "pipe"],
+      "week": 4,
+      "title": "Stream Output",
+      "narrativeHook": "A stream of numbers passes through two operators. Predict what arrives at the subscriber.",
+      "instructions": "An Observable emits the values `[1, 2, 3, 4, 5]`. A `filter` keeps only even numbers. A `map` doubles each remaining value.\n\nPredict what the subscriber receives.",
+      "starterCode": "// Read-only — predict the output\n\n// import { of } from 'rxjs';\n// import { filter, map } from 'rxjs/operators';\n\n// of(1, 2, 3, 4, 5).pipe(\n//   filter(n => n % 2 === 0),\n//   map(n => n * 2)\n// ).subscribe(n => console.log(n));\n\n// What values are logged?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: 4, 8  (filter keeps 2 and 4, map doubles them to 4 and 8)",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 11 }],
+      "predictPrompt": "What values does the subscriber receive?",
+      "predictChoices": [
+        "4, 8",
+        "2, 4",
+        "2, 4, 6, 8, 10",
+        "4, 8, 10"
+      ],
+      "predictAnswer": "4, 8",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What is the difference between filter and map in RxJS, and in what order do operators in pipe() execute?",
+        "keywords": ["filter", "map", "pipe", "order"],
+        "minLength": 25
+      },
+      "hints": [
+        "filter(n => n % 2 === 0) keeps only 2 and 4 from [1,2,3,4,5].",
+        "map(n => n * 2) then doubles each: 2 → 4, 4 → 8.",
+        "pipe() executes operators left-to-right. filter runs first, then map."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d22-c02",
+      "dayNumber": 22,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["observable", "pipe", "of", "map", "filter", "subscribe"],
+      "week": 4,
+      "title": "Transform the Stream",
+      "narrativeHook": "Raw sensor readings arrive. Filter the noise. Format what remains.",
+      "instructions": "Complete `StreamProcessor.process()` using a real RxJS pipeline.\n\n- Call `of(...values)` to create an Observable from the array\n- Chain `.pipe(filter(...), map(...))` to transform the stream\n- `filter`: keep only values above 50\n- `map`: format each as `'READING: ' + value`\n- `.subscribe(result => this.output.push(result))` to collect results\n\nThis is the real RxJS pattern: `import { of } from 'rxjs'` and `import { filter, map } from 'rxjs/operators'`.",
+      "environment": "stackblitz",
+      "starterCode": "// Real RxJS imports (for reference):\n// import { of } from 'rxjs';\n// import { filter, map } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n    return { closed: false, unsubscribe: () => {} };\n  }\n}\n\nfunction of(...args) {\n  return new Observable(obs => {\n    args.forEach(v => obs.next(v));\n    obs.complete();\n  });\n}\n\nfunction filter(predicate) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => { if (predicate(v)) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n\nfunction map(transform) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => obs.next(transform(v)),\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n// --- End mock context ---\n\nclass StreamProcessor {\n  constructor() { this.output = []; }\n\n  process(values) {\n    // Use of(), .pipe(), filter(), map(), and .subscribe() to build the pipeline:\n    // of(...values).pipe(\n    //   filter(v => /* keep values above 50 */),\n    //   map(v => /* format as 'READING: ' + value */)\n    // ).subscribe(result => this.output.push(result));\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "stream-processor.ts",
+          "language": "typescript",
+          "content": "// Real RxJS imports (for reference):\n// import { of } from 'rxjs';\n// import { filter, map } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n    return { closed: false, unsubscribe: () => {} };\n  }\n}\n\nfunction of(...args) {\n  return new Observable(obs => {\n    args.forEach(v => obs.next(v));\n    obs.complete();\n  });\n}\n\nfunction filter(predicate) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => { if (predicate(v)) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n\nfunction map(transform) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => obs.next(transform(v)),\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n// --- End mock context ---\n\nclass StreamProcessor {\n  constructor() { this.output = []; }\n\n  process(values) {\n    // Use of(), .pipe(), filter(), map(), and .subscribe() to build the pipeline:\n    // of(...values).pipe(\n    //   filter(v => /* keep values above 50 */),\n    //   map(v => /* format as 'READING: ' + value */)\n    // ).subscribe(result => this.output.push(result));\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 46 }],
+      "solution": "// Real RxJS imports (for reference):\n// import { of } from 'rxjs';\n// import { filter, map } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const obs = typeof observer === 'function'\n      ? { next: observer, error: () => {}, complete: () => {} }\n      : { next: () => {}, error: () => {}, complete: () => {}, ...observer };\n    this._sub(obs);\n    return { closed: false, unsubscribe: () => {} };\n  }\n}\n\nfunction of(...args) {\n  return new Observable(obs => {\n    args.forEach(v => obs.next(v));\n    obs.complete();\n  });\n}\n\nfunction filter(predicate) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => { if (predicate(v)) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n\nfunction map(transform) {\n  return (source) => new Observable(obs => {\n    source.subscribe({\n      next: v => obs.next(transform(v)),\n      error: e => obs.error(e),\n      complete: () => obs.complete()\n    });\n  });\n}\n// --- End mock context ---\n\nclass StreamProcessor {\n  constructor() { this.output = []; }\n\n  process(values) {\n    of(...values).pipe(\n      filter(v => v > 50),\n      map(v => 'READING: ' + v)\n    ).subscribe(result => this.output.push(result));\n  }\n}",
+      "tests": [
+        {
+          "description": "process([45, 62, 38, 71, 55]) should produce 3 outputs",
+          "testCode": "const p = new StreamProcessor(); p.process([45, 62, 38, 71, 55]); if (p.output.length !== 3) throw new Error(`Expected 3 outputs, got ${p.output.length}`);"
+        },
+        {
+          "description": "output should contain 'READING: 62'",
+          "testCode": "const p = new StreamProcessor(); p.process([45, 62, 38, 71, 55]); if (!p.output.includes('READING: 62')) throw new Error(`output should include 'READING: 62', got ${JSON.stringify(p.output)}`);"
+        },
+        {
+          "description": "values <= 50 should be filtered out",
+          "testCode": "const p = new StreamProcessor(); p.process([45, 62, 38, 71, 55]); if (p.output.some(s => s.includes('45') || s.includes('38'))) throw new Error('Values 45 and 38 should be filtered out');"
+        },
+        {
+          "description": "process([10, 20]) should produce empty output",
+          "testCode": "const p = new StreamProcessor(); p.process([10, 20]); if (p.output.length !== 0) throw new Error(`All values below 50 should be filtered, got ${p.output.length} outputs`);"
+        }
+      ],
+      "hints": [
+        "Start with of(...values) — the spread operator turns the array into individual emissions.",
+        "Chain .pipe(filter(v => v > 50), map(v => 'READING: ' + v)) — operators run left-to-right inside pipe().",
+        "End with .subscribe(result => this.output.push(result)) — nothing runs until subscribe() is called."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d22-c03",
+      "dayNumber": 22,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["subscribe", "unsubscribe", "memory-leak", "interval"],
+      "week": 4,
+      "title": "Subscription Leak",
+      "narrativeHook": "The component is destroyed. The interval keeps running. Memory fills with ghosts.",
+      "instructions": "This component subscribes to `interval(100)` — a real RxJS creation operator that emits an incrementing counter every 100ms. When the component is destroyed, the subscription keeps running, leaking memory.\n\nThere are exactly two fixes:\n1. Store the subscription: `this.sub = readings$.subscribe(...)`\n2. Unsubscribe in `ngOnDestroy`: `this.sub.unsubscribe()`\n\nIn a real app: `import { interval, Subscription } from 'rxjs'`",
+      "environment": "stackblitz",
+      "starterCode": "// Real RxJS imports (for reference):\n// import { interval } from 'rxjs';\n// import { Subscription } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\n// interval(ms) mirrors RxJS interval() — emits an incrementing counter every ms milliseconds\nfunction interval(ms) {\n  return {\n    subscribe(observer) {\n      const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n      let count = 0;\n      const id = setInterval(() => fn(count++), ms);\n      return new Subscription(() => clearInterval(id));\n    }\n  };\n}\n\nconst readings$ = interval(100);\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor() { this.values = []; }\n  // Bug: subscription is never stored or cleaned up\n\n  ngOnInit() {\n    readings$.subscribe(v => this.values.push(v));\n  }\n\n  ngOnDestroy() {\n    // Bug: nothing here\n  }\n}",
+      "files": [
+        {
+          "name": "stream.component.ts",
+          "language": "typescript",
+          "content": "// Real RxJS imports (for reference):\n// import { interval } from 'rxjs';\n// import { Subscription } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\n// interval(ms) mirrors RxJS interval() — emits an incrementing counter every ms milliseconds\nfunction interval(ms) {\n  return {\n    subscribe(observer) {\n      const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n      let count = 0;\n      const id = setInterval(() => fn(count++), ms);\n      return new Subscription(() => clearInterval(id));\n    }\n  };\n}\n\nconst readings$ = interval(100);\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor() { this.values = []; }\n  // Bug: subscription is never stored or cleaned up\n\n  ngOnInit() {\n    readings$.subscribe(v => this.values.push(v));\n  }\n\n  ngOnDestroy() {\n    // Bug: nothing here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 24 }],
+      "solution": "// Real RxJS imports (for reference):\n// import { interval } from 'rxjs';\n// import { Subscription } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\n// interval(ms) mirrors RxJS interval() — emits an incrementing counter every ms milliseconds\nfunction interval(ms) {\n  return {\n    subscribe(observer) {\n      const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n      let count = 0;\n      const id = setInterval(() => fn(count++), ms);\n      return new Subscription(() => clearInterval(id));\n    }\n  };\n}\n\nconst readings$ = interval(100);\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor() { this.values = []; this.sub = null; }\n\n  ngOnInit() {\n    this.sub = readings$.subscribe(v => this.values.push(v));\n  }\n\n  ngOnDestroy() {\n    if (this.sub) this.sub.unsubscribe();\n  }\n}",
+      "tests": [
+        {
+          "description": "StreamComponent should store the subscription in this.sub",
+          "testCode": "const c = new StreamComponent(); c.ngOnInit(); if (!c.sub) throw new Error('subscription should be stored in this.sub — assign the return value of readings$.subscribe()');"
+        },
+        {
+          "description": "ngOnDestroy should close the subscription",
+          "testCode": "const c = new StreamComponent(); c.ngOnInit(); c.ngOnDestroy(); if (!c.sub.closed) throw new Error('subscription should be closed after ngOnDestroy — call this.sub.unsubscribe()');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is a subscription memory leak in Angular, and why is ngOnDestroy the right place to unsubscribe from an interval() Observable?",
+        "keywords": ["leak", "destroy", "unsubscribe", "interval"],
+        "minLength": 30
+      },
+      "hints": [
+        "Store the return value of .subscribe(): this.sub = readings$.subscribe(...);",
+        "In ngOnDestroy, call this.sub.unsubscribe() — interval() keeps running until something unsubscribes.",
+        "Declare the property: this.sub = null; in the constructor, then assign it in ngOnInit."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d22-c04",
+      "dayNumber": 22,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["subject", "observable", "subscribe"],
+      "week": 4,
+      "title": "Event Bus",
+      "narrativeHook": "Components need to communicate without knowing each other. A shared Subject is the bridge.",
+      "instructions": "Complete the `EventBusService` using a real RxJS `Subject`.\n\n- `emit(event)`: push `event` to `this._history`, then call `this._bus.next(event)`\n- `on(handler)`: subscribe to `this._bus` and return the subscription\n- `get history()`: return a copy of `this._history`\n\nIn a real app: `import { Subject } from 'rxjs'`\n\nThe Subject API: `new Subject()`, `.next(value)`, `.subscribe(handler)` — identical to what you see here.",
+      "environment": "stackblitz",
+      "starterCode": "// Real RxJS imports (for reference):\n// import { Subject } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; }\n  next(value) {\n    this._subscribers.forEach(fn => fn(value));\n  }\n  subscribe(observer) {\n    const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n    this._subscribers.push(fn);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(fn);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n}\n// --- End mock context ---\n\nclass EventBusService {\n  constructor() {\n    this._bus = new Subject();\n    this._history = [];\n  }\n\n  emit(event) {\n    // Push event to this._history, then call this._bus.next(event)\n    // Your code here\n  }\n\n  on(handler) {\n    // Subscribe to this._bus and return the subscription\n    // Your code here\n  }\n\n  get history() {\n    // Return a copy of this._history\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "event-bus.service.ts",
+          "language": "typescript",
+          "content": "// Real RxJS imports (for reference):\n// import { Subject } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; }\n  next(value) {\n    this._subscribers.forEach(fn => fn(value));\n  }\n  subscribe(observer) {\n    const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n    this._subscribers.push(fn);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(fn);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n}\n// --- End mock context ---\n\nclass EventBusService {\n  constructor() {\n    this._bus = new Subject();\n    this._history = [];\n  }\n\n  emit(event) {\n    // Push event to this._history, then call this._bus.next(event)\n    // Your code here\n  }\n\n  on(handler) {\n    // Subscribe to this._bus and return the subscription\n    // Your code here\n  }\n\n  get history() {\n    // Return a copy of this._history\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 23 }],
+      "solution": "// Real RxJS imports (for reference):\n// import { Subject } from 'rxjs';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; }\n  next(value) {\n    this._subscribers.forEach(fn => fn(value));\n  }\n  subscribe(observer) {\n    const fn = typeof observer === 'function' ? observer : (observer.next || (() => {}));\n    this._subscribers.push(fn);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(fn);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n}\n// --- End mock context ---\n\nclass EventBusService {\n  constructor() {\n    this._bus = new Subject();\n    this._history = [];\n  }\n\n  emit(event) {\n    this._history.push(event);\n    this._bus.next(event);\n  }\n\n  on(handler) {\n    return this._bus.subscribe(handler);\n  }\n\n  get history() {\n    return [...this._history];\n  }\n}",
+      "tests": [
+        {
+          "description": "emit() should add events to history",
+          "testCode": "const s = new EventBusService(); s.emit('launch'); s.emit('abort'); if (s.history.length !== 2) throw new Error(`history should have 2 items, got ${s.history.length}`);"
+        },
+        {
+          "description": "on() handler should receive emitted events",
+          "testCode": "const s = new EventBusService(); const received = []; s.on(e => received.push(e)); s.emit('ping'); s.emit('pong'); if (received.length !== 2 || received[0] !== 'ping') throw new Error(`handler should receive events, got ${JSON.stringify(received)}`);"
+        },
+        {
+          "description": "on() should return a subscription with .unsubscribe()",
+          "testCode": "const s = new EventBusService(); const sub = s.on(() => {}); if (!sub || typeof sub.unsubscribe !== 'function') throw new Error('on() should return a subscription with .unsubscribe()');"
+        }
+      ],
+      "hints": [
+        "emit(): push to history first, then notify: this._history.push(event); this._bus.next(event);",
+        "on(): delegate directly to the Subject: return this._bus.subscribe(handler);",
+        "history getter: return a copy so callers can't mutate internal state: return [...this._history];"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d22-c05",
+      "dayNumber": 22,
+      "order": 5,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["takeUntil", "subject", "observable", "unsubscribe", "pipe"],
+      "week": 4,
+      "title": "Automatic Cleanup",
+      "narrativeHook": "Manual unsubscribe works. But Angular has a cleaner way. One Subject can close everything at once.",
+      "instructions": "Complete `StreamComponent` using the `takeUntil(this.destroy$)` pattern — the standard Angular approach for automatic subscription cleanup.\n\n`ngOnInit()`: subscribe to `this.service.getStream()` using `.pipe(takeUntil(this.destroy$))`, push each value to `this.values`\n\n`ngOnDestroy()`: call `this.destroy$.next()` then `this.destroy$.complete()` — this signals all `takeUntil` operators to complete automatically\n\nIn a real app:\n```\nimport { Subject, takeUntil } from 'rxjs';\n```\n\nThis pattern lets you manage many subscriptions with a single `destroy$` Subject instead of tracking each one.",
+      "environment": "stackblitz",
+      "starterCode": "// Real RxJS imports (for reference):\n// import { Subject, Observable, Subscription } from 'rxjs';\n// import { takeUntil } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    const teardown = this._sub(handlers);\n    return new Subscription(typeof teardown === 'function' ? teardown : null);\n  }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; this._completed = false; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  next(value) {\n    if (!this._completed) this._subscribers.forEach(h => h.next(value));\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    if (!this._completed) this._subscribers.push(handlers);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(handlers);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n  complete() {\n    this._completed = true;\n    this._subscribers.forEach(h => { if (h.complete) h.complete(); });\n    this._subscribers = [];\n  }\n}\n\nfunction takeUntil(notifier) {\n  return (source) => new Observable(obs => {\n    let done = false;\n    let sourceSub;\n    const notifierSub = notifier.subscribe({\n      next: () => {\n        if (!done) { done = true; if (sourceSub) sourceSub.unsubscribe(); obs.complete(); }\n      },\n      complete: () => { if (!done) { done = true; obs.complete(); } }\n    });\n    sourceSub = source.subscribe({\n      next: v => { if (!done) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => { if (!done) obs.complete(); }\n    });\n    return () => { done = true; notifierSub.unsubscribe(); if (sourceSub) sourceSub.unsubscribe(); };\n  });\n}\n\nclass DataStreamService {\n  constructor(source) { this._source = source; }\n  getStream() { return this._source; }\n}\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor(service) { this.service = service; this.values = []; this.destroy$ = new Subject(); }\n\n  ngOnInit() {\n    // Subscribe to this.service.getStream() using pipe(takeUntil(this.destroy$))\n    // Push each received value to this.values\n    // Your code here\n  }\n\n  ngOnDestroy() {\n    // Signal destroy$ so all takeUntil operators complete automatically\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "stream.component.ts",
+          "language": "typescript",
+          "content": "// Real RxJS imports (for reference):\n// import { Subject, Observable, Subscription } from 'rxjs';\n// import { takeUntil } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    const teardown = this._sub(handlers);\n    return new Subscription(typeof teardown === 'function' ? teardown : null);\n  }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; this._completed = false; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  next(value) {\n    if (!this._completed) this._subscribers.forEach(h => h.next(value));\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    if (!this._completed) this._subscribers.push(handlers);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(handlers);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n  complete() {\n    this._completed = true;\n    this._subscribers.forEach(h => { if (h.complete) h.complete(); });\n    this._subscribers = [];\n  }\n}\n\nfunction takeUntil(notifier) {\n  return (source) => new Observable(obs => {\n    let done = false;\n    let sourceSub;\n    const notifierSub = notifier.subscribe({\n      next: () => {\n        if (!done) { done = true; if (sourceSub) sourceSub.unsubscribe(); obs.complete(); }\n      },\n      complete: () => { if (!done) { done = true; obs.complete(); } }\n    });\n    sourceSub = source.subscribe({\n      next: v => { if (!done) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => { if (!done) obs.complete(); }\n    });\n    return () => { done = true; notifierSub.unsubscribe(); if (sourceSub) sourceSub.unsubscribe(); };\n  });\n}\n\nclass DataStreamService {\n  constructor(source) { this._source = source; }\n  getStream() { return this._source; }\n}\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor(service) { this.service = service; this.values = []; this.destroy$ = new Subject(); }\n\n  ngOnInit() {\n    // Subscribe to this.service.getStream() using pipe(takeUntil(this.destroy$))\n    // Push each received value to this.values\n    // Your code here\n  }\n\n  ngOnDestroy() {\n    // Signal destroy$ so all takeUntil operators complete automatically\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 90 }],
+      "solution": "// Real RxJS imports (for reference):\n// import { Subject, Observable, Subscription } from 'rxjs';\n// import { takeUntil } from 'rxjs/operators';\n\n// --- Mock context: do not modify ---\nclass Subscription {\n  constructor(teardownFn) { this.closed = false; this._teardown = teardownFn || null; }\n  unsubscribe() { if (!this.closed) { this.closed = true; if (this._teardown) this._teardown(); } }\n}\n\nclass Observable {\n  constructor(subscriber) { this._sub = subscriber; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    const teardown = this._sub(handlers);\n    return new Subscription(typeof teardown === 'function' ? teardown : null);\n  }\n}\n\nclass Subject {\n  constructor() { this._subscribers = []; this._completed = false; }\n  pipe(...operators) {\n    return operators.reduce((obs, op) => op(obs), this);\n  }\n  next(value) {\n    if (!this._completed) this._subscribers.forEach(h => h.next(value));\n  }\n  subscribe(observer) {\n    const handlers = {\n      next: typeof observer === 'function' ? observer : (observer.next || (() => {})),\n      error: observer && typeof observer === 'object' ? (observer.error || (() => {})) : (() => {}),\n      complete: observer && typeof observer === 'object' ? (observer.complete || (() => {})) : (() => {})\n    };\n    if (!this._completed) this._subscribers.push(handlers);\n    const subscribers = this._subscribers;\n    return new Subscription(() => {\n      const idx = subscribers.indexOf(handlers);\n      if (idx !== -1) subscribers.splice(idx, 1);\n    });\n  }\n  complete() {\n    this._completed = true;\n    this._subscribers.forEach(h => { if (h.complete) h.complete(); });\n    this._subscribers = [];\n  }\n}\n\nfunction takeUntil(notifier) {\n  return (source) => new Observable(obs => {\n    let done = false;\n    let sourceSub;\n    const notifierSub = notifier.subscribe({\n      next: () => {\n        if (!done) { done = true; if (sourceSub) sourceSub.unsubscribe(); obs.complete(); }\n      },\n      complete: () => { if (!done) { done = true; obs.complete(); } }\n    });\n    sourceSub = source.subscribe({\n      next: v => { if (!done) obs.next(v); },\n      error: e => obs.error(e),\n      complete: () => { if (!done) obs.complete(); }\n    });\n    return () => { done = true; notifierSub.unsubscribe(); if (sourceSub) sourceSub.unsubscribe(); };\n  });\n}\n\nclass DataStreamService {\n  constructor(source) { this._source = source; }\n  getStream() { return this._source; }\n}\n// --- End mock context ---\n\nclass StreamComponent {\n  constructor(service) { this.service = service; this.values = []; this.destroy$ = new Subject(); }\n\n  ngOnInit() {\n    this.service.getStream().pipe(\n      takeUntil(this.destroy$)\n    ).subscribe(v => this.values.push(v));\n  }\n\n  ngOnDestroy() {\n    this.destroy$.next();\n    this.destroy$.complete();\n  }\n}",
+      "tests": [
+        {
+          "description": "values are received before ngOnDestroy",
+          "testCode": "const source = new Subject(); const c = new StreamComponent(new DataStreamService(source)); c.ngOnInit(); source.next(10); source.next(20); if (c.values.length !== 2) throw new Error(`Expected 2 values before destroy, got ${c.values.length}`);"
+        },
+        {
+          "description": "values are NOT received after ngOnDestroy",
+          "testCode": "const source = new Subject(); const c = new StreamComponent(new DataStreamService(source)); c.ngOnInit(); source.next(10); c.ngOnDestroy(); source.next(20); if (c.values.length !== 1) throw new Error(`Expected 1 value after destroy, got ${c.values.length} — takeUntil should stop emissions after ngOnDestroy`);"
+        },
+        {
+          "description": "all subsequent emissions are blocked after ngOnDestroy",
+          "testCode": "const source = new Subject(); const c = new StreamComponent(new DataStreamService(source)); c.ngOnInit(); source.next(1); c.ngOnDestroy(); source.next(2); source.next(3); if (c.values.length !== 1) throw new Error(`Expected exactly 1 value, got ${c.values.length}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How does takeUntil(this.destroy$) work, and why is calling destroy$.next() in ngOnDestroy enough to clean up all subscriptions that use this pattern?",
+        "keywords": ["takeUntil", "destroy", "complete", "unsubscribe"],
+        "minLength": 30
+      },
+      "hints": [
+        "In ngOnInit: this.service.getStream().pipe(takeUntil(this.destroy$)).subscribe(v => this.values.push(v));",
+        "In ngOnDestroy: call this.destroy$.next() to signal completion, then this.destroy$.complete() to close the Subject itself.",
+        "takeUntil watches destroy$ — when destroy$ emits (via .next()), takeUntil automatically completes the source Observable, cleaning up the subscription without any manual unsubscribe."
+      ],
+      "xpReward": 35,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

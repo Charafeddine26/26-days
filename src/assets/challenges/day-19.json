@@ -1,0 +1,219 @@
+{
+  "dayNumber": 19,
+  "week": 3,
+  "title": "Composition",
+  "narrativeIntro": "Everything you've learned this week works in isolation. But real systems compose — a component that uses a service that makes HTTP calls, displayed through a template with routing and parameters. Today you compose. Today the individual skills become a coherent whole.",
+  "narrativeOutro": "This is what it feels like. Not individual skills, but orchestration. Components, services, HTTP, routing — all working in concert. The Drift's third cluster blazes with interconnected light.",
+  "phmChapters": [24],
+  "phmConnectionNote": "Ryland combines everything he's learned into more sophisticated solutions. You build complex Angular features.",
+  "challengeIds": ["d19-c01", "d19-c02", "d19-c03", "d19-c04"],
+  "concepts": ["composition", "services", "components", "http", "filtering", "debounce"],
+  "conceptsPreview": "Composing components, services, and HTTP into a complete feature",
+  "challenges": [
+    {
+      "id": "d19-c01",
+      "dayNumber": 19,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["composition", "services", "components"],
+      "week": 3,
+      "title": "Data Flow",
+      "narrativeHook": "Component calls service. Service filters data. Result flows back. What does the component display?",
+      "instructions": "Trace the data flow through three layers: the service filters a dataset, `ngOnInit` stores the result, and `count` reads from it.\n\nPredict what `c.count` returns after `ngOnInit()` runs.",
+      "starterCode": "// Read-only — trace the data flow and predict the output\n\n// class DataService {\n//   signals = [\n//     { id: 1, name: 'Alpha', active: true },\n//     { id: 2, name: 'Beta',  active: false },\n//     { id: 3, name: 'Gamma', active: true },\n//   ];\n//   getActive() {\n//     return this.signals.filter(s => s.active);\n//   }\n// }\n\n// class SignalListComponent {\n//   signals = [];\n//   constructor(private service: DataService) {}\n//   ngOnInit() {\n//     this.signals = this.service.getActive();\n//   }\n//   get count() { return this.signals.length; }\n// }\n\n// const service = new DataService();\n// const c = new SignalListComponent(service);\n// c.ngOnInit();\n// What does c.count return?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: 2 — DataService.getActive() filters to Alpha and Gamma (active: true), so signals.length is 2.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 24 }],
+      "predictPrompt": "What does c.count return after ngOnInit() runs?",
+      "predictChoices": [
+        "2",
+        "3",
+        "0",
+        "1"
+      ],
+      "predictAnswer": "2",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Trace the data flow step by step: what does ngOnInit() do, what does DataService.getActive() return, and why is count 2 and not 3?",
+        "keywords": ["service", "filter", "active", "flow"],
+        "minLength": 30
+      },
+      "hints": [
+        "Start at ngOnInit(): it calls this.service.getActive() and stores the result in this.signals.",
+        "getActive() filters the signals array — only entries where active === true pass through.",
+        "Alpha and Gamma are active: true. Beta is active: false. So getActive() returns 2 items, and count is 2."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d19-c02",
+      "dayNumber": 19,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["services", "filtering", "components"],
+      "week": 3,
+      "title": "Search Filter",
+      "narrativeHook": "The catalog is too large to scroll. A search box filters it in real time.",
+      "instructions": "Complete the `CatalogComponent`:\n\n- `searchTerm` holds the current input value (starts as `''`)\n- `filteredItems` getter returns all items whose `name` contains `searchTerm` (case-insensitive)\n- If `searchTerm` is empty, return all items\n\nThe `items` array is already populated.",
+      "environment": "stackblitz",
+      "starterCode": "export class CatalogComponent {\n  searchTerm = '';\n\n  items = [\n    { id: 1, name: 'Alpha Relay' },\n    { id: 2, name: 'Beta Probe' },\n    { id: 3, name: 'Gamma Array' },\n    { id: 4, name: 'Alpha Beacon' },\n    { id: 5, name: 'Delta Node' },\n  ];\n\n  get filteredItems() {\n    // Return items whose name contains searchTerm (case-insensitive)\n    // Return all items if searchTerm is empty\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "catalog.component.ts",
+          "language": "typescript",
+          "content": "export class CatalogComponent {\n  searchTerm = '';\n\n  items = [\n    { id: 1, name: 'Alpha Relay' },\n    { id: 2, name: 'Beta Probe' },\n    { id: 3, name: 'Gamma Array' },\n    { id: 4, name: 'Alpha Beacon' },\n    { id: 5, name: 'Delta Node' },\n  ];\n\n  get filteredItems() {\n    // Return items whose name contains searchTerm (case-insensitive)\n    // Return all items if searchTerm is empty\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class CatalogComponent {\n  searchTerm = '';\n\n  items = [\n    { id: 1, name: 'Alpha Relay' },\n    { id: 2, name: 'Beta Probe' },\n    { id: 3, name: 'Gamma Array' },\n    { id: 4, name: 'Alpha Beacon' },\n    { id: 5, name: 'Delta Node' },\n  ];\n\n  get filteredItems() {\n    if (!this.searchTerm) return this.items;\n    const term = this.searchTerm.toLowerCase();\n    return this.items.filter(item => item.name.toLowerCase().includes(term));\n  }\n}",
+      "tests": [
+        {
+          "description": "filteredItems with empty searchTerm returns all 5 items",
+          "testCode": "const c = new CatalogComponent(); if (c.filteredItems.length !== 5) throw new Error(`Empty search should return 5 items, got ${c.filteredItems.length}`);"
+        },
+        {
+          "description": "filteredItems with 'alpha' returns 2 items (case-insensitive)",
+          "testCode": "const c = new CatalogComponent(); c.searchTerm = 'alpha'; if (c.filteredItems.length !== 2) throw new Error(`'alpha' should match 2 items, got ${c.filteredItems.length}`);"
+        },
+        {
+          "description": "filteredItems with 'BETA' returns 1 item",
+          "testCode": "const c = new CatalogComponent(); c.searchTerm = 'BETA'; if (c.filteredItems.length !== 1) throw new Error(`'BETA' should match 1 item, got ${c.filteredItems.length}`);"
+        },
+        {
+          "description": "filteredItems with 'xyz' returns 0 items",
+          "testCode": "const c = new CatalogComponent(); c.searchTerm = 'xyz'; if (c.filteredItems.length !== 0) throw new Error(`'xyz' should match 0 items, got ${c.filteredItems.length}`);"
+        }
+      ],
+      "hints": [
+        "If searchTerm is empty/falsy, return this.items directly.",
+        "Use .toLowerCase() on both the search term and the item name for case-insensitive matching.",
+        "return this.items.filter(item => item.name.toLowerCase().includes(term));"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d19-c03",
+      "dayNumber": 19,
+      "order": 3,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["debounce", "composition", "services"],
+      "week": 3,
+      "title": "Debounce Input",
+      "narrativeHook": "The search fires on every keystroke. The service can't keep up. Slow it down.",
+      "instructions": "Complete the `onInput` method of `SearchComponent` so it debounces search requests:\n\n- Update `this.query` immediately with the new term\n- Cancel any pending timer (`this.timerId`) using `clearTimeout`\n- Schedule `this.searchService.search(term)` to run after **300ms** using `setTimeout`\n- Store the result in `this.results` and reset `this.timerId` to `null`\n\nIf the user types again before 300ms passes, the previous timer is cancelled and a new one starts. Only the final pause triggers the search.",
+      "environment": "stackblitz",
+      "starterCode": "export class SearchComponent {\n  query = '';\n  results = [];\n  timerId = null;\n  searchService;\n\n  constructor(searchService) {\n    this.searchService = searchService;\n  }\n\n  onInput(term) {\n    this.query = term;\n    // 1. Cancel any pending debounce timer\n    // 2. Schedule this.searchService.search(term) to run after 300ms\n    //    Store the result in this.results when the timer fires\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "search.component.ts",
+          "language": "typescript",
+          "content": "export class SearchComponent {\n  query = '';\n  results = [];\n  timerId = null;\n  searchService;\n\n  constructor(searchService) {\n    this.searchService = searchService;\n  }\n\n  onInput(term) {\n    this.query = term;\n    // 1. Cancel any pending debounce timer\n    // 2. Schedule this.searchService.search(term) to run after 300ms\n    //    Store the result in this.results when the timer fires\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class SearchComponent {\n  query = '';\n  results = [];\n  timerId = null;\n  searchService;\n\n  constructor(searchService) {\n    this.searchService = searchService;\n  }\n\n  onInput(term) {\n    this.query = term;\n    if (this.timerId !== null) {\n      clearTimeout(this.timerId);\n    }\n    this.timerId = setTimeout(() => {\n      this.results = this.searchService.search(term);\n      this.timerId = null;\n    }, 300);\n  }\n}",
+      "tests": [
+        {
+          "description": "onInput updates query immediately",
+          "testCode": "const mockService = { search: (t) => [t + '-result'] }; const c = new SearchComponent(mockService); c.onInput('alpha'); if (c.query !== 'alpha') throw new Error(`query should be 'alpha' immediately, got '${c.query}'`);"
+        },
+        {
+          "description": "results remain empty before the debounce timer fires",
+          "testCode": "const mockService = { search: (t) => [t + '-result'] }; const c = new SearchComponent(mockService); c.onInput('alpha'); if (c.results.length !== 0) throw new Error(`results should be empty before debounce fires, got ${c.results.length}`);"
+        },
+        {
+          "description": "results are populated after the debounce delay",
+          "testCode": "const mockService = { search: (t) => [t + '-result'] }; const c = new SearchComponent(mockService); c.onInput('alpha'); await new Promise(r => setTimeout(r, 350)); if (c.results.length !== 1 || c.results[0] !== 'alpha-result') throw new Error(`results should contain 'alpha-result' after debounce, got ${JSON.stringify(c.results)}`);"
+        },
+        {
+          "description": "rapid inputs cancel previous timers — search is called only once",
+          "testCode": "let callCount = 0; const mockService = { search: (t) => { callCount++; return [t + '-result']; } }; const c = new SearchComponent(mockService); c.onInput('a'); c.onInput('al'); c.onInput('alp'); await new Promise(r => setTimeout(r, 350)); if (callCount !== 1) throw new Error(`search should be called once after rapid inputs, got ${callCount} calls`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Explain what debouncing does and why it matters here. What happens to the previous timer when the user types a second character before 300ms passes?",
+        "keywords": ["cancel", "timeout", "delay", "keystroke"],
+        "minLength": 30
+      },
+      "hints": [
+        "First check if this.timerId is not null and call clearTimeout(this.timerId) to cancel the previous scheduled search.",
+        "Then use setTimeout(() => { ... }, 300) to schedule the search. Store the return value in this.timerId.",
+        "Inside the setTimeout callback: this.results = this.searchService.search(term); this.timerId = null;"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d19-c04",
+      "dayNumber": 19,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["composition", "services", "filtering"],
+      "week": 3,
+      "title": "Master-Detail",
+      "narrativeHook": "A list on one side, a detail panel on the other. Selecting an item updates the view.",
+      "instructions": "Complete the `MasterDetailComponent`:\n\n- `select(id)` sets `selectedId` to the given id\n- `selectedItem` getter returns the item whose `id` matches `selectedId`, or `null`\n- `detailLabel` getter returns `'Viewing: ' + item.name` if an item is selected, else `'Select an item'`",
+      "environment": "stackblitz",
+      "starterCode": "export class MasterDetailComponent {\n  selectedId = null;\n\n  items = [\n    { id: 1, name: 'Relay Station Alpha' },\n    { id: 2, name: 'Deep Probe Beta' },\n    { id: 3, name: 'Anchor Node Gamma' },\n  ];\n\n  select(id) {\n    // Your code here\n  }\n\n  get selectedItem() {\n    // Return the item matching selectedId, or null\n    // Your code here\n  }\n\n  get detailLabel() {\n    // 'Viewing: name' if item selected, else 'Select an item'\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "master-detail.component.ts",
+          "language": "typescript",
+          "content": "export class MasterDetailComponent {\n  selectedId = null;\n\n  items = [\n    { id: 1, name: 'Relay Station Alpha' },\n    { id: 2, name: 'Deep Probe Beta' },\n    { id: 3, name: 'Anchor Node Gamma' },\n  ];\n\n  select(id) {\n    // Your code here\n  }\n\n  get selectedItem() {\n    // Return the item matching selectedId, or null\n    // Your code here\n  }\n\n  get detailLabel() {\n    // 'Viewing: name' if item selected, else 'Select an item'\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class MasterDetailComponent {\n  selectedId = null;\n\n  items = [\n    { id: 1, name: 'Relay Station Alpha' },\n    { id: 2, name: 'Deep Probe Beta' },\n    { id: 3, name: 'Anchor Node Gamma' },\n  ];\n\n  select(id) {\n    this.selectedId = id;\n  }\n\n  get selectedItem() {\n    return this.items.find(i => i.id === this.selectedId) ?? null;\n  }\n\n  get detailLabel() {\n    return this.selectedItem ? 'Viewing: ' + this.selectedItem.name : 'Select an item';\n  }\n}",
+      "tests": [
+        {
+          "description": "selectedItem should be null before any selection",
+          "testCode": "const c = new MasterDetailComponent(); if (c.selectedItem !== null) throw new Error('selectedItem should be null initially');"
+        },
+        {
+          "description": "select(2) should set selectedItem to the matching item",
+          "testCode": "const c = new MasterDetailComponent(); c.select(2); if (!c.selectedItem || c.selectedItem.name !== 'Deep Probe Beta') throw new Error(`Expected 'Deep Probe Beta', got ${c.selectedItem?.name}`);"
+        },
+        {
+          "description": "detailLabel should say 'Select an item' before selection",
+          "testCode": "const c = new MasterDetailComponent(); if (c.detailLabel !== 'Select an item') throw new Error(`Expected 'Select an item', got '${c.detailLabel}'`);"
+        },
+        {
+          "description": "detailLabel should show item name after selection",
+          "testCode": "const c = new MasterDetailComponent(); c.select(1); if (c.detailLabel !== 'Viewing: Relay Station Alpha') throw new Error(`Expected 'Viewing: Relay Station Alpha', got '${c.detailLabel}'`);"
+        }
+      ],
+      "hints": [
+        "select(id) just sets this.selectedId = id;",
+        "selectedItem: return this.items.find(i => i.id === this.selectedId) ?? null;",
+        "detailLabel: return this.selectedItem ? 'Viewing: ' + this.selectedItem.name : 'Select an item';"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

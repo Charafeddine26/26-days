@@ -1,0 +1,253 @@
+{
+  "dayNumber": 14,
+  "week": 3,
+  "title": "Components",
+  "narrativeIntro": "The third region reveals itself not as scattered fragments but as interconnected components. Each one is a self-contained unit — its own template, its own logic, its own appearance. They combine like organs in a living thing, each serving a purpose, all working together.\n\nThis is Angular. This is how real applications are built. And this is the architecture of The Drift itself.",
+  "narrativeOutro": "Your first Angular components. They're simple, but they're modular, composable, and alive. The Drift's third region responds to this — structures that were monolithic start to separate into distinct, glowing components.",
+  "phmChapters": [19],
+  "phmConnectionNote": "Ryland starts building complex systems from modular parts. You learn Angular components.",
+  "challengeIds": ["d14-c01", "d14-c02", "d14-c03", "d14-c04", "d14-c05"],
+  "concepts": ["angular-components", "decorator", "template", "interpolation", "class", "input", "output", "event-emitter", "property-binding"],
+  "conceptsPreview": "Angular components — decorator, template, @Input and @Output",
+  "challenges": [
+    {
+      "id": "d14-c01",
+      "dayNumber": 14,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["angular-components", "interpolation", "template"],
+      "week": 3,
+      "title": "What Renders",
+      "narrativeHook": "A component declares its data. Its template speaks it aloud. What do you hear?",
+      "instructions": "An Angular component has a class property and a template that interpolates it.\n\nWithout running it, trace what `{{ status }}` evaluates to and predict what appears in the DOM.",
+      "starterCode": "// Read-only — predict the output\n\n// status.component.ts\n// @Component({\n//   selector: 'app-status',\n//   standalone: true,\n//   template: `<p>Status: {{ status }}</p>`\n// })\n// export class StatusComponent {\n//   status = 'Online';\n// }\n\n// The component is used as: <app-status />\n// What text appears inside the <p> tag?",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: Status: Online",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 14 }],
+      "predictPrompt": "What text does the <p> element contain?",
+      "predictChoices": [
+        "Status: Online",
+        "Status: {{ status }}",
+        "Status: undefined",
+        "Nothing — the component must be registered first"
+      ],
+      "predictAnswer": "Status: Online",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What does {{ }} do in an Angular template, and how is it different from a JavaScript template literal `${}`?",
+        "keywords": ["interpolation", "template", "binding", "expression"],
+        "minLength": 30
+      },
+      "hints": [
+        "{{ }} in Angular is interpolation — it evaluates the expression inside and renders the result as a string.",
+        "status is a class property set to 'Online'. The template renders its value, not the property name.",
+        "Angular standalone components don't need to be registered in a module — the standalone: true flag is enough."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d14-c02",
+      "dayNumber": 14,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["angular-components", "class", "template", "event-binding"],
+      "week": 3,
+      "title": "Counter Component",
+      "narrativeHook": "Two buttons. One number. The simplest component that feels alive.",
+      "instructions": "A `CounterComponent` displays a count and has two buttons. The template is already written — implement the class.\n\n- `count` starts at `0`\n- `increment()` adds 1\n- `decrement()` subtracts 1",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-counter',\n  standalone: true,\n  template: `\n    <p>Count: {{ count }}</p>\n    <button (click)=\"decrement()\">-</button>\n    <button (click)=\"increment()\">+</button>\n  `\n})\nexport class CounterComponent {\n  count = 0;\n\n  increment() {\n    // Your code here\n  }\n\n  decrement() {\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "counter.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-counter',\n  standalone: true,\n  template: `\n    <p>Count: {{ count }}</p>\n    <button (click)=\"decrement()\">-</button>\n    <button (click)=\"increment()\">+</button>\n  `\n})\nexport class CounterComponent {\n  count = 0;\n\n  increment() {\n    // Your code here\n  }\n\n  decrement() {\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-counter',\n  standalone: true,\n  template: `\n    <p>Count: {{ count }}</p>\n    <button (click)=\"decrement()\">-</button>\n    <button (click)=\"increment()\">+</button>\n  `\n})\nexport class CounterComponent {\n  count = 0;\n\n  increment() {\n    this.count++;\n  }\n\n  decrement() {\n    this.count--;\n  }\n}",
+      "tests": [
+        {
+          "description": "count should start at 0",
+          "testCode": "const c = new CounterComponent(); if (c.count !== 0) throw new Error(`count should start at 0, got ${c.count}`);"
+        },
+        {
+          "description": "increment() should add 1 to count",
+          "testCode": "const c = new CounterComponent(); c.increment(); if (c.count !== 1) throw new Error(`After increment(), count should be 1, got ${c.count}`);"
+        },
+        {
+          "description": "decrement() should subtract 1 from count",
+          "testCode": "const c = new CounterComponent(); c.decrement(); if (c.count !== -1) throw new Error(`After decrement(), count should be -1, got ${c.count}`);"
+        },
+        {
+          "description": "Multiple increments should accumulate",
+          "testCode": "const c = new CounterComponent(); c.increment(); c.increment(); c.increment(); if (c.count !== 3) throw new Error(`Three increments should give 3, got ${c.count}`);"
+        }
+      ],
+      "hints": [
+        "The template is already done — you only need to implement the class methods.",
+        "increment() should do: this.count++;",
+        "decrement() should do: this.count--;"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d14-c03",
+      "dayNumber": 14,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["angular-components", "interpolation", "template"],
+      "week": 3,
+      "title": "Silent Binding",
+      "narrativeHook": "The component renders. The alert box appears. But the message is empty — the template and the class are speaking different names.",
+      "instructions": "This component should display an alert message but the `<span>` renders empty.\n\nThere is exactly one bug: a property name mismatch between the template and the class. Find it and fix it.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-alert',\n  standalone: true,\n  template: `\n    <div class=\"alert\">\n      <strong>Alert:</strong> <span>{{ message }}</span>\n    </div>\n  `\n})\nexport class AlertComponent {\n  mesage = 'Reactor pressure nominal';  // Bug is here\n}",
+      "files": [
+        {
+          "name": "alert.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-alert',\n  standalone: true,\n  template: `\n    <div class=\"alert\">\n      <strong>Alert:</strong> <span>{{ message }}</span>\n    </div>\n  `\n})\nexport class AlertComponent {\n  mesage = 'Reactor pressure nominal';  // Bug is here\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-alert',\n  standalone: true,\n  template: `\n    <div class=\"alert\">\n      <strong>Alert:</strong> <span>{{ message }}</span>\n    </div>\n  `\n})\nexport class AlertComponent {\n  message = 'Reactor pressure nominal';\n}",
+      "tests": [
+        {
+          "description": "AlertComponent should have a 'message' property",
+          "testCode": "const c = new AlertComponent(); if (!('message' in c)) throw new Error(`AlertComponent has no 'message' property — check the spelling`);"
+        },
+        {
+          "description": "message should be 'Reactor pressure nominal'",
+          "testCode": "const c = new AlertComponent(); if (c.message !== 'Reactor pressure nominal') throw new Error(`message should be 'Reactor pressure nominal', got '${c.message}'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why does Angular show an empty string instead of an error when {{ message }} references a property that doesn't exist?",
+        "keywords": ["undefined", "null", "interpolation", "empty"],
+        "minLength": 25
+      },
+      "hints": [
+        "Angular interpolation {{ message }} looks for a property named 'message' on the component class. If it's not found, it renders as empty string — no error.",
+        "Compare the template binding name and the class property name very carefully. One character is different.",
+        "The class has 'mesage' (missing the 's'). The template expects 'message'. Fix the class property name."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d14-c04",
+      "dayNumber": 14,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["angular-components", "input", "property-binding"],
+      "week": 3,
+      "title": "Crew Badge",
+      "narrativeHook": "A parent component knows the crew member's name. A child displays it as a badge. Wire the connection.",
+      "instructions": "Complete the `CrewBadgeComponent`:\n\n1. It accepts an `@Input()` called `crewMember` (string, default `''`)\n2. It has a getter `badge` that returns the string `'CREW: '` followed by `crewMember` uppercased\n\nExample: if `crewMember` is `'grace'`, `badge` returns `'CREW: GRACE'`.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component, Input } from '@angular/core';\n\n@Component({\n  selector: 'app-crew-badge',\n  standalone: true,\n  template: `<span class=\"badge\">{{ badge }}</span>`\n})\nexport class CrewBadgeComponent {\n  @Input() crewMember = '';\n\n  get badge(): string {\n    // Return 'CREW: ' + crewMember uppercased\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "crew-badge.component.ts",
+          "language": "typescript",
+          "content": "import { Component, Input } from '@angular/core';\n\n@Component({\n  selector: 'app-crew-badge',\n  standalone: true,\n  template: `<span class=\"badge\">{{ badge }}</span>`\n})\nexport class CrewBadgeComponent {\n  @Input() crewMember = '';\n\n  get badge(): string {\n    // Return 'CREW: ' + crewMember uppercased\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component, Input } from '@angular/core';\n\n@Component({\n  selector: 'app-crew-badge',\n  standalone: true,\n  template: `<span class=\"badge\">{{ badge }}</span>`\n})\nexport class CrewBadgeComponent {\n  @Input() crewMember = '';\n\n  get badge(): string {\n    return 'CREW: ' + this.crewMember.toUpperCase();\n  }\n}",
+      "tests": [
+        {
+          "description": "badge getter should prefix with 'CREW: '",
+          "testCode": "const c = new CrewBadgeComponent(); c.crewMember = 'grace'; if (c.badge !== 'CREW: GRACE') throw new Error(`Expected 'CREW: GRACE', got '${c.badge}'`);"
+        },
+        {
+          "description": "badge should uppercase the crewMember name",
+          "testCode": "const c = new CrewBadgeComponent(); c.crewMember = 'ilyukhina'; if (c.badge !== 'CREW: ILYUKHINA') throw new Error(`Expected 'CREW: ILYUKHINA', got '${c.badge}'`);"
+        },
+        {
+          "description": "badge should work with default empty crewMember",
+          "testCode": "const c = new CrewBadgeComponent(); if (c.badge !== 'CREW: ') throw new Error(`Default badge should be 'CREW: ', got '${c.badge}'`);"
+        }
+      ],
+      "hints": [
+        "@Input() declares a property that a parent component can pass a value into via [crewMember]=\"someValue\".",
+        "Inside the class, use this.crewMember to access the input value.",
+        "return 'CREW: ' + this.crewMember.toUpperCase();"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d14-c05",
+      "dayNumber": 14,
+      "order": 5,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["output", "event-emitter", "input", "property-binding"],
+      "week": 3,
+      "title": "Notify the Parent",
+      "narrativeHook": "The badge can display. Now it needs to speak back — to tell the parent which crew member was activated.",
+      "instructions": "A `CrewBadgeComponent` receives a crew member name via `@Input()` and should announce it upward when activated.\n\nComplete the `select()` method so it calls `this.selected.emit(this.crewMember)`.\n\nIn real Angular, the parent binds to the output like this:\n```typescript\n// import { Output, EventEmitter } from '@angular/core';\n// @Output() selected = new EventEmitter<string>();\n// Parent template: <app-crew-badge [crewMember]=\"name\" (selected)=\"onSelect($event)\" />\n```\n\nHere the `EventEmitter` mock is already wired up in the read-only section — your task is just the one-line emit.",
+      "starterCode": "// Real Angular imports (for reference):\n// import { Component, Input, Output, EventEmitter } from '@angular/core';\n// @Output() selected = new EventEmitter<string>();\n// Parent: <app-crew-badge [crewMember]=\"name\" (selected)=\"onSelect($event)\" />\n\n// --- Mock context: do not modify ---\nclass EventEmitter {\n  constructor() { this._listeners = []; }\n  subscribe(fn) { this._listeners.push(fn); }\n  emit(value) { this._listeners.forEach(fn => fn(value)); }\n}\n// --- End mock context ---\n\nclass CrewBadgeComponent {\n  crewMember = '';\n  selected = new EventEmitter();\n\n  select() {\n    // Emit the crewMember name upward to the parent\n    // Your code here\n  }\n}",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 12 }],
+      "solution": "// Real Angular imports (for reference):\n// import { Component, Input, Output, EventEmitter } from '@angular/core';\n// @Output() selected = new EventEmitter<string>();\n// Parent: <app-crew-badge [crewMember]=\"name\" (selected)=\"onSelect($event)\" />\n\n// --- Mock context: do not modify ---\nclass EventEmitter {\n  constructor() { this._listeners = []; }\n  subscribe(fn) { this._listeners.push(fn); }\n  emit(value) { this._listeners.forEach(fn => fn(value)); }\n}\n// --- End mock context ---\n\nclass CrewBadgeComponent {\n  crewMember = '';\n  selected = new EventEmitter();\n\n  select() {\n    this.selected.emit(this.crewMember);\n  }\n}",
+      "tests": [
+        {
+          "description": "selected should be an EventEmitter with an emit() method",
+          "testCode": "const c = new CrewBadgeComponent(); if (typeof c.selected !== 'object' || typeof c.selected.emit !== 'function') throw new Error('selected should be an EventEmitter instance with an emit() method');"
+        },
+        {
+          "description": "select() should emit the crewMember value",
+          "testCode": "const c = new CrewBadgeComponent(); c.crewMember = 'grace'; let emitted = null; c.selected.subscribe(v => emitted = v); c.select(); if (emitted !== 'grace') throw new Error(`Expected 'grace' to be emitted, got '${emitted}'`);"
+        },
+        {
+          "description": "select() should emit whatever crewMember is currently set to",
+          "testCode": "const c = new CrewBadgeComponent(); c.crewMember = 'ilyukhina'; let emitted = null; c.selected.subscribe(v => emitted = v); c.select(); if (emitted !== 'ilyukhina') throw new Error(`Expected 'ilyukhina' to be emitted, got '${emitted}'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How does @Output() + EventEmitter let a child component communicate upward to its parent?",
+        "keywords": ["emit", "parent", "event", "output"],
+        "minLength": 30
+      },
+      "hints": [
+        "@Output() marks a property as an outgoing event stream. The parent listens with (selected)=\"handler($event)\" in its template.",
+        "EventEmitter is Angular's event bus for a single component boundary. Calling this.selected.emit(value) sends a value up to whoever is listening.",
+        "The method only needs one line: this.selected.emit(this.crewMember);"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

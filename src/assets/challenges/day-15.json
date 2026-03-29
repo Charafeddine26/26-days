@@ -1,0 +1,264 @@
+{
+  "dayNumber": 15,
+  "week": 3,
+  "title": "Templates",
+  "narrativeIntro": "Components need a face. The template is where data becomes visible — where values become text, where arrays become lists, where conditions become presence or absence. The Drift's visual language is its template syntax: binding, directives, pipes. Learn to speak it and the structures show you their contents.",
+  "narrativeOutro": "Templates are the bridge between data and perception. What lives in your TypeScript now renders in the view, and what the user touches flows back. The loop is closing.",
+  "phmChapters": [20],
+  "phmConnectionNote": "Ryland develops better visual interfaces for his systems. You learn Angular template syntax.",
+  "challengeIds": ["d15-c01", "d15-c02", "d15-c03", "d15-c05", "d15-c04"],
+  "concepts": ["control-flow", "property-binding", "event-binding", "pipes", "two-way-binding"],
+  "conceptsPreview": "@for, @if, property binding, event binding, and pipes",
+  "challenges": [
+    {
+      "id": "d15-c01",
+      "dayNumber": 15,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["control-flow", "interpolation"],
+      "week": 3,
+      "title": "Control Flow Output",
+      "narrativeHook": "Two control flow blocks determine what renders and how many times. Trace the output.",
+      "instructions": "Read the component template below. `@for` iterates the array — it creates one host element per item. `@if` conditionally renders content inside.\n\nWithout running it, count how many `<li>` elements render and how many `<span>` elements render.",
+      "starterCode": "// Read-only — predict the output\n\n// @Component({\n//   template: `\n//     <ul>\n//       @for (item of items; track item.name) {\n//         <li>\n//           @if (item.active) {\n//             <span>{{ item.name }}</span>\n//           }\n//         </li>\n//       }\n//     </ul>\n//   `\n// })\n// export class ListComponent {\n//   items = [\n//     { name: 'Alpha', active: true },\n//     { name: 'Beta', active: false },\n//     { name: 'Gamma', active: true },\n//   ];\n// }\n\n// How many <li> elements render? How many <span> elements render?",
+      "solution": "// No code changes — this is a prediction challenge.\n// 3 <li> elements (one per item in @for), but only 2 <span> elements (only where @if (item.active) is true).",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 24 }],
+      "predictPrompt": "How many <li> elements render, and how many <span> elements render?",
+      "predictChoices": [
+        "3 <li> elements, 2 <span> elements",
+        "2 <li> elements, 2 <span> elements",
+        "3 <li> elements, 3 <span> elements",
+        "2 <li> elements, 1 <span> element"
+      ],
+      "predictAnswer": "3 <li> elements, 2 <span> elements",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does @for create a <li> for Beta even though Beta's <span> is not rendered?",
+        "keywords": ["for", "if", "independent", "separate", "control-flow", "ngFor", "ngIf"],
+        "minLength": 25
+      },
+      "hints": [
+        "@for iterates every item in the array. It creates one host <li> per item regardless of anything inside.",
+        "@if on the inner <span> only controls whether the span renders — the parent <li> is independent and always created by @for.",
+        "3 items → 3 <li> elements. But only Alpha and Gamma have active: true → 2 <span> elements."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d15-c02",
+      "dayNumber": 15,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["control-flow", "interpolation"],
+      "week": 3,
+      "title": "Signal List",
+      "narrativeHook": "The sensor array is transmitting. Render only the active signals.",
+      "instructions": "Complete the `SignalListComponent` template:\n\n- `@for` already iterates `signals` (tracking by `signal.id`)\n- Inside the `@for` block, add `@if` to only render active signals\n- Each active signal renders as `<li>{{ signal.id }}: {{ signal.strength }}</li>`\n\nThe class and `@for` scaffold are already in place — add the `@if` block.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nconst SIGNAL_TEMPLATE = `\n  <ul>\n    @for (signal of signals; track signal.id) {\n      <!-- Only render active signals — add @if block here -->\n    }\n  </ul>\n`;\n\n@Component({\n  selector: 'app-signal-list',\n  standalone: true,\n  imports: [CommonModule],\n  template: SIGNAL_TEMPLATE\n})\nexport class SignalListComponent {\n  signals = [\n    { id: 'A-1', strength: 82, active: true },\n    { id: 'A-2', strength: 15, active: false },\n    { id: 'A-3', strength: 67, active: true },\n    { id: 'A-4', strength: 91, active: true },\n  ];\n\n  get activeCount(): number {\n    return this.signals.filter(s => s.active).length;\n  }\n}",
+      "files": [
+        {
+          "name": "signal-list.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nconst SIGNAL_TEMPLATE = `\n  <ul>\n    @for (signal of signals; track signal.id) {\n      <!-- Only render active signals — add @if block here -->\n    }\n  </ul>\n`;\n\n@Component({\n  selector: 'app-signal-list',\n  standalone: true,\n  imports: [CommonModule],\n  template: SIGNAL_TEMPLATE\n})\nexport class SignalListComponent {\n  signals = [\n    { id: 'A-1', strength: 82, active: true },\n    { id: 'A-2', strength: 15, active: false },\n    { id: 'A-3', strength: 67, active: true },\n    { id: 'A-4', strength: 91, active: true },\n  ];\n\n  get activeCount(): number {\n    return this.signals.filter(s => s.active).length;\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nconst SIGNAL_TEMPLATE = `\n  <ul>\n    @for (signal of signals; track signal.id) {\n      @if (signal.active) {\n        <li>{{ signal.id }}: {{ signal.strength }}</li>\n      }\n    }\n  </ul>\n`;\n\n@Component({\n  selector: 'app-signal-list',\n  standalone: true,\n  imports: [CommonModule],\n  template: SIGNAL_TEMPLATE\n})\nexport class SignalListComponent {\n  signals = [\n    { id: 'A-1', strength: 82, active: true },\n    { id: 'A-2', strength: 15, active: false },\n    { id: 'A-3', strength: 67, active: true },\n    { id: 'A-4', strength: 91, active: true },\n  ];\n\n  get activeCount(): number {\n    return this.signals.filter(s => s.active).length;\n  }\n}",
+      "tests": [
+        {
+          "description": "signals array should have 4 items",
+          "testCode": "const c = new SignalListComponent(); if (c.signals.length !== 4) throw new Error(`signals should have 4 items, got ${c.signals.length}`);"
+        },
+        {
+          "description": "activeCount should be 3 (three active signals)",
+          "testCode": "const c = new SignalListComponent(); if (c.activeCount !== 3) throw new Error(`activeCount should be 3, got ${c.activeCount}`);"
+        },
+        {
+          "description": "A-2 should not be active",
+          "testCode": "const c = new SignalListComponent(); const a2 = c.signals.find(s => s.id === 'A-2'); if (a2.active) throw new Error('A-2 should have active: false');"
+        },
+        {
+          "description": "Template must use @if to filter active signals",
+          "testCode": "if (!SIGNAL_TEMPLATE.includes('@if')) throw new Error('Template must use @if (signal.active) { ... } to filter active signals — add the @if block inside @for');"
+        },
+        {
+          "description": "Template should render an <li> element inside the @if block",
+          "testCode": "if (!SIGNAL_TEMPLATE.includes('<li>')) throw new Error('Template should contain an <li> element inside the @if block — add the list item');"
+        },
+        {
+          "description": "Template should interpolate signal.strength",
+          "testCode": "if (!SIGNAL_TEMPLATE.includes('signal.strength')) throw new Error('Template should display signal.strength — check your interpolation inside <li>');"
+        }
+      ],
+      "hints": [
+        "Inside the @for block, add: @if (signal.active) { ... }",
+        "Put the <li> element inside the @if block: @if (signal.active) { <li>{{ signal.id }}: {{ signal.strength }}</li> }",
+        "Unlike *ngFor/*ngIf (which cannot both go on the same element), @for and @if are block-level — @if nests cleanly inside @for with no wrapper needed."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d15-c03",
+      "dayNumber": 15,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["property-binding", "event-binding"],
+      "week": 3,
+      "title": "Binding Reversed",
+      "narrativeHook": "The button should disable when the system is locked. It disables when it's not. The logic is inverted.",
+      "instructions": "This component has a `locked` property. The launch button should be **disabled when `locked` is `true`** — but currently it's disabled when `locked` is `false`.\n\nThere is exactly one bug. Fix the binding.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-launch-control',\n  standalone: true,\n  template: `\n    <p>System: {{ locked ? 'LOCKED' : 'READY' }}</p>\n    <button [disabled]=\"!locked\" (click)=\"launch()\">Launch</button>\n    <button (click)=\"locked = !locked\">Toggle Lock</button>\n  `\n})\nexport class LaunchControlComponent {\n  locked = true;\n  launched = false;\n\n  launch() {\n    this.launched = true;\n  }\n}",
+      "files": [
+        {
+          "name": "launch-control.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-launch-control',\n  standalone: true,\n  template: `\n    <p>System: {{ locked ? 'LOCKED' : 'READY' }}</p>\n    <button [disabled]=\"!locked\" (click)=\"launch()\">Launch</button>\n    <button (click)=\"locked = !locked\">Toggle Lock</button>\n  `\n})\nexport class LaunchControlComponent {\n  locked = true;\n  launched = false;\n\n  launch() {\n    this.launched = true;\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-launch-control',\n  standalone: true,\n  template: `\n    <p>System: {{ locked ? 'LOCKED' : 'READY' }}</p>\n    <button [disabled]=\"locked\" (click)=\"launch()\">Launch</button>\n    <button (click)=\"locked = !locked\">Toggle Lock</button>\n  `\n})\nexport class LaunchControlComponent {\n  locked = true;\n  launched = false;\n\n  launch() {\n    this.launched = true;\n  }\n}",
+      "tests": [
+        {
+          "description": "locked should start as true",
+          "testCode": "const c = new LaunchControlComponent(); if (!c.locked) throw new Error('locked should start as true');"
+        },
+        {
+          "description": "launch() should set launched to true",
+          "testCode": "const c = new LaunchControlComponent(); c.launch(); if (!c.launched) throw new Error('launch() should set launched to true');"
+        },
+        {
+          "description": "launched should start as false",
+          "testCode": "const c = new LaunchControlComponent(); if (c.launched) throw new Error('launched should start as false');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is the difference between [disabled]=\"locked\" and [disabled]=\"!locked\" in an Angular template?",
+        "keywords": ["binding", "property", "expression", "disabled"],
+        "minLength": 25
+      },
+      "hints": [
+        "[disabled]=\"expression\" disables the button when the expression is truthy.",
+        "The button should be disabled when locked is true. So [disabled]=\"locked\" is correct — not [disabled]=\"!locked\".",
+        "Remove the ! from !locked in the disabled binding."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d15-c05",
+      "dayNumber": 15,
+      "order": 4,
+      "type": "predict",
+      "difficulty": "steady",
+      "concepts": ["two-way-binding", "ngModel"],
+      "week": 3,
+      "title": "Two-Way Bridge",
+      "narrativeHook": "One input. One property. They stay in sync. What does the banana-in-a-box syntax actually do?",
+      "instructions": "Read the component template below. `[(ngModel)]` binds the input's value to `callsign` in both directions — changes from the component update the input, and user input updates the component.\n\nThe user types `'Ryland'`. What is the value of `this.callsign` in the component class?",
+      "starterCode": "// Read-only — predict the output\n\n// <input [(ngModel)]=\"callsign\" />\n//\n// User types 'Ryland'.\n// What is the value of this.callsign in the component class?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: 'Ryland'. [(ngModel)] keeps the component property in sync with the input value.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 6 }],
+      "predictPrompt": "What is the value of this.callsign after the user types 'Ryland'?",
+      "predictChoices": [
+        "\"Ryland\"",
+        "undefined",
+        "\"\"",
+        "Error — FormsModule not imported"
+      ],
+      "predictAnswer": "\"Ryland\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What two bindings does [(ngModel)] combine, and what is the equivalent longhand using [value] and (input)?",
+        "keywords": ["property", "event", "value", "input", "desugar"],
+        "minLength": 25
+      },
+      "hints": [
+        "[(ngModel)] is shorthand that combines property binding [ngModel] and event binding (ngModelChange).",
+        "The property binding flows data from the component to the input (input displays callsign). The event binding flows data back (user input updates callsign).",
+        "When the user types 'Ryland', the (ngModelChange) event fires and sets this.callsign = 'Ryland'."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d15-c04",
+      "dayNumber": 15,
+      "order": 5,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["pipes", "property-binding", "interpolation"],
+      "week": 3,
+      "title": "Pipe the Data",
+      "narrativeHook": "Raw numbers. Raw dates. Pipes transform them into something readable.",
+      "instructions": "Complete the `ReadoutComponent` class. The template uses three values:\n\n- `temperature` — a number. The template shows it as `{{ temperature | number:'1.1-1' }}°C`\n- `lastSync` — a `Date`. The template shows it as `{{ lastSync | date:'HH:mm' }}`\n- `statusClass` — a string used in `[class]` binding. Return `'status-ok'` if `temperature < 80`, otherwise `'status-warn'`\n\nThe template is read-only. Implement the three class members.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\n@Component({\n  selector: 'app-readout',\n  standalone: true,\n  imports: [CommonModule],\n  template: `\n    <div [class]=\"statusClass\">\n      <span>Temp: {{ temperature | number:'1.1-1' }}&deg;C</span>\n      <span>Sync: {{ lastSync | date:'HH:mm' }}</span>\n    </div>\n  `\n})\nexport class ReadoutComponent {\n  // Declare temperature (number), lastSync (Date), and statusClass (string getter)\n  // Your code here\n}",
+      "files": [
+        {
+          "name": "readout.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\n@Component({\n  selector: 'app-readout',\n  standalone: true,\n  imports: [CommonModule],\n  template: `\n    <div [class]=\"statusClass\">\n      <span>Temp: {{ temperature | number:'1.1-1' }}&deg;C</span>\n      <span>Sync: {{ lastSync | date:'HH:mm' }}</span>\n    </div>\n  `\n})\nexport class ReadoutComponent {\n  // Declare temperature (number), lastSync (Date), and statusClass (string getter)\n  // Your code here\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\n@Component({\n  selector: 'app-readout',\n  standalone: true,\n  imports: [CommonModule],\n  template: `\n    <div [class]=\"statusClass\">\n      <span>Temp: {{ temperature | number:'1.1-1' }}&deg;C</span>\n      <span>Sync: {{ lastSync | date:'HH:mm' }}</span>\n    </div>\n  `\n})\nexport class ReadoutComponent {\n  temperature = 72;\n  lastSync = new Date();\n\n  get statusClass(): string {\n    return this.temperature < 80 ? 'status-ok' : 'status-warn';\n  }\n}",
+      "tests": [
+        {
+          "description": "temperature should be a number",
+          "testCode": "const c = new ReadoutComponent(); if (typeof c.temperature !== 'number') throw new Error(`temperature should be a number, got ${typeof c.temperature}`);"
+        },
+        {
+          "description": "lastSync should be a Date",
+          "testCode": "const c = new ReadoutComponent(); if (!(c.lastSync instanceof Date)) throw new Error('lastSync should be a Date object');"
+        },
+        {
+          "description": "statusClass should be 'status-ok' when temperature < 80",
+          "testCode": "const c = new ReadoutComponent(); c.temperature = 72; if (c.statusClass !== 'status-ok') throw new Error(`Expected 'status-ok' for temp 72, got '${c.statusClass}'`);"
+        },
+        {
+          "description": "statusClass should be 'status-warn' when temperature >= 80",
+          "testCode": "const c = new ReadoutComponent(); c.temperature = 95; if (c.statusClass !== 'status-warn') throw new Error(`Expected 'status-warn' for temp 95, got '${c.statusClass}'`);"
+        }
+      ],
+      "hints": [
+        "Declare temperature as a number property with a starting value (e.g. temperature = 72;).",
+        "Declare lastSync as a Date: lastSync = new Date();",
+        "The statusClass getter: get statusClass() { return this.temperature < 80 ? 'status-ok' : 'status-warn'; }"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

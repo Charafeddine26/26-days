@@ -1,0 +1,211 @@
+{
+  "dayNumber": 16,
+  "week": 3,
+  "title": "Services",
+  "narrativeIntro": "Not everything belongs in a component. Some knowledge needs to be shared — data that multiple components access, logic that shouldn't be duplicated. The builders of The Drift centralized these in services: singleton providers that any component can request. The Drift gives them to you through injection. Ask, and you receive.",
+  "narrativeOutro": "The architecture is maturing. Components for the view, services for the shared logic. Clean separation. The Drift's third cluster is taking shape — not just nodes, but connections, data flowing through defined channels.",
+  "phmChapters": [21],
+  "phmConnectionNote": "Ryland creates shared systems that multiple parts of the ship can access. You learn Angular services and dependency injection.",
+  "challengeIds": ["d16-c01", "d16-c02", "d16-c03", "d16-c04"],
+  "concepts": ["services", "injectable", "dependency-injection", "singleton", "providedIn"],
+  "conceptsPreview": "Angular services, @Injectable, dependency injection, and singleton scope",
+  "challenges": [
+    {
+      "id": "d16-c01",
+      "dayNumber": 16,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["services", "singleton", "injectable", "providedIn"],
+      "week": 3,
+      "title": "One Instance",
+      "narrativeHook": "Two components. One service. How many instances of the service exist?",
+      "instructions": "A service is decorated with `@Injectable({ providedIn: 'root' })` and injected by two different components.\n\nWithout running it, predict how many instances of the service Angular creates.",
+      "starterCode": "// Read-only — predict the answer\n\n// @Injectable({ providedIn: 'root' })\n// export class LogService {\n//   logs: string[] = [];\n//\n//   add(msg: string) {\n//     this.logs.push(msg);\n//   }\n// }\n\n// Both components inject LogService:\n// constructor(private log: LogService) {}\n\n// ComponentA calls: this.log.add('A loaded');\n// ComponentB calls: this.log.add('B loaded');\n\n// How many items are in log.logs after both components initialize?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: 1 instance. log.logs has 2 items: ['A loaded', 'B loaded'].",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 21 }],
+      "predictPrompt": "How many instances of LogService exist, and how many items are in logs?",
+      "predictChoices": [
+        "1 instance, 2 items in logs",
+        "2 instances, 1 item in each",
+        "1 instance, 1 item in logs",
+        "2 instances, 2 items in each"
+      ],
+      "predictAnswer": "1 instance, 2 items in logs",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What does providedIn: 'root' mean, and why does it result in a single shared instance?",
+        "keywords": ["singleton", "root", "shared", "inject"],
+        "minLength": 25
+      },
+      "hints": [
+        "providedIn: 'root' registers the service with the root injector — one instance for the entire application.",
+        "Both components receive the SAME instance of LogService from Angular's injector.",
+        "Both adds go to the same logs array → 2 items."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d16-c02",
+      "dayNumber": 16,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["services", "injectable", "providedIn"],
+      "week": 3,
+      "title": "Build a Service",
+      "narrativeHook": "The crew roster needs to be accessible from multiple places. Build the service that holds it.",
+      "instructions": "Complete the `CrewService`:\n\n- `crew` is an array of strings, starting with `['Grace', 'Ilyukhina', 'Shapiro']`\n- `add(name: string)` pushes the name into the array\n- `remove(name: string)` removes the first matching entry\n- `count` getter returns the current length",
+      "environment": "stackblitz",
+      "starterCode": "import { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class CrewService {\n  crew: string[] = ['Grace', 'Ilyukhina', 'Shapiro'];\n\n  add(name: string): void {\n    // Your code here\n  }\n\n  remove(name: string): void {\n    // Your code here\n  }\n\n  get count(): number {\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "crew.service.ts",
+          "language": "typescript",
+          "content": "import { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class CrewService {\n  crew: string[] = ['Grace', 'Ilyukhina', 'Shapiro'];\n\n  add(name: string): void {\n    // Your code here\n  }\n\n  remove(name: string): void {\n    // Your code here\n  }\n\n  get count(): number {\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class CrewService {\n  crew: string[] = ['Grace', 'Ilyukhina', 'Shapiro'];\n\n  add(name: string): void {\n    this.crew.push(name);\n  }\n\n  remove(name: string): void {\n    const i = this.crew.indexOf(name);\n    if (i !== -1) this.crew.splice(i, 1);\n  }\n\n  get count(): number {\n    return this.crew.length;\n  }\n}",
+      "tests": [
+        {
+          "description": "crew should start with 3 members",
+          "testCode": "const s = new CrewService(); if (s.count !== 3) throw new Error(`count should be 3, got ${s.count}`);"
+        },
+        {
+          "description": "add() should increase count",
+          "testCode": "const s = new CrewService(); s.add('Chen'); if (s.count !== 4) throw new Error(`After add, count should be 4, got ${s.count}`);"
+        },
+        {
+          "description": "add() should append to crew array",
+          "testCode": "const s = new CrewService(); s.add('Chen'); if (!s.crew.includes('Chen')) throw new Error('crew should contain Chen after add');"
+        },
+        {
+          "description": "remove() should decrease count",
+          "testCode": "const s = new CrewService(); s.remove('Grace'); if (s.count !== 2) throw new Error(`After remove, count should be 2, got ${s.count}`); if (s.crew.includes('Grace')) throw new Error('Grace should be removed');"
+        }
+      ],
+      "hints": [
+        "add() just needs: this.crew.push(name);",
+        "remove() needs to find the index first: const i = this.crew.indexOf(name); then splice: this.crew.splice(i, 1);",
+        "The count getter returns this.crew.length;"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d16-c03",
+      "dayNumber": 16,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["services", "dependency-injection", "injectable"],
+      "week": 3,
+      "title": "Inject Correctly",
+      "narrativeHook": "The component tries to use the service, but the service is never injected. The property is undefined.",
+      "instructions": "This component uses a `SensorService` but `this.sensor` is always `undefined` at runtime.\n\nThere is exactly one bug: the service is not injected through Angular's DI system — it's manually constructed. Fix the injection.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component, OnInit } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class SensorService {\n  readings: number[] = [42, 67, 55, 88, 31];\n\n  get average(): number {\n    return this.readings.reduce((a, b) => a + b, 0) / this.readings.length;\n  }\n}\n\n@Component({\n  selector: 'app-sensor-display',\n  standalone: true,\n  template: `<p>Average: {{ sensor.average }}</p>`\n})\nexport class SensorDisplayComponent implements OnInit {\n  sensor: SensorService;  // Bug: not injected\n\n  ngOnInit() {\n    this.sensor = new SensorService();  // Bug: manually constructed\n  }\n}",
+      "files": [
+        {
+          "name": "sensor-display.component.ts",
+          "language": "typescript",
+          "content": "import { Component, OnInit } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class SensorService {\n  readings: number[] = [42, 67, 55, 88, 31];\n\n  get average(): number {\n    return this.readings.reduce((a, b) => a + b, 0) / this.readings.length;\n  }\n}\n\n@Component({\n  selector: 'app-sensor-display',\n  standalone: true,\n  template: `<p>Average: {{ sensor.average }}</p>`\n})\nexport class SensorDisplayComponent implements OnInit {\n  sensor: SensorService;  // Bug: not injected\n\n  ngOnInit() {\n    this.sensor = new SensorService();  // Bug: manually constructed\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class SensorService {\n  readings: number[] = [42, 67, 55, 88, 31];\n\n  get average(): number {\n    return this.readings.reduce((a, b) => a + b, 0) / this.readings.length;\n  }\n}\n\n@Component({\n  selector: 'app-sensor-display',\n  standalone: true,\n  template: `<p>Average: {{ sensor.average }}</p>`\n})\nexport class SensorDisplayComponent {\n  constructor(public sensor: SensorService) {}\n}",
+      "tests": [
+        {
+          "description": "SensorService.average should be 56.6",
+          "testCode": "const s = new SensorService(); if (Math.round(s.average * 10) / 10 !== 56.6) throw new Error(`average should be 56.6, got ${s.average}`);"
+        },
+        {
+          "description": "SensorService.readings should have 5 items",
+          "testCode": "const s = new SensorService(); if (s.readings.length !== 5) throw new Error(`readings should have 5 items, got ${s.readings.length}`);"
+        },
+        {
+          "description": "SensorDisplayComponent should use the injected service, not construct a new one",
+          "testCode": "const injected = new SensorService(); const c = new SensorDisplayComponent(injected); if (c.sensor !== injected) throw new Error('SensorDisplayComponent should receive SensorService via constructor injection — c.sensor should be the injected instance, not undefined or a new instance');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is the problem with using `new SensorService()` instead of constructor injection, and what does Angular's DI system provide that manual construction doesn't?",
+        "keywords": ["singleton", "inject", "constructor", "shared"],
+        "minLength": 30
+      },
+      "hints": [
+        "Using new SensorService() creates a NEW instance, bypassing Angular's DI system. Any changes made to that instance won't be reflected in the shared root instance.",
+        "Angular injects services via the constructor: constructor(private sensor: SensorService) {}",
+        "Remove the ngOnInit and the manual assignment. Use constructor injection instead."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d16-c04",
+      "dayNumber": 16,
+      "order": 4,
+      "type": "refactor",
+      "difficulty": "demanding",
+      "concepts": ["services", "dependency-injection", "separation-of-concerns"],
+      "week": 3,
+      "title": "Thin Component",
+      "narrativeHook": "The component is doing too much — fetching, filtering, formatting. Extract the logic into a service.",
+      "instructions": "The `PowerMonitorComponent` currently does all its logic inline. Move the business logic into `PowerService`:\n\n- `PowerService` should hold `readings` array and expose:\n  - `getReadings()` returning the array\n  - `getMax()` returning the highest value\n  - `getAverage()` returning the mean (rounded to 1 decimal)\n- `PowerMonitorComponent` should inject `PowerService` and delegate to it\n\nBehavior must stay identical.",
+      "environment": "stackblitz",
+      "starterCode": "import { Component } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n// Move logic here\n@Injectable({ providedIn: 'root' })\nexport class PowerService {\n  // Your code here\n}\n\n@Component({\n  selector: 'app-power-monitor',\n  standalone: true,\n  template: `\n    <p>Max: {{ max }}</p>\n    <p>Average: {{ average }}</p>\n  `\n})\nexport class PowerMonitorComponent {\n  // All logic currently inline — refactor to use PowerService\n  private readings = [55, 72, 88, 43, 91, 60];\n\n  get max(): number {\n    return Math.max(...this.readings);\n  }\n\n  get average(): number {\n    const sum = this.readings.reduce((a, b) => a + b, 0);\n    return Math.round((sum / this.readings.length) * 10) / 10;\n  }\n}",
+      "files": [
+        {
+          "name": "power-monitor.component.ts",
+          "language": "typescript",
+          "content": "import { Component } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n// Move logic here\n@Injectable({ providedIn: 'root' })\nexport class PowerService {\n  // Your code here\n}\n\n@Component({\n  selector: 'app-power-monitor',\n  standalone: true,\n  template: `\n    <p>Max: {{ max }}</p>\n    <p>Average: {{ average }}</p>\n  `\n})\nexport class PowerMonitorComponent {\n  // All logic currently inline — refactor to use PowerService\n  private readings = [55, 72, 88, 43, 91, 60];\n\n  get max(): number {\n    return Math.max(...this.readings);\n  }\n\n  get average(): number {\n    const sum = this.readings.reduce((a, b) => a + b, 0);\n    return Math.round((sum / this.readings.length) * 10) / 10;\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "import { Component } from '@angular/core';\nimport { Injectable } from '@angular/core';\n\n@Injectable({ providedIn: 'root' })\nexport class PowerService {\n  private readings = [55, 72, 88, 43, 91, 60];\n\n  getReadings(): number[] {\n    return this.readings;\n  }\n\n  getMax(): number {\n    return Math.max(...this.readings);\n  }\n\n  getAverage(): number {\n    const sum = this.readings.reduce((a, b) => a + b, 0);\n    return Math.round((sum / this.readings.length) * 10) / 10;\n  }\n}\n\n@Component({\n  selector: 'app-power-monitor',\n  standalone: true,\n  template: `\n    <p>Max: {{ max }}</p>\n    <p>Average: {{ average }}</p>\n  `\n})\nexport class PowerMonitorComponent {\n  constructor(private powerService: PowerService) {}\n\n  get max(): number {\n    return this.powerService.getMax();\n  }\n\n  get average(): number {\n    return this.powerService.getAverage();\n  }\n}",
+      "tests": [
+        {
+          "description": "PowerService.getMax() should return 91",
+          "testCode": "const s = new PowerService(); if (s.getMax() !== 91) throw new Error(`getMax() should be 91, got ${s.getMax()}`);"
+        },
+        {
+          "description": "PowerService.getAverage() should return 68.2",
+          "testCode": "const s = new PowerService(); if (s.getAverage() !== 68.2) throw new Error(`getAverage() should be 68.2, got ${s.getAverage()}`);"
+        },
+        {
+          "description": "PowerService.getReadings() should return 6 values",
+          "testCode": "const s = new PowerService(); if (s.getReadings().length !== 6) throw new Error(`getReadings() should return 6 items, got ${s.getReadings().length}`);"
+        }
+      ],
+      "hints": [
+        "Move the readings array and the computation logic (Math.max, reduce) into PowerService as methods.",
+        "The component constructor should inject PowerService: constructor(private powerService: PowerService) {}",
+        "The component's max and average getters should delegate: return this.powerService.getMax(); and return this.powerService.getAverage();"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

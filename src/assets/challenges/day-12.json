@@ -1,0 +1,183 @@
+{
+  "dayNumber": 12,
+  "week": 2,
+  "title": "Modules & Types",
+  "narrativeIntro": "Everything you've built so far lives in one place. But real systems are organized -- separated into modules, each responsible for one thing. You import what you need. You export what others need. And TypeScript watches over all of it, catching mismatches before they become crashes.",
+  "narrativeOutro": "The Drift's architecture is becoming clear. Modules keep things contained. Types keep things honest. You're not just writing code that works -- you're writing code that communicates its intentions. Other systems can trust it.",
+  "phmChapters": [16, 17],
+  "phmConnectionNote": "Ryland organizes the ship's systems into isolated modules. You learn ES modules and TypeScript's type system.",
+  "challengeIds": ["d12-c01", "d12-c02", "d12-c03", "d12-c04"],
+  "concepts": ["modules", "export", "import", "named-exports", "typescript", "type-annotations", "interfaces", "type-errors", "compile-time"],
+  "conceptsPreview": "ES modules, named exports/imports, and TypeScript type safety",
+  "challenges": [
+    {
+      "id": "d12-c01",
+      "dayNumber": 12,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["modules", "export", "import", "named-exports"],
+      "week": 2,
+      "title": "What's Exported",
+      "narrativeHook": "A module exposes some values, hides others. What's visible from the outside?",
+      "instructions": "The code below simulates two files: a module that exports some values and a consumer that imports them.\n\nWithout running it, trace what each import receives. `SECRET` was never exported — what does `typeof SECRET` return when the variable doesn't exist in scope?",
+      "starterCode": "// Read-only — predict the output\n\n// --- sensors.js (the module) ---\n// export const LIMIT = 100;\n// export function clamp(value) {\n//   return Math.min(value, LIMIT);\n// }\n// const SECRET = \"drift-7\"; // not exported\n\n// --- consumer.js (simulated below) ---\nconst LIMIT = 100;\nfunction clamp(value) {\n  return Math.min(value, LIMIT);\n}\n// SECRET is not imported — it's not in scope here\n\nconsole.log(LIMIT);\nconsole.log(clamp(150));\nconsole.log(typeof SECRET);",
+      "solution": "// No code changes — this is a prediction challenge.\n// LIMIT: 100, clamp(150): 100, typeof SECRET: \"undefined\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 19 }],
+      "predictPrompt": "What three values will be logged, in order?",
+      "predictChoices": [
+        "100\n100\n\"undefined\"",
+        "100\n150\n\"undefined\"",
+        "100\n100\nReferenceError",
+        "100\n100\n\"string\""
+      ],
+      "predictAnswer": "100\n100\n\"undefined\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does `typeof SECRET` return \"undefined\" instead of throwing a ReferenceError?",
+        "keywords": ["typeof", "safe", "undeclared", "reference"],
+        "minLength": 25
+      },
+      "hints": [
+        "Only exported values are accessible to consumers. SECRET was declared inside the module but never exported — it's not available in the consumer's scope.",
+        "clamp(150) returns Math.min(150, 100) = 100, not 150.",
+        "typeof is the one operator that does NOT throw a ReferenceError for undeclared variables — it returns the string \"undefined\" instead."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d12-c02",
+      "dayNumber": 12,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["modules", "named-exports", "type-annotations"],
+      "week": 2,
+      "title": "Module Interface",
+      "narrativeHook": "A sensor module needs two functions. Build the interface others will rely on.",
+      "instructions": "Implement two functions that form the public interface of a sensor module:\n\n- `parseSensor(raw)` — takes a string like `\"temp:42\"`, splits on `\":\"`, and returns an object `{ type: string, value: number }`. The value must be a number (use `Number()` or `parseInt`).\n- `formatReading(sensor)` — takes the object from above and returns a formatted string like `\"TEMP: 42\"` (type uppercased, colon, space, value).\n\nThe test setup at the bottom is read-only.",
+      "starterCode": "// Implement both functions:\n\nfunction parseSensor(raw) {\n  // Your code here\n}\n\nfunction formatReading(sensor) {\n  // Your code here\n}\n\n// Test setup (don't modify):\nconst tempReading = parseSensor(\"temp:42\");\nconst powerReading = parseSensor(\"power:100\");",
+      "solution": "function parseSensor(raw) {\n  const [type, value] = raw.split(\":\");\n  return { type, value: Number(value) };\n}\n\nfunction formatReading(sensor) {\n  return `${sensor.type.toUpperCase()}: ${sensor.value}`;\n}\n\nconst tempReading = parseSensor(\"temp:42\");\nconst powerReading = parseSensor(\"power:100\");",
+      "readOnlyRegions": [{ "startLine": 11, "endLine": 13 }],
+      "tests": [
+        {
+          "description": "parseSensor(\"temp:42\") should return { type: \"temp\", value: 42 }",
+          "testCode": "if (tempReading.type !== 'temp' || tempReading.value !== 42) throw new Error(`Expected { type: 'temp', value: 42 }, got ${JSON.stringify(tempReading)}`);"
+        },
+        {
+          "description": "parseSensor(\"power:100\") should return { type: \"power\", value: 100 }",
+          "testCode": "if (powerReading.type !== 'power' || powerReading.value !== 100) throw new Error(`Expected { type: 'power', value: 100 }, got ${JSON.stringify(powerReading)}`);"
+        },
+        {
+          "description": "parseSensor value field should be a number, not a string",
+          "testCode": "if (typeof tempReading.value !== 'number') throw new Error(`value should be a number, got ${typeof tempReading.value} — use Number() or parseInt()`);"
+        },
+        {
+          "description": "formatReading should return \"TEMP: 42\"",
+          "testCode": "const result = formatReading(tempReading); if (result !== 'TEMP: 42') throw new Error(`Expected 'TEMP: 42', got '${result}'`);"
+        }
+      ],
+      "hints": [
+        "Use raw.split(\":\") to get [type, value] as an array. Destructure: const [type, value] = raw.split(\":\");",
+        "The value from split() is always a string. Wrap it in Number(): return { type, value: Number(value) };",
+        "For formatReading, use sensor.type.toUpperCase() and a template literal: `${sensor.type.toUpperCase()}: ${sensor.value}`"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d12-c03",
+      "dayNumber": 12,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["typescript", "type-errors", "type-annotations"],
+      "week": 2,
+      "title": "Type Mismatch",
+      "narrativeHook": "The formatter expects a string. It received a number. The system crashes at runtime.",
+      "instructions": "This code crashes with a TypeError: `id.toUpperCase is not a function`.\n\nThere is exactly one bug: `rawId` is a number, but `formatId` calls `.toUpperCase()` on it — a string method. Fix the type mismatch so `result` equals `\"ID-ALPHA\"`.",
+      "starterCode": "function formatId(id) {\n  return \"ID-\" + id.toUpperCase();\n}\n\nconst rawId = 42;\nconst result = formatId(rawId);",
+      "solution": "function formatId(id) {\n  return \"ID-\" + id.toUpperCase();\n}\n\nconst rawId = \"alpha\";\nconst result = formatId(rawId);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "result should be \"ID-ALPHA\"",
+          "testCode": "if (result !== 'ID-ALPHA') throw new Error(`result should be 'ID-ALPHA', got '${result}'`);"
+        },
+        {
+          "description": "rawId should be a string",
+          "testCode": "if (typeof rawId !== 'string') throw new Error(`rawId should be a string so .toUpperCase() works, got ${typeof rawId}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How would TypeScript have prevented this crash before the code even ran?",
+        "keywords": ["type", "annotation", "compile", "string"],
+        "minLength": 30
+      },
+      "hints": [
+        "toUpperCase() only exists on strings. The function receives a number, which has no such method.",
+        "The fix is to pass a string to formatId instead of a number. Change rawId to a string value.",
+        "Change const rawId = 42 to const rawId = \"alpha\" so that formatId receives a string it can call .toUpperCase() on."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d12-c04",
+      "dayNumber": 12,
+      "order": 4,
+      "type": "predict",
+      "difficulty": "demanding",
+      "concepts": ["typescript", "interfaces", "type-errors", "compile-time"],
+      "week": 2,
+      "title": "Compile Error",
+      "narrativeHook": "TypeScript catches it before it runs. Read the interface, find the mismatch.",
+      "instructions": "A TypeScript interface defines the shape of a `Beacon` object. The object literal below violates that contract.\n\nWithout running it, identify which field has the wrong type and predict the exact TypeScript compiler error message.",
+      "starterCode": "// Read-only — predict the TypeScript error\n\n// interface Beacon {\n//   id: string;\n//   power: number;\n//   active: boolean;\n// }\n\n// const beacon: Beacon = {\n//   id: \"beacon-1\",\n//   power: \"high\",   // <-- ?\n//   active: true\n// };\n\n// What TypeScript error does the compiler report on the 'power' field?",
+      "solution": "// No code changes — this is a prediction challenge.\n// TypeScript error: Type 'string' is not assignable to type 'number'.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 15 }],
+      "predictPrompt": "What TypeScript error does the compiler report for the `power` field?",
+      "predictChoices": [
+        "Type 'string' is not assignable to type 'number'",
+        "Property 'power' does not exist on type 'Beacon'",
+        "Cannot read properties of undefined",
+        "TypeError: 'high' is not a number"
+      ],
+      "predictAnswer": "Type 'string' is not assignable to type 'number'",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What is the advantage of catching this error at compile time versus at runtime?",
+        "keywords": ["compile", "runtime", "before", "crash"],
+        "minLength": 30
+      },
+      "hints": [
+        "The Beacon interface declares power as type number. The object literal assigns the string \"high\" to it — a type mismatch.",
+        "TypeScript reports this as a type assignability error, not a missing property error. The property exists; its type is wrong.",
+        "The error message follows the pattern: Type 'X' is not assignable to type 'Y' — where X is what you gave and Y is what the interface expects."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    }
+  ]
+}

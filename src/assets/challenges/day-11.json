@@ -1,0 +1,192 @@
+{
+  "dayNumber": 11,
+  "week": 2,
+  "title": "Modern Syntax",
+  "narrativeIntro": "The builders left tools scattered throughout The Drift -- shortcuts, compressed syntax, patterns that do in one line what used to take five. Destructuring. Spread operators. Template literals. Arrow functions. These aren't just convenient. They're how modern systems expect you to speak.",
+  "narrativeOutro": "Your code is getting tighter. More expressive. What used to be verbose and fragile is now concise and clear. The builders of this place would recognize your syntax. You're writing in their dialect now.",
+  "phmChapters": [15],
+  "phmConnectionNote": "Ryland discovers more advanced tools on the ship that make his work easier. You learn ES6+ features.",
+  "challengeIds": ["d11-c01", "d11-c02", "d11-c03", "d11-c04"],
+  "concepts": ["destructuring", "object-destructuring", "array-destructuring", "spread-operator", "arrow-functions", "this", "template-literals", "default-parameters", "const"],
+  "conceptsPreview": "Destructuring, spread, arrow functions, and modern JS syntax",
+  "challenges": [
+    {
+      "id": "d11-c01",
+      "dayNumber": 11,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "steady",
+      "concepts": ["destructuring", "object-destructuring", "array-destructuring"],
+      "week": 2,
+      "title": "Unpack",
+      "narrativeHook": "A dense structure compresses multiple values. Unpack them in one motion -- predict what each variable holds.",
+      "instructions": "Read the code below. Two destructuring assignments extract values from an object and an array.\n\nWithout running it, trace what each variable receives and predict all three logged values.",
+      "starterCode": "// Read-only — predict the output\nconst system = { name: \"Drift-Core\", power: 94, status: \"active\" };\nconst { name: label, power } = system;\n\nconst signals = [\"alpha\", \"beta\", \"gamma\", \"delta\"];\nconst [first, , third] = signals;\n\nconsole.log(label);\nconsole.log(power);\nconsole.log(third);",
+      "solution": "// No code changes — this is a prediction challenge.\n// label: \"Drift-Core\", power: 94, third: \"gamma\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 10 }],
+      "predictPrompt": "What three values will be logged, in order?",
+      "predictChoices": [
+        "\"Drift-Core\"\n94\n\"gamma\"",
+        "\"name\"\n94\n\"gamma\"",
+        "\"Drift-Core\"\n94\n\"beta\"",
+        "undefined\n94\n\"gamma\""
+      ],
+      "predictAnswer": "\"Drift-Core\"\n94\n\"gamma\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "What does { name: label } do, and how is it different from just { name }?",
+        "keywords": ["rename", "alias", "label", "variable"],
+        "minLength": 25
+      },
+      "hints": [
+        "{ name: label } means: take the 'name' property and assign it to a new variable called 'label' — not to a variable called 'name'.",
+        "In array destructuring, an empty slot skips that position. [first, , third] skips index 1 ('beta') and captures index 2.",
+        "label = 'Drift-Core', power = 94, third = 'gamma'."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d11-c02",
+      "dayNumber": 11,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["spread-operator", "arrays"],
+      "week": 2,
+      "title": "Spread and Merge",
+      "narrativeHook": "Two crew rosters need combining into one. The spread operator makes it a single expression.",
+      "instructions": "Two arrays hold crew members from different shifts. Create a new array `fullCrew` that contains every member from `crewA`, then every member from `crewB`, then `\"Chen\"` at the end.\n\nDo not modify the original arrays.",
+      "starterCode": "const crewA = [\"Grace\", \"Ilyukhina\"];\nconst crewB = [\"Shapiro\", \"Yao\"];\n\n// Create 'fullCrew' — all of crewA, then all of crewB, then \"Chen\"\n// Your code here",
+      "solution": "const crewA = [\"Grace\", \"Ilyukhina\"];\nconst crewB = [\"Shapiro\", \"Yao\"];\n\nconst fullCrew = [...crewA, ...crewB, \"Chen\"];",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 2 }],
+      "tests": [
+        {
+          "description": "fullCrew should have 5 members",
+          "testCode": "if (fullCrew.length !== 5) throw new Error(`fullCrew should have 5 members, got ${fullCrew.length}`);"
+        },
+        {
+          "description": "fullCrew should start with Grace and Ilyukhina",
+          "testCode": "if (fullCrew[0] !== 'Grace' || fullCrew[1] !== 'Ilyukhina') throw new Error('fullCrew should start with crewA members in order');"
+        },
+        {
+          "description": "fullCrew should contain Shapiro and Yao after crewA",
+          "testCode": "if (fullCrew[2] !== 'Shapiro' || fullCrew[3] !== 'Yao') throw new Error('fullCrew should have crewB members after crewA');"
+        },
+        {
+          "description": "fullCrew should end with Chen",
+          "testCode": "if (fullCrew[4] !== 'Chen') throw new Error(`fullCrew should end with 'Chen', got '${fullCrew[4]}'`);"
+        },
+        {
+          "description": "Original arrays should not be modified",
+          "testCode": "if (crewA.length !== 2 || crewB.length !== 2) throw new Error('crewA and crewB should remain unchanged — use spread to create a new array');"
+        }
+      ],
+      "hints": [
+        "The spread operator (...array) expands an array in place: [...arr] creates a shallow copy.",
+        "You can spread multiple arrays and mix in individual values: [...arr1, ...arr2, 'extra'].",
+        "const fullCrew = [...crewA, ...crewB, 'Chen'];"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d11-c03",
+      "dayNumber": 11,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["arrow-functions", "this", "context"],
+      "week": 2,
+      "title": "Lost Context",
+      "narrativeHook": "The filter returns empty. The `this` reference is broken inside the callback.",
+      "instructions": "This code should return all readings above the threshold, but `highReadings` is always empty.\n\nThere is exactly one bug: the callback inside `.filter()` loses `this`. Fix it.",
+      "starterCode": "const monitor = {\n  threshold: 50,\n  readings: [45, 62, 38, 71, 29, 55],\n  getAboveThreshold: function() {\n    return this.readings.filter(function(r) {\n      return r > this.threshold;\n    });\n  }\n};\n\nconst highReadings = monitor.getAboveThreshold();",
+      "solution": "const monitor = {\n  threshold: 50,\n  readings: [45, 62, 38, 71, 29, 55],\n  getAboveThreshold: function() {\n    return this.readings.filter(r => r > this.threshold);\n  }\n};\n\nconst highReadings = monitor.getAboveThreshold();",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "highReadings should not be empty",
+          "testCode": "if (highReadings.length === 0) throw new Error('highReadings is empty — this.threshold is likely undefined inside the callback');"
+        },
+        {
+          "description": "highReadings should be [62, 71, 55]",
+          "testCode": "if (JSON.stringify(highReadings) !== JSON.stringify([62, 71, 55])) throw new Error(`highReadings should be [62, 71, 55], got [${highReadings}]`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why does an arrow function fix the `this` problem here, but a regular function doesn't?",
+        "keywords": ["lexical", "this", "enclosing", "arrow"],
+        "minLength": 30
+      },
+      "hints": [
+        "Regular functions define their own `this` based on how they're called. Inside filter(function(r) {...}), `this` is not the monitor object.",
+        "Arrow functions don't have their own `this` — they inherit it from the surrounding scope. Inside getAboveThreshold, `this` is the monitor object.",
+        "Change function(r) { return r > this.threshold; } to r => r > this.threshold"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d11-c04",
+      "dayNumber": 11,
+      "order": 4,
+      "type": "refactor",
+      "difficulty": "demanding",
+      "concepts": ["destructuring", "arrow-functions", "template-literals", "default-parameters", "const"],
+      "week": 2,
+      "title": "Modernize",
+      "narrativeHook": "Old syntax clutters the system. Modernize it -- same behavior, cleaner form.",
+      "instructions": "The code below works, but it uses old-style JavaScript throughout. Refactor it to modern ES6+ syntax.\n\nThe output in `formatted` must be identical to what it is now:\n- `\"Grace (scientist) — active\"`\n- `\"Ilyukhina (commander) — unknown\"` (no status property → default to `\"unknown\"`)\n\nUse at minimum: `const`, destructuring, a default parameter, an arrow function, and a template literal.",
+      "starterCode": "// Modernize this code — same output, ES6+ syntax\nvar crew = [\n  { name: \"Grace\", role: \"scientist\", status: \"active\" },\n  { name: \"Ilyukhina\", role: \"commander\" }\n];\n\nfunction formatMember(member) {\n  var name = member.name;\n  var role = member.role;\n  var status = member.status || \"unknown\";\n  return name + \" (\" + role + \") \u2014 \" + status;\n}\n\nvar formatted = crew.map(function(m) {\n  return formatMember(m);\n});",
+      "solution": "const crew = [\n  { name: \"Grace\", role: \"scientist\", status: \"active\" },\n  { name: \"Ilyukhina\", role: \"commander\" }\n];\n\nconst formatMember = ({ name, role, status = \"unknown\" }) =>\n  `${name} (${role}) \u2014 ${status}`;\n\nconst formatted = crew.map(formatMember);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "formatted[0] should be 'Grace (scientist) — active'",
+          "testCode": "if (formatted[0] !== 'Grace (scientist) \u2014 active') throw new Error(`formatted[0] should be 'Grace (scientist) \u2014 active', got '${formatted[0]}'`);"
+        },
+        {
+          "description": "formatted[1] should be 'Ilyukhina (commander) — unknown'",
+          "testCode": "if (formatted[1] !== 'Ilyukhina (commander) \u2014 unknown') throw new Error(`formatted[1] should be 'Ilyukhina (commander) \u2014 unknown', got '${formatted[1]}'`);"
+        },
+        {
+          "description": "formatted should have exactly 2 entries",
+          "testCode": "if (formatted.length !== 2) throw new Error(`formatted should have 2 entries, got ${formatted.length}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Which two ES6+ features in your refactored version reduce the code complexity the most, and what does each one replace?",
+        "keywords": ["destructuring", "template", "default", "arrow"],
+        "minLength": 30
+      },
+      "hints": [
+        "Replace var with const. Replace string concatenation (a + b) with template literals (`${a}${b}`).",
+        "Default parameters replace the || fallback: ({ status = 'unknown' }) instead of var status = member.status || 'unknown'.",
+        "Destructure directly in the function signature: const formatMember = ({ name, role, status = 'unknown' }) => `${name} (${role}) — ${status}`;"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

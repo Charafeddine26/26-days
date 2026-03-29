@@ -1,0 +1,225 @@
+{
+  "dayNumber": 24,
+  "week": 4,
+  "title": "Integration",
+  "narrativeIntro": "Two days remain. The Drift has taught you everything it can in isolation. Now: integration. Take forms, services, HTTP, routing, RxJS, and component patterns, and make them work as a single system. This is the real skill — not knowing each piece, but knowing how they fit together.",
+  "narrativeOutro": "Everything connects. Every skill you've built over 24 days works in harmony. The Drift's final cluster blazes, and the connections between all four clusters form a web of light that spans the entire map.",
+  "phmChapters": [29],
+  "phmConnectionNote": "Everything comes together for Ryland. Every skill, every relationship, every piece of knowledge. You integrate everything you've learned.",
+  "challengeIds": ["d24-c01", "d24-c02", "d24-c03", "d24-c04"],
+  "concepts": ["integration", "async-forms", "race-conditions", "cleanup", "crud"],
+  "conceptsPreview": "Integration — forms + HTTP + state + cleanup working together",
+  "challenges": [
+    {
+      "id": "d24-c01",
+      "dayNumber": 24,
+      "order": 1,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["forms", "http", "loading-state", "navigation"],
+      "week": 4,
+      "title": "Submit and Navigate",
+      "narrativeHook": "A form submits. A request is made. On success, navigate away. On failure, show the error.",
+      "instructions": "Complete the `SubmitFormComponent.submit()` method:\n\n1. Guard: return early if `form.invalid`\n2. Set `loading = true`\n3. `await sendCommand(form.target, form.power)` (simulated API below)\n4. On success: set `navigated = true` (simulates router.navigate)\n5. On error: set `error = String(err)`\n6. Always: set `loading = false`",
+      "environment": "stackblitz",
+      "starterCode": "async function sendCommand(target: string, power: string): Promise<void> {\n  if (!target || !power) throw new Error('Missing fields');\n  if (power === '0') throw new Error('Power cannot be zero');\n  // resolves on success\n}\n\nexport class SubmitFormComponent {\n  form = { target: '', power: '', get valid() { return !!this.target && !!this.power; }, get invalid() { return !this.valid; } };\n  loading = false;\n  error = '';\n  navigated = false;\n\n  async submit(): Promise<void> {\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "submit-form.component.ts",
+          "language": "typescript",
+          "content": "async function sendCommand(target: string, power: string): Promise<void> {\n  if (!target || !power) throw new Error('Missing fields');\n  if (power === '0') throw new Error('Power cannot be zero');\n  // resolves on success\n}\n\nexport class SubmitFormComponent {\n  form = { target: '', power: '', get valid() { return !!this.target && !!this.power; }, get invalid() { return !this.valid; } };\n  loading = false;\n  error = '';\n  navigated = false;\n\n  async submit(): Promise<void> {\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "async function sendCommand(target: string, power: string): Promise<void> {\n  if (!target || !power) throw new Error('Missing fields');\n  if (power === '0') throw new Error('Power cannot be zero');\n}\n\nexport class SubmitFormComponent {\n  form = { target: '', power: '', get valid() { return !!this.target && !!this.power; }, get invalid() { return !this.valid; } };\n  loading = false;\n  error = '';\n  navigated = false;\n\n  async submit(): Promise<void> {\n    if (this.form.invalid) return;\n    this.loading = true;\n    try {\n      await sendCommand(this.form.target, this.form.power);\n      this.navigated = true;\n    } catch (err) {\n      this.error = String(err);\n    } finally {\n      this.loading = false;\n    }\n  }\n}",
+      "tests": [
+        {
+          "description": "submit() should do nothing if form is invalid",
+          "testCode": "const c = new SubmitFormComponent(); await c.submit(); if (c.loading || c.navigated) throw new Error('submit() should return early for invalid form');"
+        },
+        {
+          "description": "submit() should set navigated=true on success",
+          "testCode": "const c = new SubmitFormComponent(); c.form.target = 'relay'; c.form.power = '80'; await c.submit(); if (!c.navigated) throw new Error('navigated should be true after successful submit');"
+        },
+        {
+          "description": "submit() should set error on failure",
+          "testCode": "const c = new SubmitFormComponent(); c.form.target = 'relay'; c.form.power = '0'; await c.submit(); if (!c.error) throw new Error('error should be set when submit fails');"
+        },
+        {
+          "description": "loading should be false after submit completes",
+          "testCode": "const c = new SubmitFormComponent(); c.form.target = 'relay'; c.form.power = '80'; await c.submit(); if (c.loading) throw new Error('loading should be false after submit completes');"
+        }
+      ],
+      "hints": [
+        "Check if (this.form.invalid) return; first.",
+        "Set this.loading = true before the try block. Use try/catch/finally: finally always runs.",
+        "In catch: this.error = String(err); In finally: this.loading = false;"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d24-c02",
+      "dayNumber": 24,
+      "order": 2,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["race-conditions", "async", "stale-data"],
+      "week": 4,
+      "title": "Race Condition",
+      "narrativeHook": "Two searches. The first is slow. The second is fast. The slow one arrives last. Old data overwrites new data.",
+      "instructions": "A search fires two requests in sequence. The first takes longer than the second — so results arrive out of order. The UI shows stale results from the first (slow) request.\n\nFix `SearchComponent` so it only applies results from the **most recent** request. Use a request counter.",
+      "environment": "stackblitz",
+      "starterCode": "let callId = 0;\nasync function search(query: string): Promise<string[]> {\n  callId++;\n  const id = callId;\n  const delay = id === 1 ? 80 : 10;  // first call is slow\n  await new Promise(r => setTimeout(r, delay));\n  return id === 1 ? ['stale-result'] : ['fresh-result'];\n}\n\nexport class SearchComponent {\n  results: string[] = [];\n  // Bug: no request ID tracking — stale results can overwrite fresh ones\n\n  async runSearch(query: string): Promise<void> {\n    const data = await search(query);\n    this.results = data;  // Bug: no check if this is still the latest request\n  }\n}",
+      "files": [
+        {
+          "name": "search.component.ts",
+          "language": "typescript",
+          "content": "let callId = 0;\nasync function search(query: string): Promise<string[]> {\n  callId++;\n  const id = callId;\n  const delay = id === 1 ? 80 : 10;  // first call is slow\n  await new Promise(r => setTimeout(r, delay));\n  return id === 1 ? ['stale-result'] : ['fresh-result'];\n}\n\nexport class SearchComponent {\n  results: string[] = [];\n  // Bug: no request ID tracking — stale results can overwrite fresh ones\n\n  async runSearch(query: string): Promise<void> {\n    const data = await search(query);\n    this.results = data;  // Bug: no check if this is still the latest request\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "let callId = 0;\nasync function search(query: string): Promise<string[]> {\n  callId++;\n  const id = callId;\n  const delay = id === 1 ? 80 : 10;\n  await new Promise(r => setTimeout(r, delay));\n  return id === 1 ? ['stale-result'] : ['fresh-result'];\n}\n\nexport class SearchComponent {\n  results: string[] = [];\n  private latestRequest = 0;\n\n  async runSearch(query: string): Promise<void> {\n    this.latestRequest++;\n    const requestId = this.latestRequest;\n    const data = await search(query);\n    if (requestId === this.latestRequest) {\n      this.results = data;\n    }\n  }\n}",
+      "tests": [
+        {
+          "description": "After two rapid searches, results should show the second (fresh) result",
+          "testCode": "const c = new SearchComponent(); const p1 = c.runSearch('a'); const p2 = c.runSearch('b'); await Promise.all([p1, p2]); if (!c.results.includes('fresh-result')) throw new Error(`results should be fresh, got ${JSON.stringify(c.results)}`);"
+        },
+        {
+          "description": "Stale result should not overwrite fresh result",
+          "testCode": "const c = new SearchComponent(); const p1 = c.runSearch('a'); const p2 = c.runSearch('b'); await Promise.all([p1, p2]); if (c.results.includes('stale-result')) throw new Error('stale-result should not be in results — race condition not fixed');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is a race condition in the context of HTTP requests, and why does tracking a request ID solve it?",
+        "keywords": ["race", "stale", "latest", "id"],
+        "minLength": 35
+      },
+      "hints": [
+        "Track a counter on the component: this.latestRequest++. Store the current count before awaiting.",
+        "After the await, compare: if (requestId === this.latestRequest) — only update if still the latest.",
+        "If a newer request came in while this one was waiting, latestRequest will have advanced past requestId."
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d24-c03",
+      "dayNumber": 24,
+      "order": 3,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["cleanup", "unsubscribe", "ondestroy"],
+      "week": 4,
+      "title": "Clean Shutdown",
+      "narrativeHook": "The component is destroyed. Timers keep ticking. Subscriptions keep firing. Leave no ghosts.",
+      "instructions": "Complete `CleanComponent` so it properly cleans up on destroy:\n\n- `ngOnInit` starts a `setInterval` that pushes to `ticks` every 100ms, and subscribes to `stream$` pushing to `events`\n- `ngOnDestroy` must clear the interval AND unsubscribe from the stream\n- After `ngOnDestroy()`, neither `ticks` nor `events` should receive new values",
+      "environment": "stackblitz",
+      "starterCode": "class SimpleObservable {\n  _subs = [];\n  subscribe(fn) { this._subs.push(fn); return { unsubscribe: () => { this._subs = this._subs.filter(s => s !== fn); } }; }\n  emit(v) { this._subs.forEach(s => s(v)); }\n}\n\nconst stream$ = new SimpleObservable();\n\nexport class CleanComponent {\n  ticks: number[] = [];\n  events: string[] = [];\n\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n  private sub: { unsubscribe(): void } | null = null;\n\n  ngOnInit(): void {\n    this.intervalId = setInterval(() => this.ticks.push(Date.now()), 100);\n    this.sub = stream$.subscribe(e => this.events.push(e));\n  }\n\n  ngOnDestroy(): void {\n    // Your code here: clear interval and unsubscribe\n  }\n}",
+      "files": [
+        {
+          "name": "clean.component.ts",
+          "language": "typescript",
+          "content": "class SimpleObservable {\n  _subs = [];\n  subscribe(fn) { this._subs.push(fn); return { unsubscribe: () => { this._subs = this._subs.filter(s => s !== fn); } }; }\n  emit(v) { this._subs.forEach(s => s(v)); }\n}\n\nconst stream$ = new SimpleObservable();\n\nexport class CleanComponent {\n  ticks: number[] = [];\n  events: string[] = [];\n\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n  private sub: { unsubscribe(): void } | null = null;\n\n  ngOnInit(): void {\n    this.intervalId = setInterval(() => this.ticks.push(Date.now()), 100);\n    this.sub = stream$.subscribe(e => this.events.push(e));\n  }\n\n  ngOnDestroy(): void {\n    // Your code here: clear interval and unsubscribe\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "class SimpleObservable {\n  _subs = [];\n  subscribe(fn) { this._subs.push(fn); return { unsubscribe: () => { this._subs = this._subs.filter(s => s !== fn); } }; }\n  emit(v) { this._subs.forEach(s => s(v)); }\n}\n\nconst stream$ = new SimpleObservable();\n\nexport class CleanComponent {\n  ticks: number[] = [];\n  events: string[] = [];\n\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n  private sub: { unsubscribe(): void } | null = null;\n\n  ngOnInit(): void {\n    this.intervalId = setInterval(() => this.ticks.push(Date.now()), 100);\n    this.sub = stream$.subscribe(e => this.events.push(e));\n  }\n\n  ngOnDestroy(): void {\n    if (this.intervalId) clearInterval(this.intervalId);\n    this.sub?.unsubscribe();\n  }\n}",
+      "tests": [
+        {
+          "description": "ngOnDestroy should clear the interval",
+          "testCode": "const c = new CleanComponent(); c.ngOnInit(); const countBefore = c.ticks.length; c.ngOnDestroy(); await new Promise(r => setTimeout(r, 200)); if (c.ticks.length > countBefore + 1) throw new Error('Interval should be cleared on destroy — ticks should stop');"
+        },
+        {
+          "description": "ngOnDestroy should unsubscribe from the stream",
+          "testCode": "const c = new CleanComponent(); c.ngOnInit(); c.ngOnDestroy(); stream$.emit('after-destroy'); if (c.events.includes('after-destroy')) throw new Error('Should not receive events after ngOnDestroy');"
+        }
+      ],
+      "hints": [
+        "clearInterval(this.intervalId) stops the timer.",
+        "this.sub?.unsubscribe() removes the subscription from the observable.",
+        "Both should go in ngOnDestroy."
+      ],
+      "explainGate": {
+        "prompt": "You saw subscription cleanup in Day 22. What's the difference between clearing an interval and unsubscribing from an Observable? Why do both need to happen here, and what goes wrong if you only do one?",
+        "keywords": ["interval", "unsubscribe", "timer", "observable", "leak", "different"],
+        "minLength": 40
+      },
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d24-c04",
+      "dayNumber": 24,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["crud", "services", "state", "integration"],
+      "week": 4,
+      "title": "CRUD Service",
+      "narrativeHook": "Create. Read. Update. Delete. The four operations of every real data layer.",
+      "instructions": "Complete the `ItemStore` with full CRUD:\n\n- `getAll()` returns all items\n- `getById(id)` returns the matching item or `null`\n- `create(name)` adds `{ id: nextId++, name }` and returns the new item\n- `update(id, name)` updates the matching item's name; returns `true` if found, `false` if not\n- `delete(id)` removes the item; returns `true` if found, `false` if not",
+      "environment": "stackblitz",
+      "starterCode": "export class ItemStore {\n  private items: { id: number; name: string }[] = [];\n  private nextId = 1;\n\n  getAll() { return [...this.items]; }\n\n  getById(id: number) {\n    // Your code here\n  }\n\n  create(name: string) {\n    // Your code here\n  }\n\n  update(id: number, name: string): boolean {\n    // Your code here\n  }\n\n  delete(id: number): boolean {\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "item-store.ts",
+          "language": "typescript",
+          "content": "export class ItemStore {\n  private items: { id: number; name: string }[] = [];\n  private nextId = 1;\n\n  getAll() { return [...this.items]; }\n\n  getById(id: number) {\n    // Your code here\n  }\n\n  create(name: string) {\n    // Your code here\n  }\n\n  update(id: number, name: string): boolean {\n    // Your code here\n  }\n\n  delete(id: number): boolean {\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class ItemStore {\n  private items: { id: number; name: string }[] = [];\n  private nextId = 1;\n\n  getAll() { return [...this.items]; }\n\n  getById(id: number) {\n    return this.items.find(i => i.id === id) ?? null;\n  }\n\n  create(name: string) {\n    const item = { id: this.nextId++, name };\n    this.items.push(item);\n    return item;\n  }\n\n  update(id: number, name: string): boolean {\n    const item = this.items.find(i => i.id === id);\n    if (!item) return false;\n    item.name = name;\n    return true;\n  }\n\n  delete(id: number): boolean {\n    const index = this.items.findIndex(i => i.id === id);\n    if (index === -1) return false;\n    this.items.splice(index, 1);\n    return true;\n  }\n}",
+      "tests": [
+        {
+          "description": "create() should add items and assign incremental IDs",
+          "testCode": "const s = new ItemStore(); const a = s.create('alpha'); const b = s.create('beta'); if (a.id !== 1 || b.id !== 2) throw new Error(`IDs should be 1 and 2, got ${a.id} and ${b.id}`);"
+        },
+        {
+          "description": "getById() should return the correct item",
+          "testCode": "const s = new ItemStore(); s.create('alpha'); s.create('beta'); const item = s.getById(2); if (!item || item.name !== 'beta') throw new Error(`getById(2) should return beta, got ${JSON.stringify(item)}`);"
+        },
+        {
+          "description": "update() should change the item name and return true",
+          "testCode": "const s = new ItemStore(); s.create('alpha'); const ok = s.update(1, 'updated'); if (!ok) throw new Error('update() should return true'); if (s.getById(1).name !== 'updated') throw new Error('name should be updated');"
+        },
+        {
+          "description": "delete() should remove the item and return true",
+          "testCode": "const s = new ItemStore(); s.create('alpha'); s.create('beta'); const ok = s.delete(1); if (!ok) throw new Error('delete() should return true'); if (s.getAll().length !== 1) throw new Error('Should have 1 item after delete'); if (s.getById(1) !== null) throw new Error('Deleted item should not be retrievable');"
+        },
+        {
+          "description": "update() and delete() return false for non-existent id",
+          "testCode": "const s = new ItemStore(); if (s.update(99, 'x') !== false) throw new Error('update of missing id should return false'); if (s.delete(99) !== false) throw new Error('delete of missing id should return false');"
+        }
+      ],
+      "hints": [
+        "getById: return this.items.find(i => i.id === id) ?? null;",
+        "create: const item = { id: this.nextId++, name }; this.items.push(item); return item;",
+        "update: find the item, if not found return false, else item.name = name; return true;",
+        "delete: use findIndex(), if -1 return false, else splice and return true."
+      ],
+      "xpReward": 35,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 90000
+      }
+    }
+  ]
+}

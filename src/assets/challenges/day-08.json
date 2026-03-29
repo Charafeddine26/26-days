@@ -1,0 +1,167 @@
+{
+  "dayNumber": 8,
+  "week": 2,
+  "title": "Timing",
+  "narrativeIntro": "The second region is different. The structures here don't respond immediately -- they answer on their own schedule. Send a signal and the response comes back seconds later, or minutes, or not at all. The builders designed these systems to work across time, not just across space.\n\nTo work here, you need to learn patience. And callbacks.",
+  "narrativeOutro": "Time isn't linear here. Things happen when they're ready, not when you expect them to. But you're learning to listen for the signals, to set up callbacks that fire at precisely the right moment. The Drift's second region is starting to hum.",
+  "phmChapters": [11],
+  "phmConnectionNote": "Ryland encounters problems that require patience and precise timing. You learn callbacks and timing functions.",
+  "challengeIds": ["d08-c01", "d08-c02", "d08-c03", "d08-c04"],
+  "concepts": ["callbacks", "setTimeout", "event-loop", "asynchronous", "execution-order", "closure"],
+  "conceptsPreview": "Callbacks, setTimeout, and the JavaScript event loop",
+  "challenges": [
+    {
+      "id": "d08-c01",
+      "dayNumber": 8,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "steady",
+      "concepts": ["setTimeout", "event-loop", "execution-order"],
+      "week": 2,
+      "title": "Timing Order",
+      "narrativeHook": "A setTimeout fires. When does the callback execute relative to the next line?",
+      "instructions": "Read the code below. Three things log to the console: two synchronous calls and one inside a setTimeout with a 0ms delay.\n\nWithout running it, trace the execution order and predict what logs and in what sequence.",
+      "starterCode": "// Read-only — predict the output\nconsole.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nconsole.log(\"C\");",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: A, C, B",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 4 }],
+      "predictPrompt": "What order will the letters be logged?",
+      "predictChoices": ["A, B, C", "A, C, B", "B, A, C", "C, A, B"],
+      "predictAnswer": "A, C, B",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why does B print last even though the timeout delay is 0ms?",
+        "keywords": ["event loop", "synchronous", "queue", "defer"],
+        "minLength": 30
+      },
+      "hints": [
+        "setTimeout always defers execution, even with a 0ms delay.",
+        "Synchronous code runs first, top to bottom. The setTimeout callback is queued for later.",
+        "The event loop only processes the callback queue after all synchronous code has finished running."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d08-c02",
+      "dayNumber": 8,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["callbacks", "setTimeout", "asynchronous"],
+      "week": 2,
+      "title": "Wire the Callback",
+      "narrativeHook": "The system needs a delayed response. Wire the callback.",
+      "instructions": "Write a function `delayedGreet` that takes a `name` and a `callback`. After 1 second (1000ms), it should call the callback with the string `\"Hello, [name]\"`.\n\nThe test setup below is read-only — your function will be called with a name and a function that captures the result.",
+      "starterCode": "function delayedGreet(name, callback) {\n  // Your code here\n}\n\n// Test setup (don't modify):\nlet result = \"\";\ndelayedGreet(\"Grace\", (message) => {\n  result = message;\n});",
+      "solution": "function delayedGreet(name, callback) {\n  setTimeout(() => {\n    callback(\"Hello, \" + name);\n  }, 1000);\n}\n\nlet result = \"\";\ndelayedGreet(\"Grace\", (message) => {\n  result = message;\n});",
+      "readOnlyRegions": [{ "startLine": 5, "endLine": 9 }],
+      "tests": [
+        {
+          "description": "result should be empty immediately (callback hasn't fired yet)",
+          "testCode": "if (result !== '') throw new Error('result should be empty before the 1-second timeout fires');"
+        },
+        {
+          "description": "After 1 second, result should be 'Hello, Grace'",
+          "testCode": "await new Promise(r => setTimeout(r, 1100)); if (result !== 'Hello, Grace') throw new Error(`Expected 'Hello, Grace', got '${result}'`);"
+        }
+      ],
+      "hints": [
+        "Use setTimeout inside delayedGreet to delay the work.",
+        "Inside the setTimeout callback, call the callback argument with the greeting string: 'Hello, ' + name.",
+        "setTimeout(() => { callback('Hello, ' + name); }, 1000);"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d08-c03",
+      "dayNumber": 8,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["callbacks", "asynchronous", "execution-order"],
+      "week": 2,
+      "title": "Out of Order",
+      "narrativeHook": "The timing is wrong. A result is recorded before the data arrives. Fix the order.",
+      "instructions": "This code should set `status` to `\"done\"` only AFTER the data loads, but `status` is assigned synchronously before the callback fires.\n\nThere is exactly one bug: the `status` assignment is in the wrong place. Move it inside the callback so it runs after `loaded` is set to `true`.",
+      "starterCode": "function loadData(callback) {\n  setTimeout(() => {\n    const data = { status: \"ready\" };\n    callback(data);\n  }, 100);\n}\n\nlet status = \"\";\nlet loaded = false;\n\nloadData((data) => {\n  loaded = true;\n});\nstatus = loaded ? \"done\" : \"not loaded yet\";",
+      "solution": "function loadData(callback) {\n  setTimeout(() => {\n    const data = { status: \"ready\" };\n    callback(data);\n  }, 100);\n}\n\nlet status = \"\";\nlet loaded = false;\n\nloadData((data) => {\n  loaded = true;\n  status = loaded ? \"done\" : \"not loaded yet\";\n});",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "status should be 'done' after the callback fires",
+          "testCode": "await new Promise(r => setTimeout(r, 150)); if (status !== 'done') throw new Error(`status should be 'done' after loading, got '${status}' — make sure the assignment is inside the callback`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why did the original code set status before the data loaded?",
+        "keywords": ["synchronous", "before", "callback", "async"],
+        "minLength": 25
+      },
+      "hints": [
+        "loadData() returns immediately — the callback fires after 100ms, not right away.",
+        "Any code written after loadData(...) runs synchronously, before the callback fires.",
+        "Move the status assignment inside the callback body, after the line that sets loaded = true."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d08-c04",
+      "dayNumber": 8,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["callbacks", "higher-order-functions", "closure"],
+      "week": 2,
+      "title": "Fire Once",
+      "narrativeHook": "An event listener that acts exactly once, then goes silent. Build the wrapper.",
+      "instructions": "Write a function `once(callback)` that takes a callback and returns a new function. When the returned function is called, it fires the callback -- but only the first time. All subsequent calls do nothing.\n\nThe test setup below is read-only.",
+      "starterCode": "function once(callback) {\n  // Your code here\n}\n\n// Test setup (don't modify):\nlet callCount = 0;\nconst singleFire = once(() => { callCount++; });",
+      "solution": "function once(callback) {\n  let called = false;\n  return function() {\n    if (!called) {\n      called = true;\n      callback();\n    }\n  };\n}\n\nlet callCount = 0;\nconst singleFire = once(() => { callCount++; });",
+      "readOnlyRegions": [{ "startLine": 5, "endLine": 7 }],
+      "tests": [
+        {
+          "description": "Calling singleFire() once should invoke the callback",
+          "testCode": "singleFire(); if (callCount !== 1) throw new Error(`callCount should be 1 after one call, got ${callCount}`);"
+        },
+        {
+          "description": "Calling singleFire() multiple more times should NOT invoke the callback again",
+          "testCode": "singleFire(); singleFire(); if (callCount !== 1) throw new Error(`callCount should still be 1 after multiple calls, got ${callCount}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "How does once() remember whether the callback has already been called?",
+        "keywords": ["variable", "state", "called", "remember"],
+        "minLength": 25
+      },
+      "hints": [
+        "once() needs to return a new function — not call the callback directly.",
+        "The returned function needs to track whether it has run before. Declare a variable inside once() to hold that state.",
+        "let called = false; then inside the returned function: if (!called) { called = true; callback(); }"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

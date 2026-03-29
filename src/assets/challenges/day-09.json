@@ -1,0 +1,166 @@
+{
+  "dayNumber": 9,
+  "week": 2,
+  "title": "Promises",
+  "narrativeIntro": "A promise is a signal sent with intention. \"I will resolve. Eventually. Trust me.\" The structures in this region communicate through promises -- commitments of future data. Some fulfill. Some reject. Your job is to handle both, gracefully.",
+  "narrativeOutro": "Promises changed how you think about data. It's not \"give me the value now.\" It's \"tell me when the value is ready, and I'll know what to do with it.\" The async patterns of The Drift are becoming second nature.",
+  "phmChapters": [12],
+  "phmConnectionNote": "Ryland makes and receives promises with Rocky -- commitments that resolve later. You learn Promises.",
+  "challengeIds": ["d09-c01", "d09-c02", "d09-c03", "d09-c04"],
+  "concepts": ["promises", "resolve", "reject", "then", "catch", "promise-chaining", "error-handling", "promisification"],
+  "conceptsPreview": "Promises, resolve/reject, chaining, and error handling",
+  "challenges": [
+    {
+      "id": "d09-c01",
+      "dayNumber": 9,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "steady",
+      "concepts": ["promises", "then", "resolve"],
+      "week": 2,
+      "title": "Then Value",
+      "narrativeHook": "A promise resolves. What value arrives in .then()?",
+      "instructions": "Read the code below. A promise is created and immediately resolves with a number. A `.then()` handler receives the value and logs a calculation.\n\nWithout running it, trace what `resolve(42)` passes to `.then()`, apply the math, and predict what logs.",
+      "starterCode": "// Read-only — predict the output\nconst promise = new Promise((resolve) => {\n  resolve(42);\n});\n\npromise.then((value) => {\n  console.log(value * 2);\n});",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: 84",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 8 }],
+      "predictPrompt": "What will be logged?",
+      "predictChoices": ["42", "84", "undefined", "Promise { 42 }"],
+      "predictAnswer": "84",
+      "tests": [],
+      "hints": [
+        ".then() receives the value that was passed to resolve().",
+        "resolve(42) means the value 42 is passed to the .then() handler.",
+        "Inside .then(), value is 42. 42 * 2 = 84."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d09-c02",
+      "dayNumber": 9,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["promises", "resolve", "reject", "constructor"],
+      "week": 2,
+      "title": "Build a Promise",
+      "narrativeHook": "The sensor returns a reading. Build the promise that resolves or rejects based on the result.",
+      "instructions": "Write a function `checkSensor` that takes a `reading` (number) and returns a Promise:\n- If the reading is above 50, resolve with `\"nominal\"`\n- If 50 or below, reject with `\"below threshold\"`",
+      "starterCode": "function checkSensor(reading) {\n  return new Promise((resolve, reject) => {\n    // Your code here\n  });\n}",
+      "solution": "function checkSensor(reading) {\n  return new Promise((resolve, reject) => {\n    if (reading > 50) {\n      resolve(\"nominal\");\n    } else {\n      reject(\"below threshold\");\n    }\n  });\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "Reading 80 should resolve with 'nominal'",
+          "testCode": "const result = await checkSensor(80); if (result !== 'nominal') throw new Error(`Should resolve with 'nominal', got '${result}'`);"
+        },
+        {
+          "description": "Reading 30 should reject with 'below threshold'",
+          "testCode": "try { await checkSensor(30); throw new Error('Should have rejected'); } catch(e) { if (e !== 'below threshold') throw new Error(`Should reject with 'below threshold', got '${e}'`); }"
+        },
+        {
+          "description": "Reading exactly 50 should reject (not above 50)",
+          "testCode": "try { await checkSensor(50); throw new Error('Should have rejected'); } catch(e) { if (e !== 'below threshold') throw new Error(`50 should reject with 'below threshold', got '${e}'`); }"
+        }
+      ],
+      "hints": [
+        "Use an if condition inside the Promise constructor to decide between resolve and reject.",
+        "resolve('nominal') for high readings. reject('below threshold') for low ones.",
+        "The condition is reading > 50 (strictly greater than, not >=)."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d09-c03",
+      "dayNumber": 9,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["promises", "catch", "error-handling"],
+      "week": 2,
+      "title": "Unhandled Rejection",
+      "narrativeHook": "A promise rejects but nobody catches it. The system throws a silent error.",
+      "instructions": "This code creates a promise that immediately rejects. The `.then()` handler runs if it resolves, but nothing handles the rejection -- the error is swallowed silently and `error` is never set.\n\nThere is exactly one fix needed: add a `.catch()` handler that sets `error` to the rejection message.",
+      "starterCode": "let result = null;\nlet error = null;\n\nconst dataPromise = new Promise((resolve, reject) => {\n  reject(\"Connection failed\");\n});\n\ndataPromise.then((data) => {\n  result = data;\n});",
+      "solution": "let result = null;\nlet error = null;\n\nconst dataPromise = new Promise((resolve, reject) => {\n  reject(\"Connection failed\");\n});\n\ndataPromise\n  .then((data) => {\n    result = data;\n  })\n  .catch((err) => {\n    error = err;\n  });",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "error should be 'Connection failed'",
+          "testCode": "await new Promise(r => setTimeout(r, 10)); if (error !== 'Connection failed') throw new Error(`error should be 'Connection failed', got '${error}'`);"
+        },
+        {
+          "description": "result should remain null (promise rejected, not resolved)",
+          "testCode": "if (result !== null) throw new Error('result should stay null when the promise rejects');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What happens to rejected promises that have no .catch() handler?",
+        "keywords": ["unhandled", "error", "crash", "catch"],
+        "minLength": 25
+      },
+      "hints": [
+        "Add .catch() after .then() to handle the rejection case.",
+        ".catch(err => { ... }) receives the value that was passed to reject().",
+        "Chain it directly: dataPromise.then(...).catch(err => { error = err; });"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d09-c04",
+      "dayNumber": 9,
+      "order": 4,
+      "type": "refactor",
+      "difficulty": "demanding",
+      "concepts": ["promises", "promise-chaining", "promisification"],
+      "week": 2,
+      "title": "Flatten the Nest",
+      "narrativeHook": "Nested callbacks, three levels deep. Flatten them into a promise chain.",
+      "instructions": "Two callback-based functions are provided. The current code uses nested callbacks to fetch a signal and then its location -- callback hell.\n\nRefactor: wrap `fetchSignal` and `fetchLocation` in promises, then chain them with `.then()`. Store the final location string in `locationFromChain`.",
+      "starterCode": "// Callback-based APIs (don't modify):\nfunction fetchSignal(callback) {\n  setTimeout(() => callback(null, { id: 1, strength: 85 }), 10);\n}\nfunction fetchLocation(signalId, callback) {\n  setTimeout(() => callback(null, \"north-7\"), 10);\n}\n\n// Refactor: wrap the above in promises and chain them.\n// Store the final location string in 'locationFromChain'.\nlet locationFromChain = null;\n// Your code here",
+      "solution": "function fetchSignal(callback) {\n  setTimeout(() => callback(null, { id: 1, strength: 85 }), 10);\n}\nfunction fetchLocation(signalId, callback) {\n  setTimeout(() => callback(null, \"north-7\"), 10);\n}\n\nlet locationFromChain = null;\n\nnew Promise((resolve) => {\n  fetchSignal((err, signal) => resolve(signal));\n})\n  .then((signal) => {\n    return new Promise((resolve) => {\n      fetchLocation(signal.id, (err, loc) => resolve(loc));\n    });\n  })\n  .then((loc) => {\n    locationFromChain = loc;\n  });",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 5 }],
+      "tests": [
+        {
+          "description": "locationFromChain should be 'north-7' after the chain resolves",
+          "testCode": "await new Promise(r => setTimeout(r, 50)); if (locationFromChain !== 'north-7') throw new Error(`locationFromChain should be 'north-7', got '${locationFromChain}'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What does 'promisification' mean, and why does wrapping a callback in a Promise make chaining possible?",
+        "keywords": ["promise", "wrap", "chain", "callback"],
+        "minLength": 30
+      },
+      "hints": [
+        "Wrap each callback function in a new Promise: new Promise((resolve) => { fetchSignal((err, data) => resolve(data)); })",
+        "Return the second promise from inside the first .then() so the chain waits for it.",
+        "Chain: promisifyFetchSignal().then(signal => promisifyFetchLocation(signal.id)).then(loc => { locationFromChain = loc; });"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}

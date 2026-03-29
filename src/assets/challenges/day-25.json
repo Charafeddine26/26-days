@@ -1,0 +1,218 @@
+{
+  "dayNumber": 25,
+  "week": 4,
+  "title": "Review & Strengthen",
+  "narrativeIntro": "Tomorrow is the last day. Today, you revisit. The Drift shows you where your understanding is brightest and where it's still fragile. Each challenge today is a synthesis — a concept from an earlier week, revisited with everything you now know. Stronger foundations make for a stronger finish.",
+  "narrativeOutro": "Solid. You can feel it. Not just knowledge but fluency — the difference between knowing the words and speaking the language. Tomorrow, you prove it.",
+  "phmChapters": [30],
+  "phmConnectionNote": "Before the final mission, Ryland reviews everything, ensures every system is solid. You review and strengthen weak areas.",
+  "challengeIds": ["d25-c03", "d25-c01", "d25-c02", "d25-c04"],
+  "concepts": ["closures", "scope", "async-await", "promises", "array-methods", "generics", "typescript", "composition"],
+  "conceptsPreview": "Cross-week synthesis — JS foundations through the Angular lens",
+  "challenges": [
+    {
+      "id": "d25-c01",
+      "dayNumber": 25,
+      "order": 2,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["closures", "scope", "this", "services"],
+      "week": 4,
+      "title": "Scope Inside a Service",
+      "narrativeHook": "A service method uses a callback. The callback loses `this`. The bug is week-one — spotted in week-four code.",
+      "instructions": "The `TimerService.start()` uses `setInterval` with a regular function. Inside the callback, `this.count` is `undefined`.\n\nFix the scoping issue — the same problem as Day 11's `this` challenge, now appearing inside an Angular service.",
+      "environment": "stackblitz",
+      "starterCode": "export class TimerService {\n  count = 0;\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n\n  start(): void {\n    this.intervalId = setInterval(function() {\n      this.count++;   // Bug: 'this' is wrong inside a regular function callback\n    }, 100);\n  }\n\n  stop(): void {\n    if (this.intervalId) clearInterval(this.intervalId);\n  }\n}",
+      "files": [
+        {
+          "name": "timer.service.ts",
+          "language": "typescript",
+          "content": "export class TimerService {\n  count = 0;\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n\n  start(): void {\n    this.intervalId = setInterval(function() {\n      this.count++;   // Bug: 'this' is wrong inside a regular function callback\n    }, 100);\n  }\n\n  stop(): void {\n    if (this.intervalId) clearInterval(this.intervalId);\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export class TimerService {\n  count = 0;\n  private intervalId: ReturnType<typeof setInterval> | null = null;\n\n  start(): void {\n    this.intervalId = setInterval(() => {\n      this.count++;\n    }, 100);\n  }\n\n  stop(): void {\n    if (this.intervalId) clearInterval(this.intervalId);\n  }\n}",
+      "tests": [
+        {
+          "description": "After start() and 300ms, count should be >= 2",
+          "testCode": "const s = new TimerService(); s.start(); await new Promise(r => setTimeout(r, 350)); s.stop(); if (s.count < 2) throw new Error(`count should be >= 2 after 350ms, got ${s.count} — 'this' may still be wrong`);"
+        },
+        {
+          "description": "stop() should prevent further increments",
+          "testCode": "const s = new TimerService(); s.start(); await new Promise(r => setTimeout(r, 150)); s.stop(); const countAtStop = s.count; await new Promise(r => setTimeout(r, 200)); if (s.count !== countAtStop) throw new Error('count should not increase after stop()');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why does a regular function inside setInterval lose `this`, and why does an arrow function solve it? How does this connect to Day 11's lesson?",
+        "keywords": ["lexical", "arrow", "this", "enclosing"],
+        "minLength": 35
+      },
+      "hints": [
+        "This is the same bug from Day 11 — regular functions define their own 'this', arrow functions inherit it.",
+        "Change function() { ... } to () => { ... } inside setInterval.",
+        "Arrow functions capture 'this' from the enclosing scope (the class method), so this.count refers to the service instance."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d25-c02",
+      "dayNumber": 25,
+      "order": 3,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["async-await", "promises", "error-handling", "typescript"],
+      "week": 4,
+      "title": "Retry Logic",
+      "narrativeHook": "The first attempt fails. Try again. And again. Stop after three failures.",
+      "instructions": "Write a `retry(fn, times)` function:\n\n- `fn` is an async function that may reject\n- `times` is the max number of attempts\n- Returns the resolved value if any attempt succeeds\n- Throws the last error if all attempts fail\n- Does not delay between attempts",
+      "environment": "stackblitz",
+      "starterCode": "export async function retry<T>(fn: () => Promise<T>, times: number): Promise<T> {\n  // Try calling fn() up to 'times' times\n  // Return on first success\n  // Throw last error if all fail\n  // Your code here\n}",
+      "files": [
+        {
+          "name": "retry.ts",
+          "language": "typescript",
+          "content": "export async function retry<T>(fn: () => Promise<T>, times: number): Promise<T> {\n  // Try calling fn() up to 'times' times\n  // Return on first success\n  // Throw last error if all fail\n  // Your code here\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "export async function retry<T>(fn: () => Promise<T>, times: number): Promise<T> {\n  let lastError: unknown;\n  for (let i = 0; i < times; i++) {\n    try {\n      return await fn();\n    } catch (err) {\n      lastError = err;\n    }\n  }\n  throw lastError;\n}",
+      "tests": [
+        {
+          "description": "retry should return value on first success",
+          "testCode": "const result = await retry(() => Promise.resolve('ok'), 3); if (result !== 'ok') throw new Error(`Should return 'ok', got '${result}'`);"
+        },
+        {
+          "description": "retry should succeed on second attempt if first fails",
+          "testCode": "let calls = 0; const fn = () => { calls++; return calls === 1 ? Promise.reject('fail') : Promise.resolve('success'); }; const r = await retry(fn, 3); if (r !== 'success') throw new Error(`Should succeed on 2nd attempt, got '${r}'`);"
+        },
+        {
+          "description": "retry should throw last error after all attempts fail",
+          "testCode": "let caught = null; try { await retry(() => Promise.reject('always-fails'), 3); } catch (e) { caught = e; } if (caught !== 'always-fails') throw new Error(`Should throw last error, got '${caught}'`);"
+        },
+        {
+          "description": "retry should attempt exactly 'times' times before giving up",
+          "testCode": "let calls = 0; try { await retry(() => { calls++; return Promise.reject('x'); }, 4); } catch(e) {} if (calls !== 4) throw new Error(`Should attempt exactly 4 times, got ${calls}`);"
+        }
+      ],
+      "hints": [
+        "The `<T>` in the function signature is a TypeScript generic — it means the function works with any return type. You don't need to understand it fully to solve this challenge; just implement the retry logic.",
+        "Use a for loop from 0 to times. Inside, wrap each attempt in try/catch.",
+        "On success (no throw), return the value immediately: return await fn();",
+        "After the loop, throw the last caught error: throw lastError;"
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d25-c03",
+      "dayNumber": 25,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["closures", "scope", "loops", "async"],
+      "week": 4,
+      "title": "Closure in a Loop",
+      "narrativeHook": "A loop creates functions. Each function references `i`. What does each one log?",
+      "instructions": "A `for` loop creates three async functions that log `i`. Each runs after a short delay.\n\nPredict what each logs.",
+      "starterCode": "// Read-only — predict the output\n\n// for (var i = 0; i < 3; i++) {\n//   setTimeout(function() {\n//     console.log(i);\n//   }, 0);\n// }\n\n// What does each setTimeout log?",
+      "solution": "// No code changes — this is a prediction challenge.\n// Answer: 3, 3, 3 — var is function-scoped, all callbacks share the same i which is 3 by the time they run.",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 8 }],
+      "predictPrompt": "What does each setTimeout callback log?",
+      "predictChoices": [
+        "3, 3, 3",
+        "0, 1, 2",
+        "0, 1, 3",
+        "undefined, undefined, undefined"
+      ],
+      "predictAnswer": "3, 3, 3",
+      "tests": [],
+      "explainGate": {
+        "prompt": "Why do all three callbacks log 3, and how would changing `var` to `let` fix this?",
+        "keywords": ["var", "let", "scope", "closure", "block"],
+        "minLength": 30
+      },
+      "hints": [
+        "var is function-scoped — there is only ONE variable i shared across all iterations.",
+        "By the time any setTimeout runs (after the loop), i is already 3.",
+        "let creates a new block-scoped binding per iteration — each callback would capture its own i."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d25-c04",
+      "dayNumber": 25,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["composition", "async-await", "array-methods", "error-handling"],
+      "week": 4,
+      "title": "Pipeline",
+      "narrativeHook": "Five tools. One pipeline. Data enters raw, exits processed. Build the chain.",
+      "instructions": "Complete the `DataPipeline.run(ids)` method:\n\n1. For each id, call `fetchItem(id)` — runs in parallel (use `Promise.all`)\n2. Filter out any rejected results (use `Promise.allSettled` instead)\n3. Map successful results: `{ id, label: item.name.toUpperCase() }`\n4. Sort by `label` ascending\n5. Return the sorted array\n\n`fetchItem` rejects for id `99`.",
+      "environment": "stackblitz",
+      "starterCode": "async function fetchItem(id: number): Promise<{ name: string }> {\n  if (id === 99) return Promise.reject('Not found');\n  return Promise.resolve({ name: ['alpha', 'gamma', 'beta', 'delta'][id % 4] });\n}\n\nexport class DataPipeline {\n  async run(ids: number[]): Promise<{ id: number; label: string }[]> {\n    // 1. Fetch all items in parallel, tolerating failures\n    // 2. Filter to successful results only\n    // 3. Map to { id, label: name.toUpperCase() }\n    // 4. Sort by label ascending\n    // Your code here\n  }\n}",
+      "files": [
+        {
+          "name": "data-pipeline.ts",
+          "language": "typescript",
+          "content": "async function fetchItem(id: number): Promise<{ name: string }> {\n  if (id === 99) return Promise.reject('Not found');\n  return Promise.resolve({ name: ['alpha', 'gamma', 'beta', 'delta'][id % 4] });\n}\n\nexport class DataPipeline {\n  async run(ids: number[]): Promise<{ id: number; label: string }[]> {\n    // 1. Fetch all items in parallel, tolerating failures\n    // 2. Filter to successful results only\n    // 3. Map to { id, label: name.toUpperCase() }\n    // 4. Sort by label ascending\n    // Your code here\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "async function fetchItem(id: number): Promise<{ name: string }> {\n  if (id === 99) return Promise.reject('Not found');\n  return Promise.resolve({ name: ['alpha', 'gamma', 'beta', 'delta'][id % 4] });\n}\n\nexport class DataPipeline {\n  async run(ids: number[]): Promise<{ id: number; label: string }[]> {\n    const results = await Promise.allSettled(ids.map(id => fetchItem(id).then(item => ({ id, item }))));\n    return results\n      .filter(r => r.status === 'fulfilled')\n      .map(r => ({ id: r.value.id, label: r.value.item.name.toUpperCase() }))\n      .sort((a, b) => a.label.localeCompare(b.label));\n  }\n}",
+      "tests": [
+        {
+          "description": "run([0, 1, 2]) should return 3 sorted items",
+          "testCode": "const p = new DataPipeline(); const r = await p.run([0, 1, 2]); if (r.length !== 3) throw new Error(`Expected 3 items, got ${r.length}`);"
+        },
+        {
+          "description": "run([0, 99, 1]) should return 2 items (id 99 fails)",
+          "testCode": "const p = new DataPipeline(); const r = await p.run([0, 99, 1]); if (r.length !== 2) throw new Error(`id 99 should be excluded, expected 2 items, got ${r.length}`);"
+        },
+        {
+          "description": "items should have uppercased labels",
+          "testCode": "const p = new DataPipeline(); const r = await p.run([0, 1]); if (r.some(i => i.label !== i.label.toUpperCase())) throw new Error('All labels should be uppercase');"
+        },
+        {
+          "description": "items should be sorted by label ascending",
+          "testCode": "const p = new DataPipeline(); const r = await p.run([0, 1, 2, 3]); for (let i = 1; i < r.length; i++) { if (r[i].label < r[i-1].label) throw new Error(`Not sorted: ${r[i-1].label} before ${r[i].label}`); }"
+        }
+      ],
+      "hints": [
+        "Use Promise.allSettled instead of Promise.all — it never rejects, returning 'fulfilled' or 'rejected' for each.",
+        "Filter: .filter(r => r.status === 'fulfilled')",
+        "Map to the shape: .map(r => ({ id: r.value.id, label: r.value.item.name.toUpperCase() }))",
+        "Sort: .sort((a, b) => a.label.localeCompare(b.label))"
+      ],
+      "explainGate": {
+        "prompt": "What is the difference between Promise.all and Promise.allSettled, and why is allSettled the right choice when some requests might fail?",
+        "keywords": ["reject", "settled", "fulfilled", "all", "fail", "never"],
+        "minLength": 35
+      },
+      "xpReward": 35,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 90000
+      }
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+<div
+  class="min-h-screen bg-drift-void relative overflow-hidden animate-fade-in"
+  [class.idle-state]="isIdle()"
+  [class.awakening-state]="isAwakening()"
+  (mousemove)="onContainerMouseMove($event)"
+>
+  <!-- Bioluminescent particle field -->
+  <app-particle-field
+    [mouseX]="cursorPos()?.x ?? null"
+    [mouseY]="cursorPos()?.y ?? null"
+    [idle]="isIdle()"
+  ></app-particle-field>
+
+  <!-- Header -->
+  <div class="relative z-10 px-6 pt-8 pb-4 max-w-5xl mx-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-3xl md:text-4xl text-drift-text-primary tracking-wide">
+          The Drift
+        </h1>
+        <p class="text-sm text-drift-text-secondary mt-1 font-body">
+          {{ mapState().completedCount }}&thinsp;/&thinsp;26 jours
+          &nbsp;&middot;&nbsp; La Constellation
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          (click)="goToProgress()"
+          class="drift-btn-secondary !px-3 !py-2"
+          title="Progression"
+        >
+          <lucide-icon [img]="icons.BarChart3" [size]="18"></lucide-icon>
+        </button>
+        <button
+          (click)="goToSettings()"
+          class="drift-btn-secondary !px-3 !py-2"
+          title="Paramètres"
+        >
+          <lucide-icon [img]="icons.Settings" [size]="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown Banner -->
+  <div class="relative z-10 max-w-5xl mx-auto px-6">
+    <app-countdown-banner></app-countdown-banner>
+  </div>
+
+  <!-- Constellation Map -->
+  <div class="relative z-10 max-w-5xl mx-auto px-4 pb-8 mt-2">
+    <svg
+      class="constellation-svg"
+      viewBox="0 0 800 560"
+      xmlns="http://www.w3.org/2000/svg"
+      style="width: 100%; max-height: 62vh; aspect-ratio: 800 / 560; overflow: visible; display: block; transition: filter 2s ease;"
+    >
+      <defs>
+        <!-- Per-week nebula glow blobs -->
+        <radialGradient id="nebula-w1" cx="22%" cy="86%" r="36%" gradientUnits="objectBoundingBox">
+          <stop offset="0%" stop-color="rgba(169,232,192,0.07)" />
+          <stop offset="100%" stop-color="rgba(169,232,192,0)" />
+        </radialGradient>
+        <radialGradient id="nebula-w2" cx="58%" cy="80%" r="32%" gradientUnits="objectBoundingBox">
+          <stop offset="0%" stop-color="rgba(169,216,232,0.06)" />
+          <stop offset="100%" stop-color="rgba(169,216,232,0)" />
+        </radialGradient>
+        <radialGradient id="nebula-w3" cx="27%" cy="44%" r="34%" gradientUnits="objectBoundingBox">
+          <stop offset="0%" stop-color="rgba(232,169,192,0.06)" />
+          <stop offset="100%" stop-color="rgba(232,169,192,0)" />
+        </radialGradient>
+        <radialGradient id="nebula-w4" cx="82%" cy="28%" r="30%" gradientUnits="objectBoundingBox">
+          <stop offset="0%" stop-color="rgba(232,207,169,0.07)" />
+          <stop offset="100%" stop-color="rgba(232,207,169,0)" />
+        </radialGradient>
+        <!-- Ambient nebula scales with progress -->
+        <radialGradient id="nebula-ambient" cx="50%" cy="50%" r="55%" gradientUnits="objectBoundingBox">
+          <stop
+            offset="0%"
+            [attr.stop-color]="'rgba(184,169,232,' + (mapState().ambientIntensity * 0.05) + ')'"
+          />
+          <stop offset="100%" stop-color="rgba(184,169,232,0)" />
+        </radialGradient>
+      </defs>
+
+      <!-- Nebula background layers -->
+      <rect x="0" y="0" width="800" height="560" fill="url(#nebula-w1)" />
+      <rect x="0" y="0" width="800" height="560" fill="url(#nebula-w2)" />
+      <rect x="0" y="0" width="800" height="560" fill="url(#nebula-w3)" />
+      <rect x="0" y="0" width="800" height="560" fill="url(#nebula-w4)" />
+      <rect x="0" y="0" width="800" height="560" fill="url(#nebula-ambient)" />
+
+      <!-- Depth layers: Dust field + Static stars -->
+      <rect x="0" y="0" width="800" height="560" fill="url(#noise-void)" opacity="0.015" />
+      @for (star of starField; track star.x + '_' + star.y) {
+        <circle
+          [attr.cx]="star.x"
+          [attr.cy]="star.y"
+          [attr.r]="star.r"
+          [attr.fill]="star.fill"
+          [attr.opacity]="star.opacity"
+        />
+      }
+
+      <!-- Week Regions (Amoeba blobs) -->
+      @for (region of weekRegions; track region.week) {
+        <path
+          [attr.d]="region.path"
+          [attr.fill]="'rgba(' + weekAccent(region.week) + ',' + (isWeekComplete(region.week) ? '0.045' : '0.02') + ')'"
+          style="transition: fill 2s ease;"
+        />
+      }
+
+      <!-- Week cluster labels -->
+      @for (wl of weekLabels; track wl.week) {
+        <text
+          [attr.x]="wl.x"
+          [attr.y]="wl.y"
+          text-anchor="middle"
+          font-family="'Cormorant Garamond', serif"
+          font-size="11"
+          font-style="italic"
+          letter-spacing="1.5"
+          [attr.fill]="'rgba(' + weekAccent(wl.week) + ',0.32)'"
+        >{{ wl.text }}</text>
+      }
+
+      <!-- Week beacon diamonds (one per week cluster) -->
+      @for (beacon of mapState().beacons; track beacon.week) {
+        <polygon
+          [class]="beaconClass(beacon)"
+          [attr.points]="beaconPoints(beacon)"
+          [attr.fill]="beacon.activated ? 'rgba(' + weekAccent(beacon.week) + ',0.07)' : 'none'"
+          [attr.stroke]="'rgba(' + weekAccent(beacon.week) + ',' + (beacon.activated ? 0.6 : 0.08) + ')'"
+          [attr.stroke-width]="beacon.activated ? 1.0 : 0.4"
+          [style.filter]="beaconFilter(beacon)"
+        />
+      }
+
+      <!-- Connection lines (Organic Paths) -->
+      @for (conn of mapState().connections; track conn.fromDay) {
+        @let fromEl = mapState().elements[conn.fromDay - 1];
+        @let toEl = mapState().elements[conn.toDay - 1];
+        <!-- Outer glow for lit connection -->
+        @if (conn.lit) {
+          <path
+            [attr.d]="connectionPathData(conn, fromEl, toEl)"
+            fill="none"
+            [attr.stroke]="connectionGlow(conn)"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
+        }
+        <path
+          [class]="connectionClass(conn)"
+          [style]="'--line-len: ' + connectionLength(conn)"
+          [attr.d]="connectionPathData(conn, fromEl, toEl)"
+          fill="none"
+          [attr.stroke]="connectionStroke(conn)"
+          [attr.stroke-width]="connectionStrokeWidth(conn)"
+          [attr.stroke-dasharray]="connectionDasharray(conn)"
+          stroke-linecap="round"
+        />
+        <!-- Traveling light dot for lit connections -->
+        @if (conn.lit) {
+          <circle r="1.5" fill="#fff" class="connection-traveler">
+            <animateMotion
+              [attr.path]="connectionPathData(conn, fromEl, toEl)"
+              dur="4s"
+              repeatCount="indefinite"
+            />
+          </circle>
+        }
+      }
+
+      <!-- Nodes -->
+      @for (el of mapState().elements; track el.dayNumber) {
+        <g
+          [class]="nodeGroupClass(el)"
+          [style.filter]="nodeFilter(el)"
+          [style.cursor]="el.status === 'locked' ? 'not-allowed' : 'pointer'"
+          (click)="onNodeClick(el)"
+          (mouseenter)="onNodeEnter(el, $event)"
+          (mouseleave)="onNodeLeave()"
+        >
+          <!-- BOSS NODE: Hexagonal geometry -->
+          @if (isBoss(el.dayNumber) && el.status === 'completed') {
+            <polygon
+              [attr.points]="bossHexPoints(el.x, el.y, 14)"
+              fill="rgba(232,207,169,0.12)"
+              stroke="rgba(232,207,169,0.8)"
+              stroke-width="1.5"
+            />
+            <circle [attr.cx]="el.x" [attr.cy]="el.y" r="2" fill="rgba(232,207,169,1)" />
+            <!-- Inner hex outline -->
+            <polygon
+              [attr.points]="bossHexPoints(el.x, el.y, 8)"
+              fill="none"
+              stroke="rgba(232,207,169,0.4)"
+              stroke-width="0.75"
+            />
+          } @else {
+            <!-- STANDARD NODE GEOMETRY -->
+
+            <!-- Dormant concentric rings -->
+            @if (el.state === 'dormant') {
+              <circle [attr.cx]="el.x" [attr.cy]="el.y" r="8" fill="none" stroke="rgba(184,169,232,0.06)" stroke-width="0.5" />
+              <circle [attr.cx]="el.x" [attr.cy]="el.y" r="11" fill="none" stroke="rgba(184,169,232,0.04)" stroke-width="0.5" />
+              <circle [attr.cx]="el.x" [attr.cy]="el.y" r="14" fill="none" stroke="rgba(184,169,232,0.02)" stroke-width="0.5" />
+            }
+
+            <!-- Awakening / Active / Radiant -->
+            @if (el.state !== 'dormant') {
+              <!-- Outer halo ring -->
+              <circle
+                [attr.cx]="el.x"
+                [attr.cy]="el.y"
+                [attr.r]="glowRingRadius(el)"
+                fill="none"
+                [attr.stroke]="'rgba(' + weekAccent(el.week) + ',' + glowRingStrokeOpacity(el) + ')'"
+                [attr.stroke-width]="glowRingStrokeWidth(el)"
+              />
+              
+              <!-- Orbital rings (drifting/spinning) -->
+              @if (el.state === 'awakening' || el.state === 'active') {
+                <circle 
+                  [attr.cx]="el.x" [attr.cy]="el.y" [attr.r]="orbitRadius(el, 1)" 
+                  fill="none" [attr.stroke]="'rgba(' + weekAccent(el.week) + ',0.15)'" stroke-width="0.75" 
+                />
+                <circle 
+                  [attr.cx]="el.x" [attr.cy]="el.y" [attr.r]="orbitRadius(el, 2)" 
+                  fill="none" [attr.stroke]="'rgba(' + weekAccent(el.week) + ',0.1)'" stroke-width="0.5" 
+                />
+                
+                <!-- Tiny tracing particles on orbits -->
+                @if (el.state === 'active') {
+                   <g class="orbit-anim-1" [style.transform-origin]="el.x + 'px ' + el.y + 'px'">
+                     <circle [attr.cx]="el.x" [attr.cy]="el.y - orbitRadius(el, 1)" r="1.5" [attr.fill]="'rgba(' + weekAccent(el.week) + ',0.9)'" />
+                   </g>
+                   <g class="orbit-anim-2" [style.transform-origin]="el.x + 'px ' + el.y + 'px'">
+                     <circle [attr.cx]="el.x + orbitRadius(el, 2)" [attr.cy]="el.y" r="1.5" [attr.fill]="'rgba(' + weekAccent(el.week) + ',0.7)'" />
+                   </g>
+                }
+              }
+
+              <!-- Main inner core -->
+              <circle
+                [attr.cx]="el.x"
+                [attr.cy]="el.y"
+                [attr.r]="nodeRadius(el)"
+                [attr.fill]="'rgba(' + weekAccent(el.week) + ',' + nodeFillOpacity(el) + ')'"
+                [attr.stroke]="'rgba(' + weekAccent(el.week) + ',' + nodeStrokeOpacity(el) + ')'"
+                [attr.stroke-width]="nodeStrokeWidth(el)"
+              />
+              
+              <!-- Radiant sharp center point -->
+              @if (el.state === 'radiant') {
+                <circle [attr.cx]="el.x" [attr.cy]="el.y" r="1.5" fill="#fff" />
+              }
+            }
+          }
+
+          <!-- Day number -->
+          <text
+            [attr.x]="el.x"
+            [attr.y]="el.y + 3.5"
+            text-anchor="middle"
+            font-family="'Cormorant Garamond', serif"
+            font-size="9"
+            font-weight="600"
+            [attr.fill]="'rgba(237,232,245,' + nodeTextOpacity(el) + ')'"
+            pointer-events="none"
+          >{{ outlineDayNumber(el) }}</text>
+        </g>
+      }
+    </svg>
+  </div>
+
+  <!-- Hover Tooltip -->
+  @if (hoveredElement(); as el) {
+    <div
+      class="constellation-tooltip fixed z-50 pointer-events-none"
+      [style.left.px]="tooltipPos().x"
+      [style.top.px]="tooltipPos().y"
+    >
+      <div class="font-display text-sm text-drift-text-primary" style="font-style: italic;">
+        Jour {{ el.dayNumber }}
+      </div>
+      @if (dayMeta().get(el.dayNumber); as meta) {
+        <div class="text-xs font-body font-medium text-drift-text-primary mt-0.5">{{ meta.title }}</div>
+        <div
+          class="text-[10px] font-body text-drift-text-secondary mt-1 leading-snug"
+          style="max-width: 190px;"
+        >{{ meta.conceptsPreview }}</div>
+        <div class="text-[10px] font-body text-drift-text-tertiary mt-1">
+          {{ challengeProgressFor(el.dayNumber) }}/{{ meta.totalChallenges }} missions
+        </div>
+      }
+      <div
+        class="text-xs mt-1 font-body"
+        [style.color]="'rgba(' + weekAccent(el.week) + ',0.9)'"
+      >{{ statusLabel(el) }}</div>
+      <div class="text-[10px] text-drift-text-ghost mt-0.5 font-body">
+        Semaine&nbsp;{{ romanWeek(el.week) }}
+      </div>
+    </div>
+  }
+
+  <!-- Streak broken interstitial (auto-dismisses after 2 s) -->
+  @if (showStreakBroken()) {
+    <div
+      class="fixed inset-0 z-[60] flex items-center justify-center cursor-pointer animate-fade-in"
+      style="background: rgba(15,14,26,0.2); backdrop-filter: blur(2px);"
+      (click)="dismissStreakBroken()"
+    >
+      <div class="constellation-tooltip px-8 py-6 text-center max-w-xs">
+        <p class="font-display text-lg text-drift-text-primary italic">
+          The signal faded while you were away.
+        </p>
+        <p class="text-sm text-drift-text-secondary mt-2">Streak reset to 0.</p>
+        <p class="text-sm mt-1" style="color: rgba(232,169,192,0.9);">But the path remains.</p>
+      </div>
+    </div>
+  }
+</div>

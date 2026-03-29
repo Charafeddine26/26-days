@@ -1,0 +1,81 @@
+{
+  "dayNumber": 13,
+  "week": 2,
+  "title": "BOSS BATTLE — Deep Signal",
+  "narrativeIntro": "A transmission arrives from the deepest part of this region. It's broken — the data pipeline that once carried it has decayed. Promises fail silently. Types are mismatched. The async keyword is missing where it matters most. The builders left this system unfinished, or perhaps time broke it.\n\nYou have 45 minutes. Trace the data from source to destination. Fix every broken link. Make the signal complete.",
+  "narrativeOutro": "The signal arrives. Complete, intact, decoded. A deep tone resonates through the second cluster, and every node you activated this week brightens in response. The two clusters — week one and week two — are now connected by a single, luminous thread.\n\nThe third region is different. It's not code fragments and functions. It's architecture. Components, services, systems that compose into something larger than their parts. This is where understanding becomes building.",
+  "phmChapters": [18],
+  "phmConnectionNote": "A major turning point — Ryland and Rocky face their biggest challenge yet. You face yours.",
+  "challengeIds": ["d13-c01"],
+  "concepts": ["async-await", "promises", "typescript", "type-errors", "modules", "error-handling", "debugging"],
+  "conceptsPreview": "Boss battle — debug a broken multi-file async data pipeline",
+  "challenges": [
+    {
+      "id": "d13-c01",
+      "dayNumber": 13,
+      "order": 1,
+      "type": "debug",
+      "difficulty": "boss",
+      "concepts": ["async-await", "await", "promises", "typescript", "type-errors", "error-handling"],
+      "week": 2,
+      "title": "Deep Signal",
+      "narrativeHook": "Three failures, one pipeline. The signal exists. You just have to make it through.",
+      "instructions": "The signal pipeline is broken in exactly three places. `pipeline.ts` is the only file you can edit — `types.ts` and `api.ts` are read-only.\n\nTrace the data from `fetchSignal()` to the final `PipelineResult`. Fix every failure. All three tests must pass.\n\nYou have 45 minutes.",
+      "environment": "stackblitz",
+      "starterCode": "// pipeline.ts — broken in three places\n\nfunction processSignal(id: number): Promise<PipelineResult> {\n  try {\n    const signal = await fetchSignal(id);\n    const message = decodeHex(signal.id);   // Bug 2: wrong property\n    const decoded: DecodedSignal = {\n      id: signal.id,\n      message,\n      receivedAt: new Date(signal.timestamp).toISOString()  // Bug 3: needs * 1000\n    };\n    return { ok: true, signal: decoded };\n  } catch (err: unknown) {\n    return { ok: false, error: String(err) };\n  }\n}",
+      "files": [
+        {
+          "name": "types.ts",
+          "readOnly": true,
+          "language": "typescript",
+          "content": "// Read-only — these types define the pipeline contract\n\ninterface Signal {\n  id: number;\n  raw: string;\n  timestamp: number;\n}\n\ninterface DecodedSignal {\n  id: number;\n  message: string;\n  receivedAt: string;\n}\n\ninterface PipelineResult {\n  ok: boolean;\n  signal?: DecodedSignal;\n  error?: string;\n}"
+        },
+        {
+          "name": "api.ts",
+          "readOnly": true,
+          "language": "typescript",
+          "content": "// Read-only — simulated data source\n\nfunction fetchSignal(id: number): Promise<Signal> {\n  return new Promise((resolve, reject) => {\n    if (id <= 0) {\n      reject(\"Invalid signal ID\");\n    } else {\n      resolve({ id, raw: \"48454C4C4F\", timestamp: 1704067200 });\n    }\n  });\n}\n\n// Decodes a hex string to ASCII: \"48454C4C4F\" → \"HELLO\"\nfunction decodeHex(hex: string): string {\n  let result = '';\n  for (let i = 0; i < hex.length; i += 2) {\n    result += String.fromCharCode(parseInt(hex.substring(i, i + 2), 16));\n  }\n  return result;\n}"
+        },
+        {
+          "name": "pipeline.ts",
+          "language": "typescript",
+          "content": "// Your task: fix the three bugs in this file\n// types.ts and api.ts are read-only — do not try to edit them here\n\nfunction processSignal(id: number): Promise<PipelineResult> {\n  try {\n    const signal = await fetchSignal(id);\n    const message = decodeHex(signal.id);   // Bug: wrong property\n    const decoded: DecodedSignal = {\n      id: signal.id,\n      message,\n      receivedAt: new Date(signal.timestamp).toISOString()  // Bug: wrong unit\n    };\n    return { ok: true, signal: decoded };\n  } catch (err: unknown) {\n    return { ok: false, error: String(err) };\n  }\n}"
+        }
+      ],
+      "readOnlyRegions": [],
+      "solution": "// pipeline.ts — fixed\n\nasync function processSignal(id: number): Promise<PipelineResult> {\n  try {\n    const signal = await fetchSignal(id);\n    const message = decodeHex(signal.raw);\n    const decoded: DecodedSignal = {\n      id: signal.id,\n      message,\n      receivedAt: new Date(signal.timestamp * 1000).toISOString()\n    };\n    return { ok: true, signal: decoded };\n  } catch (err: unknown) {\n    return { ok: false, error: String(err) };\n  }\n}",
+      "tests": [
+        {
+          "description": "processSignal(1) should decode the signal and return { ok: true, signal: { message: 'HELLO' } }",
+          "testCode": "const r1 = await processSignal(1); if (!r1.ok) throw new Error(`processSignal(1) should succeed, got error: ${r1.error}`); if (r1.signal.message !== 'HELLO') throw new Error(`Expected message 'HELLO', got '${r1.signal.message}'`);"
+        },
+        {
+          "description": "processSignal(1) receivedAt should be '2024-01-01T00:00:00.000Z' (timestamp * 1000)",
+          "testCode": "const r2 = await processSignal(1); if (!r2.ok) throw new Error(`processSignal(1) failed: ${r2.error}`); if (r2.signal.receivedAt !== '2024-01-01T00:00:00.000Z') throw new Error(`Expected receivedAt '2024-01-01T00:00:00.000Z', got '${r2.signal.receivedAt}'`);"
+        },
+        {
+          "description": "processSignal(0) should return { ok: false, error: 'Invalid signal ID' }",
+          "testCode": "const r3 = await processSignal(0); if (r3.ok) throw new Error('processSignal(0) should fail'); if (r3.error !== 'Invalid signal ID') throw new Error(`Expected error 'Invalid signal ID', got '${r3.error}'`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Describe each of the three bugs you fixed and how TypeScript's type system would have caught at least one of them before the code ran.",
+        "keywords": ["async", "type", "timestamp", "await"],
+        "minLength": 40
+      },
+      "hints": [
+        "The first failure prevents the code from running at all. Look for a keyword that's required when using `await` inside a function.",
+        "`decodeHex()` expects a string of hex characters. Check the type of `signal.id` versus `signal.raw` — TypeScript's interface in types.ts tells you which is which.",
+        "JavaScript `Date` objects are constructed with milliseconds since the Unix epoch. The `timestamp` field in the Signal interface is in seconds."
+      ],
+      "xpReward": 75,
+      "bonusXp": {
+        "noHints": 10,
+        "firstTry": 20,
+        "speedBonus": 15,
+        "speedThresholdMs": 1800000
+      },
+      "timeLimitMinutes": 45
+    }
+  ]
+}

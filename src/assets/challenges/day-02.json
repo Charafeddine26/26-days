@@ -1,0 +1,236 @@
+{
+  "dayNumber": 2,
+  "week": 1,
+  "title": "Patterns",
+  "narrativeIntro": "The structures around you aren't random. You can see that now. There's repetition -- shapes that echo each other, values that cluster into groups. The Drift organizes itself in collections, and if you can understand how things group together, you can start to read this place like a map.\n\nCollections of things. Ordered sequences. Key-value pairs. The language of this place is built on these foundations.",
+  "narrativeOutro": "The shapes make sense now. Arrays hold sequences. Objects hold meaning. You can reach into a structure and pull out exactly what you need. The cluster around you grows a little brighter. The Drift is starting to respond to understanding.",
+  "phmChapters": [3, 4],
+  "phmConnectionNote": "Ryland starts understanding the ship's systems through observation. You start recognizing how data has structure.",
+  "challengeIds": ["d02-c01", "d02-c02", "d02-c03", "d02-c04", "d02-c05"],
+  "concepts": ["zero-based-indexing", "arrays", "array-push", "array-length", "object-dot-notation", "property-access", "object-bracket-notation", "dynamic-property-access", "undefined-missing-key"],
+  "conceptsPreview": "Arrays, objects, and the void of missing keys",
+  "challenges": [
+    {
+      "id": "d02-c01",
+      "dayNumber": 2,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["zero-based-indexing", "arrays"],
+      "week": 1,
+      "title": "The Third Position",
+      "narrativeHook": "An ordered sequence glows on the wall. What lives at position two?",
+      "instructions": "Read the code below. An array of signal names has been stored. The system accesses position `[2]` and logs the result.\n\nPredict what the console responds with. Pay attention -- arrays in The Drift start counting from zero, not one.",
+      "starterCode": "// Read-only — predict the output\nconst signals = [\"alpha\", \"beta\", \"gamma\", \"delta\"];\nconst reading = signals[2];\nconsole.log(reading);",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: \"gamma\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 4 }],
+      "predictPrompt": "What will the console respond with?",
+      "predictChoices": ["\"alpha\"", "\"beta\"", "\"gamma\"", "\"delta\""],
+      "predictAnswer": "\"gamma\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "If the first element is at position 0, what position is the last element in an array of 4 items?",
+        "keywords": ["3", "zero", "length"],
+        "minLength": 20
+      },
+      "hints": [
+        "Arrays start counting at zero. The first element is at position 0.",
+        "Position 0 is \"alpha\", position 1 is \"beta\". So position 2 is...",
+        "\"gamma\" — the third element sits at index 2."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d02-c02",
+      "dayNumber": 2,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["array-push", "array-length"],
+      "week": 1,
+      "title": "Growing the Collection",
+      "narrativeHook": "The system shows you a collection but it's missing entries. Fill the gaps.",
+      "instructions": "The Drift has detected a partial signal log -- an array with two entries. Two more signals have arrived: `\"signal-C\"` and `\"signal-D\"`. Add them to the end of the log using `.push()`.\n\nThen store the total count of signals in a variable called `logSize` using the `.length` property.\n\nThe array was declared with `const`, but that won't stop you. `const` locks the name to the array, not the contents inside it.",
+      "starterCode": "const signalLog = [\"signal-A\", \"signal-B\"];\n\n// Add \"signal-C\" to the end of signalLog\n// Your code here\n\n// Add \"signal-D\" to the end of signalLog\n// Your code here\n\n// Store the total number of entries in a variable called logSize\n// Your code here",
+      "solution": "const signalLog = [\"signal-A\", \"signal-B\"];\n\n// Add \"signal-C\" to the end of signalLog\nsignalLog.push(\"signal-C\");\n\n// Add \"signal-D\" to the end of signalLog\nsignalLog.push(\"signal-D\");\n\n// Store the total number of entries in a variable called logSize\nconst logSize = signalLog.length;",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 1 }],
+      "tests": [
+        {
+          "description": "signalLog should contain exactly 4 elements",
+          "testCode": "if (signalLog.length !== 4) throw new Error(`Expected 4 elements, got ${signalLog.length}`);"
+        },
+        {
+          "description": "signalLog[2] should be 'signal-C'",
+          "testCode": "if (signalLog[2] !== 'signal-C') throw new Error(`Expected 'signal-C' at position 2, got '${signalLog[2]}'`);"
+        },
+        {
+          "description": "signalLog[3] should be 'signal-D'",
+          "testCode": "if (signalLog[3] !== 'signal-D') throw new Error(`Expected 'signal-D' at position 3, got '${signalLog[3]}'`);"
+        },
+        {
+          "description": "logSize should equal 4",
+          "testCode": "if (logSize !== 4) throw new Error(`Expected logSize to be 4, got ${logSize}`);"
+        },
+        {
+          "description": "logSize should match signalLog.length",
+          "testCode": "if (logSize !== signalLog.length) throw new Error(`logSize (${logSize}) doesn't match signalLog.length (${signalLog.length})`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "The array was declared with const, yet you were able to change its contents. Why didn't the system reject the change?",
+        "keywords": ["const", "reference", "contents", "mutate"],
+        "minLength": 30
+      },
+      "hints": [
+        ".push() adds an element to the end of an array. Call it once per new element.",
+        "After pushing two elements, the array has 4 entries. The .length property returns that count.",
+        "signalLog.push(\"signal-C\"); signalLog.push(\"signal-D\"); const logSize = signalLog.length;"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d02-c03",
+      "dayNumber": 2,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["object-dot-notation", "property-access"],
+      "week": 1,
+      "title": "The Misread Label",
+      "narrativeHook": "A structure is corrupt. One label points to the wrong place.",
+      "instructions": "This code reads from a beacon object to log the beacon's sector. But the console responds with `undefined` instead of the expected value.\n\nThere is exactly one bug -- a property name that doesn't match the object's actual key. Find it and fix it so the system logs `\"north-7\"`.",
+      "starterCode": "const beacon = {\n  id: \"beacon-04\",\n  sector: \"north-7\",\n  strength: 91\n};\n\nconst location = beacon.sectr;\nconsole.log(location);",
+      "solution": "const beacon = {\n  id: \"beacon-04\",\n  sector: \"north-7\",\n  strength: 91\n};\n\nconst location = beacon.sector;\nconsole.log(location);",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "location should equal 'north-7'",
+          "testCode": "if (location !== 'north-7') throw new Error(`Expected 'north-7', got '${location}'`);"
+        },
+        {
+          "description": "location should not be undefined",
+          "testCode": "if (location === undefined) throw new Error('location is undefined — check the property name you are accessing');"
+        },
+        {
+          "description": "Code should run without errors",
+          "testCode": "if (typeof beacon !== 'object') throw new Error('beacon should be an object');"
+        }
+      ],
+      "hints": [
+        "When an object returns undefined for a property, it usually means the key you asked for doesn't exist. Check your spelling.",
+        "Compare the property name after the dot with the property names inside the object definition. One letter is missing.",
+        "beacon.sectr should be beacon.sector — the 'o' is missing."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d02-c04",
+      "dayNumber": 2,
+      "order": 4,
+      "type": "complete",
+      "difficulty": "steady",
+      "concepts": ["object-bracket-notation", "dynamic-property-access"],
+      "week": 1,
+      "title": "The Variable Key",
+      "narrativeHook": "The key you need isn't written in the code. It's stored in a signal. Use it to unlock the value.",
+      "instructions": "The Drift stores crew information in an object. A variable called `field` holds the name of the property you need to read -- but the property name isn't known until the system runs.\n\nYou can't use dot notation here because the key is dynamic. Use bracket notation to:\n\n1. Read the property specified by `field` from `crewRecord` and store it in `reading`.\n2. Read the `\"role\"` property using bracket notation with a string literal and store it in `role`.",
+      "starterCode": "const crewRecord = {\n  name: \"Vasquez\",\n  role: \"navigator\",\n  clearance: 3\n};\n\nconst field = \"clearance\";\n\n// Use bracket notation with the variable 'field' to read from crewRecord\n// Store the result in a variable called 'reading'\n// Your code here\n\n// Use bracket notation with the string \"role\" to read from crewRecord\n// Store the result in a variable called 'role'\n// Your code here",
+      "solution": "const crewRecord = {\n  name: \"Vasquez\",\n  role: \"navigator\",\n  clearance: 3\n};\n\nconst field = \"clearance\";\n\n// Use bracket notation with the variable 'field' to read from crewRecord\n// Store the result in a variable called 'reading'\nconst reading = crewRecord[field];\n\n// Use bracket notation with the string \"role\" to read from crewRecord\n// Store the result in a variable called 'role'\nconst role = crewRecord[\"role\"];",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 7 }],
+      "tests": [
+        {
+          "description": "reading should equal the value of crewRecord's clearance property",
+          "testCode": "if (reading !== 3) throw new Error(`Expected reading to be 3, got ${reading}`);"
+        },
+        {
+          "description": "role should equal 'navigator'",
+          "testCode": "if (role !== 'navigator') throw new Error(`Expected role to be 'navigator', got '${role}'`);"
+        },
+        {
+          "description": "reading should not be undefined",
+          "testCode": "if (reading === undefined) throw new Error('reading is undefined — make sure you are using bracket notation with the field variable');"
+        },
+        {
+          "description": "role should not be undefined",
+          "testCode": "if (role === undefined) throw new Error('role is undefined — make sure you are using bracket notation with the string \"role\"');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "When would you use bracket notation instead of dot notation to access a property?",
+        "keywords": ["variable", "dynamic", "key"],
+        "minLength": 25
+      },
+      "hints": [
+        "Bracket notation looks like object[key]. When the key is a variable, the variable's value becomes the property name.",
+        "crewRecord[field] uses whatever string is stored in field. crewRecord[\"role\"] uses the literal string \"role\".",
+        "const reading = crewRecord[field]; const role = crewRecord[\"role\"];"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d02-c05",
+      "dayNumber": 2,
+      "order": 5,
+      "type": "predict",
+      "difficulty": "demanding",
+      "concepts": ["undefined-missing-key", "typeof-undefined"],
+      "week": 1,
+      "title": "The Absent Key",
+      "narrativeHook": "You access a key that doesn't exist. What does the void return?",
+      "instructions": "Read the code carefully. An object describes a system in The Drift. Three values are logged to the console:\n\n1. A property that exists on the object.\n2. A property that does not exist on the object.\n3. The `typeof` the missing property.\n\nPredict all three lines the console responds with. Think about what the system does when you ask for something that isn't there -- it doesn't crash. It gives you a specific answer.",
+      "starterCode": "// Read-only — predict the output\nconst system = {\n  name: \"Drift-Core\",\n  status: \"active\",\n  power: 82\n};\n\nconsole.log(system.status);\nconsole.log(system.origin);\nconsole.log(typeof system.origin);",
+      "solution": "// No code changes — this is a prediction challenge.\n// Line 1: \"active\"\n// Line 2: undefined\n// Line 3: \"undefined\"",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 10 }],
+      "predictPrompt": "What three lines will the console respond with?",
+      "predictChoices": [
+        "\"active\"\nundefined\n\"undefined\"",
+        "\"active\"\nnull\n\"object\"",
+        "\"active\"\nError: property not found",
+        "\"active\"\nundefined\n\"string\""
+      ],
+      "predictAnswer": "\"active\"\nundefined\n\"undefined\"",
+      "tests": [],
+      "explainGate": {
+        "prompt": "The system didn't crash when you accessed a key that doesn't exist. What did it return, and why is that different from an error?",
+        "keywords": ["undefined", "not", "error", "property"],
+        "minLength": 30
+      },
+      "hints": [
+        "When you access a property that doesn't exist on an object, JavaScript doesn't throw an error. It returns a specific value.",
+        "The missing property returns undefined. Now apply what you learned on Day 1 — what does typeof undefined evaluate to?",
+        "typeof undefined returns the string \"undefined\". So the three lines are: \"active\", undefined, \"undefined\"."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    }
+  ]
+}

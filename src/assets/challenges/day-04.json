@@ -1,0 +1,208 @@
+{
+  "dayNumber": 4,
+  "week": 1,
+  "title": "Repetition",
+  "narrativeIntro": "Some structures here repeat. The same pattern, over and over, each iteration slightly different from the last. You could interact with each one individually, but there's a faster way -- tell the system the pattern once, and it propagates. Loop through. Iterate. Transform.\n\nRepetition in The Drift isn't tedious. It's powerful.",
+  "narrativeOutro": "What took five steps now takes one. You can feel the efficiency -- the Drift responds faster when you speak in loops. Map. Filter. Reduce. These aren't just methods. They're a way of thinking.",
+  "phmChapters": [7],
+  "phmConnectionNote": "Ryland establishes routines on the ship. Repetitive tasks become manageable through systems. You learn loops.",
+  "challengeIds": ["d04-c01", "d04-c02", "d04-c03", "d04-c04", "d04-c05"],
+  "concepts": ["for-loop", "iteration", "counter", "for-of", "while-loop", "infinite-loop", "loop-condition", "loops", "DRY", "refactoring", "map", "filter", "reduce", "array-methods"],
+  "conceptsPreview": "For loops, while loops, and array transformation methods",
+  "challenges": [
+    {
+      "id": "d04-c01",
+      "dayNumber": 4,
+      "order": 1,
+      "type": "predict",
+      "difficulty": "gentle",
+      "concepts": ["for-loop", "iteration", "counter"],
+      "week": 1,
+      "title": "Pulse Count",
+      "narrativeHook": "A loop runs. How many times will the signal pulse?",
+      "instructions": "Read the code below. A counter starts at zero and a loop runs, incrementing it each time.\n\nWithout running it, trace each iteration and predict what the console logs when the loop finishes.",
+      "starterCode": "// Read-only — predict the output\nlet count = 0;\nfor (let i = 0; i < 5; i++) {\n  count += 2;\n}\nconsole.log(count);",
+      "solution": "// No code changes — this is a prediction challenge.\n// The answer is: 10",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 6 }],
+      "predictPrompt": "What will be logged to the console?",
+      "predictChoices": ["5", "8", "10", "12"],
+      "predictAnswer": "10",
+      "tests": [],
+      "explainGate": {
+        "prompt": "How did you determine how many times the loop would run?",
+        "keywords": ["condition", "i", "5", "iteration"],
+        "minLength": 20
+      },
+      "hints": [
+        "The loop runs while i < 5, so i takes the values 0, 1, 2, 3, 4 -- that's 5 iterations.",
+        "Each iteration adds 2 to count. After 5 iterations: 0 + 2 + 2 + 2 + 2 + 2 = ?",
+        "2 × 5 = 10."
+      ],
+      "xpReward": 15,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 30000
+      }
+    },
+    {
+      "id": "d04-c02",
+      "dayNumber": 4,
+      "order": 2,
+      "type": "complete",
+      "difficulty": "gentle",
+      "concepts": ["for-of", "arrays", "iteration"],
+      "week": 1,
+      "title": "Process the List",
+      "narrativeHook": "The system needs to process a list. Write the iteration.",
+      "instructions": "The sensor log holds an array of readings. Use a `for...of` loop to add each reading to `total`.\n\nWhen the loop finishes, `total` should hold the sum of all values in the array.",
+      "starterCode": "const readings = [23, 45, 12, 67, 89, 34];\nlet total = 0;\n\n// Use a for...of loop to sum all readings\n// Your code here",
+      "solution": "const readings = [23, 45, 12, 67, 89, 34];\nlet total = 0;\n\nfor (const reading of readings) {\n  total += reading;\n}",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 2 }],
+      "tests": [
+        {
+          "description": "total should be 270",
+          "testCode": "if (total !== 270) throw new Error(`Expected total to be 270, got ${total}`);"
+        }
+      ],
+      "hints": [
+        "for (const item of array) { ... } gives you each element one at a time.",
+        "Inside the loop, add the current reading to total: total += reading.",
+        "for (const reading of readings) { total += reading; }"
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d04-c03",
+      "dayNumber": 4,
+      "order": 3,
+      "type": "debug",
+      "difficulty": "steady",
+      "concepts": ["while-loop", "infinite-loop", "loop-condition"],
+      "week": 1,
+      "title": "Infinite Loop",
+      "narrativeHook": "An infinite loop. The system is frozen. Break the cycle.",
+      "instructions": "This code should count down from 10 to 1, storing each number in `results`. Instead it creates an infinite loop -- the system freezes.\n\nThere is exactly one bug. Find and fix it so the loop terminates correctly.",
+      "starterCode": "let countdown = 10;\nconst results = [];\n\nwhile (countdown > 0) {\n  results.push(countdown);\n  countdown + 1;\n}",
+      "solution": "let countdown = 10;\nconst results = [];\n\nwhile (countdown > 0) {\n  results.push(countdown);\n  countdown -= 1;\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "results should contain numbers 10 down to 1",
+          "testCode": "const expected = [10,9,8,7,6,5,4,3,2,1]; if (JSON.stringify(results) !== JSON.stringify(expected)) throw new Error(`Expected [10..1], got [${results}]`);"
+        },
+        {
+          "description": "countdown should be 0 after the loop",
+          "testCode": "if (countdown !== 0) throw new Error(`countdown should be 0 after the loop, got ${countdown}`);"
+        }
+      ],
+      "explainGate": {
+        "prompt": "Why didn't 'countdown + 1' change the value of countdown?",
+        "keywords": ["assign", "expression", "operator"],
+        "minLength": 25
+      },
+      "hints": [
+        "countdown + 1 computes a value but throws it away -- it never assigns the result back to countdown.",
+        "To count DOWN from 10 to 1, you need to subtract, not add.",
+        "Use countdown -= 1 (or countdown--) to actually change the variable."
+      ],
+      "xpReward": 25,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 45000
+      }
+    },
+    {
+      "id": "d04-c04",
+      "dayNumber": 4,
+      "order": 4,
+      "type": "refactor",
+      "difficulty": "steady",
+      "concepts": ["loops", "DRY", "refactoring"],
+      "week": 1,
+      "title": "Condense",
+      "narrativeHook": "Five nearly identical lines. Condense them into one elegant loop.",
+      "instructions": "This code works but it's repetitive -- the same operation copied five times. Refactor it to use a loop instead.\n\nThe output in `results` must be identical to what it is now.",
+      "starterCode": "const data = [10, 20, 30, 40, 50];\nconst results = [];\n\nresults.push(data[0] * 2);\nresults.push(data[1] * 2);\nresults.push(data[2] * 2);\nresults.push(data[3] * 2);\nresults.push(data[4] * 2);",
+      "solution": "const data = [10, 20, 30, 40, 50];\nconst results = [];\n\nfor (const value of data) {\n  results.push(value * 2);\n}",
+      "readOnlyRegions": [],
+      "tests": [
+        {
+          "description": "results should be [20, 40, 60, 80, 100]",
+          "testCode": "if (JSON.stringify(results) !== JSON.stringify([20,40,60,80,100])) throw new Error(`Expected [20,40,60,80,100], got [${results}]`);"
+        }
+      ],
+      "hints": [
+        "A loop lets you perform the same operation on every element without repeating yourself.",
+        "for (const value of data) gives you each element -- then push value * 2 to results.",
+        "for (const value of data) { results.push(value * 2); }"
+      ],
+      "xpReward": 30,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    },
+    {
+      "id": "d04-c05",
+      "dayNumber": 4,
+      "order": 5,
+      "type": "complete",
+      "difficulty": "demanding",
+      "concepts": ["map", "filter", "reduce", "array-methods"],
+      "week": 1,
+      "title": "Transform",
+      "narrativeHook": "Transform every element in the collection. Map the old shape to the new.",
+      "instructions": "Use the three most powerful array methods to transform `values` in three different ways:\n\n1. `doubled` — use `.map()` to create a new array where each value is doubled\n2. `highReadings` — use `.filter()` to keep only values greater than 30\n3. `sum` — use `.reduce()` to collapse the array into a single total\n\nAll three should read from the original `values` array.",
+      "starterCode": "const values = [12, 45, 8, 67, 23, 89, 4];\n\n// Use .map() to double each value\n// Your code here: const doubled = ...\n\n// Use .filter() to keep only values > 30\n// Your code here: const highReadings = ...\n\n// Use .reduce() to sum all values\n// Your code here: const sum = ...",
+      "solution": "const values = [12, 45, 8, 67, 23, 89, 4];\n\nconst doubled = values.map(v => v * 2);\nconst highReadings = values.filter(v => v > 30);\nconst sum = values.reduce((acc, v) => acc + v, 0);",
+      "readOnlyRegions": [{ "startLine": 1, "endLine": 1 }],
+      "tests": [
+        {
+          "description": "doubled should be [24, 90, 16, 134, 46, 178, 8]",
+          "testCode": "if (JSON.stringify(doubled) !== JSON.stringify([24,90,16,134,46,178,8])) throw new Error(`doubled is wrong: got [${doubled}]`);"
+        },
+        {
+          "description": "highReadings should be [45, 67, 89]",
+          "testCode": "if (JSON.stringify(highReadings) !== JSON.stringify([45,67,89])) throw new Error(`highReadings is wrong: got [${highReadings}]`);"
+        },
+        {
+          "description": "sum should be 248",
+          "testCode": "if (sum !== 248) throw new Error(`sum should be 248, got ${sum}`);"
+        },
+        {
+          "description": "original values array should not be modified",
+          "testCode": "if (values.length !== 7) throw new Error('The original values array was modified');"
+        }
+      ],
+      "explainGate": {
+        "prompt": "What is the difference between .map(), .filter(), and .reduce()?",
+        "keywords": ["transform", "new", "filter", "single"],
+        "minLength": 40
+      },
+      "hints": [
+        ".map(fn) creates a new array by applying fn to each element -- values.map(v => v * 2).",
+        ".filter(fn) creates a new array with only elements where fn returns true -- values.filter(v => v > 30).",
+        ".reduce((acc, v) => acc + v, 0) starts with 0 and accumulates a single result by processing each element."
+      ],
+      "xpReward": 20,
+      "bonusXp": {
+        "noHints": 5,
+        "firstTry": 10,
+        "speedBonus": 5,
+        "speedThresholdMs": 60000
+      }
+    }
+  ]
+}
