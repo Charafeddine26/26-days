@@ -20,13 +20,27 @@ interface WorkerResult {
 function createMockDOM() {
   const registry = new Map<string, MockElement>();
 
+  // Minimal text node — used by createTextNode / append(string)
+  class MockTextNode {
+    nodeType = 3;
+    _text: string;
+    constructor(text: string) { this._text = String(text); }
+    get textContent() { return this._text; }
+    set textContent(v: string) { this._text = String(v); }
+    get nodeValue() { return this._text; }
+    set nodeValue(v: string) { this._text = String(v); }
+  }
+
+  type ChildNode = MockElement | MockTextNode;
+
   class MockElement {
     tagName: string;
-    _textContent = '';
+    // null = derive from children; string = explicitly set (overrides children)
+    _textContent: string | null = null;
     style: Record<string, string> = {};
     _classes = new Set<string>();
     _attrs = new Map<string, string>();
-    _children: MockElement[] = [];
+    _children: ChildNode[] = [];
     _listeners = new Map<string, Array<(e?: any) => void>>();
     _id = '';
 
@@ -40,14 +54,20 @@ function createMockDOM() {
       if (val) registry.set(val, this);
     }
 
-    get textContent() { return this._textContent; }
-    set textContent(val: string) { this._textContent = String(val); }
+    get textContent(): string {
+      // Explicit value wins; otherwise concat children
+      if (this._textContent !== null) return this._textContent;
+      return this._children.map(c => c.textContent ?? '').join('');
+    }
+    set textContent(val: string) {
+      this._textContent = String(val);
+      this._children = []; // mirrors real DOM behaviour
+    }
 
-    get innerHTML() { return this._textContent; }
-    set innerHTML(val: string) { this._textContent = val; }
+    get innerHTML() { return this.textContent; }
+    set innerHTML(val: string) { this.textContent = val; }
 
     get classList() {
-      // Return a plain object each time so it stays usable
       const classes = this._classes;
       return {
         add: (cls: string) => classes.add(cls),
@@ -57,10 +77,21 @@ function createMockDOM() {
       };
     }
 
-    appendChild(child: MockElement) {
+    appendChild(child: ChildNode) {
       this._children.push(child);
-      if (child._id) registry.set(child._id, child);
+      if (child instanceof MockElement && child._id) registry.set(child._id, child);
       return child;
+    }
+
+    // append() accepts multiple nodes and plain strings (like the real DOM)
+    append(...nodes: Array<ChildNode | string>) {
+      for (const node of nodes) {
+        if (typeof node === 'string') {
+          this._children.push(new MockTextNode(node));
+        } else {
+          this.appendChild(node);
+        }
+      }
     }
 
     setAttribute(name: string, value: string) {
@@ -97,8 +128,9 @@ function createMockDOM() {
     return el.tagName === selector.toUpperCase();
   }
 
-  function findElement(children: MockElement[], selector: string): MockElement | null {
+  function findElement(children: ChildNode[], selector: string): MockElement | null {
     for (const child of children) {
+      if (!(child instanceof MockElement)) continue;
       if (matchesSelector(child, selector)) return child;
       const found = findElement(child._children, selector);
       if (found) return found;
@@ -106,9 +138,10 @@ function createMockDOM() {
     return null;
   }
 
-  function findAllElements(children: MockElement[], selector: string): MockElement[] {
+  function findAllElements(children: ChildNode[], selector: string): MockElement[] {
     const results: MockElement[] = [];
     for (const child of children) {
+      if (!(child instanceof MockElement)) continue;
       if (matchesSelector(child, selector)) results.push(child);
       results.push(...findAllElements(child._children, selector));
     }
@@ -134,6 +167,9 @@ function createMockDOM() {
     body,
     createElement(tagName: string) {
       return new MockElement(tagName);
+    },
+    createTextNode(text: string) {
+      return new MockTextNode(String(text));
     },
     getElementById(id: string) {
       return registry.get(id) ?? null;

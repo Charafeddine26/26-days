@@ -196,7 +196,7 @@
         },
         {
           "description": "Multiple clicks should keep incrementing",
-          "testCode": "const btn = document.querySelector('button'); btn.click(); btn.click(); const p = document.querySelector('p'); if (!p.textContent.includes('3')) throw new Error('Counter should reach 3 after two more clicks');"
+          "testCode": "const btn = document.querySelector('button'); btn.click(); btn.click(); btn.click(); const p = document.querySelector('p'); if (!p.textContent.includes('3')) throw new Error('Counter should reach 3 after three clicks');"
         }
       ],
       "explainGate": {
